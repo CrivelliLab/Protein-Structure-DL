@@ -1,0 +1,30 @@
+data_config:
+    name: protien_graphs
+    data_path: ../data/PsiBlast
+    task_type: classification
+    nb_classes: 2
+    nb_nodes: 215
+    split: [0.7,0.1,0.2]
+    seed: 1234
+
+experiment_config:
+    name: classifier
+    output_dir: ../out/psiblast_dilated_graph
+
+model_config:
+    model_type: dilated_gcnn
+    input_shape: [215,25,3]
+    diameter: 53.0
+    dilations: 4
+    conv_layers: [128,]
+    conv_dropouts: [0.5,]
+    fc_layers: [128,]
+    fc_dropouts: [0.5,]
+    nb_classes: 2
+    optimizer: 'Adam'
+    learning_rate: 0.0001
+
+train_config:
+    batch_size: 20
+    nb_epochs: 10
+    save_best: True
