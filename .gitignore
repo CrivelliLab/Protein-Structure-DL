@@ -1,0 +1,6 @@
+/data/*/graph
+/data/*/pairwise2d/
+/data/*/volume3d/
+/data/*/pdb/
+/out/*/model
+.DS_Store
