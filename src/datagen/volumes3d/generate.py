@@ -137,7 +137,7 @@ if __name__ == '__main__':
         pdb_path = data_folder+'pdb/'+pdb_id+'.pdb'
 
         # Generate and Save Data
-        pdb_data = pdb_datagen.generate_data(pdb_path, chain, 0, res_i=residue_indexes, all_chains=all_chains)
+        pdb_data = pdb_datagen.generate_data(pdb_path, chain_id, 0, res_i=residue_indexes, all_chains=all_chains)
 
         # if data was generated without error
         if len(pdb_data) > 0:
