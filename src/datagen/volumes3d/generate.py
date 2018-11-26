@@ -141,7 +141,7 @@ if __name__ == '__main__':
 
         # if data was generated without error
         if len(pdb_data) > 0:
-            if verbose: print('Generating: {} chain {}...'.format(pdb_id, chain))
+            if verbose: print('Generating: {} chain {}...'.format(pdb_id, chain_id))
 
             # Get data for each dimensionality
             array_3d = pdb_data[0]
