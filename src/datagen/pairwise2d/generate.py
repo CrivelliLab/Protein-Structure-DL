@@ -48,7 +48,9 @@ def parse_pdb(path, chain, all_chains=False, first=False):
                 if not all_chains and row[21] != chain: pass
                 else:
                     if row[12:17] in [' CA  ',' CA A']:
-                        atom_data = [residues.index(row[17:20]),
+                        try: ress = residues.index(row[17:20])
+                        except: ress = residues.index('UNK')
+                        atom_data = [ress,
                                         row[30:38].strip(),
                                         row[38:46].strip(),
                                         row[47:54].strip()]
