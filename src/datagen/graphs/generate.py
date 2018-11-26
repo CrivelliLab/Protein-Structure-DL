@@ -122,7 +122,7 @@ if __name__ == '__main__':
             continue
         protein_data = parse_pdb(data_folder+'pdb/'+pdb_id+'.pdb', chain_id, all_chains, first)
         if len(protein_data) == 0:
-            if verbose: print("NO DATA: ", pdb_id, ',', chain)
+            if verbose: print("NO DATA: ", pdb_id, ',', chain_id)
             continue
         prime_lens.append(len(protein_data))
         dia = protein_data[:,-3:].astype('float')

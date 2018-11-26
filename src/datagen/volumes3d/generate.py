@@ -150,4 +150,4 @@ if __name__ == '__main__':
             write_binvox(data_folder+'volume3d/'+filename, array_3d.astype('bool'))
             del array_3d
         else:
-            if verbose: print("NO DATA: ", pdb_id, ',', chain)
+            if verbose: print("NO DATA: ", pdb_id, ',', chain_id)
