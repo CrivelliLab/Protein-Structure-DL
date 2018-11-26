@@ -127,7 +127,7 @@ if __name__ == '__main__':
         # Parse task
         pdb_id = tasks[i][0]
         chain_id = tasks[i][1]
-        filename = pdb_id + '_' + chain_id + '.binvox'
+        filename = pdb_id.lower() + '_' + chain_id.lower() + '.binvox'
 
         # Use all chains
         if chain_id == '0': all_chains = True

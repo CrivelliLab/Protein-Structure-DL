@@ -44,8 +44,10 @@ def get_datasets(data_path, task_type, nb_classes, split=[0.7,0.1,0.2], seed=123
         for i, _ in enumerate(f):
             row = _[:-1].split(',')
             pdb_id = row[0].lower()
-            if not os.path.exists(data_path+'/pairwise2d/'+pdb_id+'.npz'): continue
-            X.append(data_path+'/pairwise2d/'+pdb_id+'.npz')
+            chain_id = row[1].lower()
+            filename = pdb_id + '_' + chain_id + '.npz'
+            if not os.path.exists(data_path+'/pairwise2d/'+filename): continue
+            X.append(data_path+'/pairwise2d/'+filename)
             Y.append(row[2])
     X = np.expand_dims(X, axis=-1)
     Y = np.expand_dims(Y, axis=-1)

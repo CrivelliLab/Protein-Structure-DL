@@ -99,8 +99,10 @@ def get_datasets(data_path, nb_nodes, task_type, nb_classes, cluster_size=1, spl
         for i, _ in enumerate(f):
             row = _[:-1].split(',')
             pdb_id = row[0].lower()
-            if not os.path.exists(data_path+'/graph/'+pdb_id+'.txt'): continue
-            X.append(data_path+'/graph/'+pdb_id+'.txt')
+            chain_id = row[1].lower()
+            filename = pdb_id + '_' + chain_id + '.txt'
+            if not os.path.exists(data_path+'/graph/'+filename): continue
+            X.append(data_path+'/graph/'+filename)
             Y.append(row[2])
     X = np.expand_dims(X, axis=-1)
     Y = np.expand_dims(Y, axis=-1)
