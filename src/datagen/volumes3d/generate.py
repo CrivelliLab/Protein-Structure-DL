@@ -34,7 +34,7 @@ def parse_args():
     add_arg = parser.add_argument
     add_arg('datafolder', nargs='?', default='/')
     add_arg('--size', nargs='?', default=64, type=int)
-    add_arg('--resolution', nargs='?', default=1.0, type=float)
+    add_arg('--fit', nargs='?', default=50.0, type=float)
     add_arg('-v', '--verbose', action='store_true')
 
     return parser.parse_args()
@@ -90,7 +90,7 @@ if __name__ == '__main__':
     if data_folder[-1] != '/': data_folder += '/'
     all_chains = False # Generate graph for all chains found in PDB
     size = args.size
-    resolution = args.resolution
+    resolution = args.fit / size
     verbose = args.verbose
 
     # MPI init
