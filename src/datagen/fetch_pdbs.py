@@ -60,7 +60,7 @@ if __name__ == '__main__':
         with open(data_folder+'data.csv', 'r')as f:
             for i, _ in enumerate(f):
                 row = _[:-1].split(',')
-                task.append(row[0])
+                tasks.append(row[0])
 
         if not os.path.exists(data_folder+'pdb'): os.mkdir(data_folder+'pdb')
 

@@ -48,8 +48,8 @@ def parse_pdb(path, chain, all_chains=False, first=False):
                 if not all_chains and row[21] != chain: pass
                 else:
                     if row[12:17] in [' CA  ',' CA A']:
-                        try: ress = residues.index(row[17:20])
-                        except: ress = residues.index('UNK')
+                        if row[17:20] not in residues: ress = 'UNK'
+                        else: ress = row[17:20]
                         atom_data = [ress,
                                         row[30:38].strip(),
                                         row[38:46].strip(),
@@ -87,7 +87,7 @@ def bin_pairwise_distances(protein_data, pairwise_distance_bins):
         bin_y = []
         for r2 in residues:
             i = np.where(labels == r1+r2)
-            H, bins = np.histogram(dist[i], bins=pairwise_distance_bins)
+            H, bins = np.histogram(dist[i], bins=pairwise_distance_bins+1)
             H = gaussian_filter(H, 0.5)
             bin_y.append(H)
         bin_x.append(bin_y)
