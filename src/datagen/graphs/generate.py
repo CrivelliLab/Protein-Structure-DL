@@ -111,6 +111,7 @@ if __name__ == '__main__':
         # Task IDs
         pdb_id = t[0]
         chain_id = t[1]
+        filename = pdb_id + '_' + chain_id + '.txt'
 
         # Use all chains
         if chain_id == '0': all_chains = True
@@ -125,7 +126,7 @@ if __name__ == '__main__':
         diameters.append(np.max(np.abs(dia))*2)
 
         # Save graph
-        with open(data_folder+'graph/'+pdb_id+'.txt', 'w') as f:
+        with open(data_folder+'graph/'+filename, 'w') as f:
             for i, _ in enumerate(protein_data):
                 f.write(' '.join(_)+'\n')
         if verbose: print('Generating: {} chain {}...'.format(pdb_id, chain_id))
@@ -135,7 +136,12 @@ if __name__ == '__main__':
     diameters = np.expand_dims(diameters, axis=-1)
     stats = np.concatenate([prime_lens, diameters], axis=-1)
 
-    df = pd.DataFrame(stats)
-    df.columns = ['nb_residues','diameters']
-    summary = df.describe(percentiles=[0.1*i for i in range(10)])
-    summary.to_csv(data_folder+'/graph.summary', float_format='%1.6f', sep=',')
+    # Gather stats
+    stats_ = comm.gather(stats,root=0)
+
+    if rank == 0:
+        stats = np.concatenate(stats_, axis=0)
+        df = pd.DataFrame(stats)
+        df.columns = ['nb_residues','diameters']
+        summary = df.describe(percentiles=[0.1*i for i in range(10)])
+        summary.to_csv(data_folder+'/graph.summary', float_format='%1.6f', sep=',')

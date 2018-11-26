@@ -127,6 +127,7 @@ if __name__ == '__main__':
         # Parse task
         pdb_id = tasks[i][0]
         chain_id = tasks[i][1]
+        filename = pdb_id + '_' + chain_id + '.binvox'
 
         # Use all chains
         if chain_id == '0': all_chains = True
@@ -144,5 +145,5 @@ if __name__ == '__main__':
 
             # Get data for each dimensionality
             array_3d = pdb_data[0]
-            write_binvox(data_folder+'volume3d/'+pdb_id+'.binvox', array_3d.astype('bool'))
+            write_binvox(data_folder+'volume3d/'+filename, array_3d.astype('bool'))
             del array_3d

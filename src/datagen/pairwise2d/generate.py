@@ -136,6 +136,7 @@ if __name__ == '__main__':
         # Task IDs
         pdb_id = t[0]
         chain_id = t[1]
+        filename = pdb_id + '_' + chain_id + '.npz'
 
         # Use all chains
         if chain_id == '0': all_chains = True
@@ -149,5 +150,5 @@ if __name__ == '__main__':
         binned_pairwise_distances = bin_pairwise_distances(protein_data, pairwise_distance_bins)
 
         # Save data
-        np.savez(data_folder+'pairwise2d/'+pdb_id+'.npz', binned_pairwise_distances)
+        np.savez(data_folder+'pairwise2d/'+filename, binned_pairwise_distances)
         if verbose: print('Generating: {} chain {}...'.format(pdb_id, chain_id))
