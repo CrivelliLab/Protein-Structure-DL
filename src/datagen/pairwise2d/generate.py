@@ -142,9 +142,13 @@ if __name__ == '__main__':
         if chain_id == '0': all_chains = True
 
         # Parse PDB
-        if not os.path.exists(data_folder+'pdb/'+pdb_id+'.pdb'): continue
+        if not os.path.exists(data_folder+'pdb/'+pdb_id+'.pdb'):
+            if verbose: print("PDB not found: " + pdb_id+ '.pdb')
+            continue
         protein_data = parse_pdb(data_folder+'pdb/'+pdb_id+'.pdb', chain_id, all_chains, first)
-        if len(protein_data) == 0: continue
+        if len(protein_data) == 0:
+            if verbose: print("NO DATA: ", pdb_id, ',', chain)
+            continue
 
         # Bin pairwise distances
         binned_pairwise_distances = bin_pairwise_distances(protein_data, pairwise_distance_bins)

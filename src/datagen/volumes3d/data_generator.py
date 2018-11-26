@@ -116,7 +116,7 @@ class data_generator(object):
         with open(path, 'r') as f:
             lines = f.readlines()
             for row in lines:
-                if row[:4] == 'ATOM' and row[21] == chain:
+                if row[:4] == 'ATOM' and row[21] == chain.upper():
                     if res_i != None:
                         if int(row[22:26]) in res_i:
                             parsed_data = [row[17:20], row[12:16].strip(), self.van_der_waal_radii[row[77].strip()], row[30:38], row[38:46], row[47:54]]
@@ -132,7 +132,9 @@ class data_generator(object):
                     data.append(parsed_data)
 
         data = np.array(data)
-        if len(data) == 0: return []
+        if len(data) == 0:
+
+            return []
 
         # Center Coordinates Around Centroid
         coords = data[:,3:].astype('float')

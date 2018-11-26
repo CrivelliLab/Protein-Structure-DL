@@ -46,7 +46,7 @@ def parse_pdb(path, chain, all_chains=False, first=False):
 
             # Amino Level Information
             if row[:4] == 'ATOM':
-                if not all_chains and row[21] != chain: pass
+                if not all_chains and row[21] != chain.upper(): pass
                 else:
                     if row[12:17] in [' CA  ',' CA A']:
                         atom_data = [int(row[23:26]), chain_i, res_i,
@@ -117,9 +117,13 @@ if __name__ == '__main__':
         if chain_id == '0': all_chains = True
 
         # Parse PDB
-        if not os.path.exists(data_folder+'pdb/'+pdb_id+'.pdb'): continue
+        if not os.path.exists(data_folder+'pdb/'+pdb_id+'.pdb'):
+            if verbose: print("PDB not found: " + pdb_id+ '.pdb')
+            continue
         protein_data = parse_pdb(data_folder+'pdb/'+pdb_id+'.pdb', chain_id, all_chains, first)
-        if len(protein_data) == 0: continue
+        if len(protein_data) == 0:
+            if verbose: print("NO DATA: ", pdb_id, ',', chain)
+            continue
         prime_lens.append(len(protein_data))
         dia = protein_data[:,-3:].astype('float')
         dia = dia - dia.mean(axis=0)

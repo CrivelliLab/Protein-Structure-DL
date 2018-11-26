@@ -133,7 +133,9 @@ if __name__ == '__main__':
         if chain_id == '0': all_chains = True
 
         # Set path to pdb file
-        if not os.path.exists(data_folder+'pdb/'+pdb_id+'.pdb'): continue
+        if not os.path.exists(data_folder+'pdb/'+pdb_id+'.pdb'):
+            if verbose: print("PDB not found: " + pdb_id+ '.pdb')
+            continue
         pdb_path = data_folder+'pdb/'+pdb_id+'.pdb'
 
         # Generate and Save Data
@@ -147,3 +149,5 @@ if __name__ == '__main__':
             array_3d = pdb_data[0]
             write_binvox(data_folder+'volume3d/'+filename, array_3d.astype('bool'))
             del array_3d
+        else:
+            if verbose: print("NO DATA: ", pdb_id, ',', chain)
