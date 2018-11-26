@@ -126,7 +126,7 @@ if __name__ == '__main__':
 
         # Parse task
         pdb_id = tasks[i][0]
-        chain = tasks[i][1]
+        chain_id = tasks[i][1]
 
         # Use all chains
         if chain_id == '0': all_chains = True

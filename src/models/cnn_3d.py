@@ -11,7 +11,8 @@ class CNN3D(Model):
         self.model_name = '3D-CNN'
         self.define_model(**kwargs)
 
-    def define_model(self, input_shape):
+    def define_model(self, input_shape
+                        conv_layers, conv_dropouts, fc_layers, fc_dropouts):
         '''
         '''
         # Inputs
@@ -19,17 +20,16 @@ class CNN3D(Model):
         self.inputs = [X,]
 
         # Network Defintion
-        C1 = tf.layers.conv3d(X, 32, 5, activation=tf.nn.relu)
-        P1 = tf.layers.max_pooling3d(C1, 2, 2)
-        C2 = tf.layers.conv3d(P1, 32, 5, activation=tf.nn.relu)
-        P2 = tf.layers.max_pooling3d(C2, 2, 2)
-        C3 = tf.layers.conv3d(P2, 32, 5, activation=tf.nn.relu)
-        P3 = tf.layers.max_pooling3d(C3, 2, 2)
+        for _ in list(zip(conv_layers,conv_dropouts)):
+            X = tf.layers.conv3d(X, int(_[0]), 1, activation=tf.nn.relu)
+            X = tf.layers.max_pooling3d(X, 2, 2)
+            X = tf.layers.dropout(X, float(_[1]))
 
         # Fully Connected Layers
-        F1 = tf.contrib.layers.flatten(P3)
-        D1 = tf.layers.dense(F1, 128, activation=tf.nn.relu)
-        D1 = tf.layers.dropout(D1, 0.5)
+        F = tf.contrib.layers.flatten(X)
+        for _ in list(zip(fc_layers,fc_dropouts)):
+            F = tf.layers.dense(F, int(_[0]), activation=tf.nn.relu)
+            F = tf.layers.dropout(F, float(_[1]))
 
         # Outputs
-        self.outputs = [D1,]
+        self.outputs = [F,]
