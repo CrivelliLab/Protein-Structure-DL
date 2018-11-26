@@ -109,9 +109,9 @@ if __name__ == '__main__':
     for t in tasks:
 
         # Task IDs
-        pdb_id = t[0]
+        pdb_id = t[0].lower()
         chain_id = t[1]
-        filename = pdb_id.lower() + '_' + chain_id.lower() + '.txt'
+        filename = pdb_id + '_' + chain_id.lower() + '.txt'
 
         # Use all chains
         if chain_id == '0': all_chains = True
