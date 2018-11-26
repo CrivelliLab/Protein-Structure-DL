@@ -13,11 +13,7 @@ from itertools import product
 from sklearn.decomposition import PCA
 
 ################################################################################
-residues = ['ALA', 'ARG', 'ASN', 'ASP', 'ASX', 'CYS', 'GLN',
-            'GLU', 'GLX', 'GLY', 'HIS', 'ILE', 'LEU', 'LYS',
-            'MET', 'PHE', 'PRO', 'SER', 'THR', 'TRP', 'TYR',
-            'UNK', 'VAL']
-            
+
 class data_generator(object):
     """
     Class creates a data generator which takes raw PDBs and creates volumetric
@@ -114,6 +110,10 @@ class data_generator(object):
             data - np.array; PDB atomic coordinate data
 
         '''
+        residues = ['ALA', 'ARG', 'ASN', 'ASP', 'ASX', 'CYS', 'GLN',
+                    'GLU', 'GLX', 'GLY', 'HIS', 'ILE', 'LEU', 'LYS',
+                    'MET', 'PHE', 'PRO', 'SER', 'THR', 'TRP', 'TYR',
+                    'UNK', 'VAL']
 
         # Parse Coordinates
         data = []
@@ -123,10 +123,16 @@ class data_generator(object):
                 if row[:4] == 'ATOM' and row[21] == chain.upper():
                     if res_i != None:
                         if int(row[22:26]) in res_i:
-                            if row[17:20] not in residues: ress = 'UNK'
+                            if row[17:20] not in residues:
+                                print("error")
+                                ress = 'UNK'
                             else: ress = row[17:20]
                             parsed_data = [ress, row[12:16].strip(), self.van_der_waal_radii[row[77].strip()], row[30:38], row[38:46], row[47:54]]
                     else:
+                        if row[17:20] not in residues:
+                            print("error")
+                            ress = 'UNK'
+                        else: ress = row[17:20]
                         parsed_data = [row[17:20], row[12:16].strip(), self.van_der_waal_radii[row[77].strip()], row[30:38], row[38:46], row[47:54]]
                     data.append(parsed_data)
                 elif row[:4] == 'ATOM' and all_chains:
@@ -136,6 +142,10 @@ class data_generator(object):
                             else: ress = row[17:20]
                             parsed_data = [ress, row[12:16].strip(), self.van_der_waal_radii[row[77].strip()], row[30:38], row[38:46], row[47:54]]
                     else:
+                        if row[17:20] not in residues:
+                            print("error")
+                            ress = 'UNK'
+                        else: ress = row[17:20]
                         parsed_data = [row[17:20], row[12:16].strip(), self.van_der_waal_radii[row[77].strip()], row[30:38], row[38:46], row[47:54]]
                     data.append(parsed_data)
 
@@ -258,6 +268,8 @@ class data_generator(object):
             x = ['1'] + ['0' for j in range(i)]
             x = ''.join(x)
             indexes = self.channels[i](data)
+            print(self.channels[i])
+            print(indexes)
             chans[indexes] += int(x, 2)
 
         # Get Occupancy Values and Voxel Indexes

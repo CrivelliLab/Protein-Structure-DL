@@ -21,11 +21,31 @@ def all_atoms(data):
 def residues():
     '''
     '''
-    residues = ['ALA', 'ARG', 'ASN', 'ASP', 'ASX', 'CYS', 'GLN',
-                'GLU', 'GLX', 'GLY', 'HIS', 'ILE', 'LEU', 'LYS',
-                'MET', 'PHE', 'PRO', 'SER', 'THR', 'TRP', 'TYR',
-                'UNK', 'VAL']
-    i = [lambda data : np.where(data[:,0] == _)[0] for _ in residues]
+    i = []
+    i.append(lambda data : np.where(data[:,0] == 'ALA')[0])
+    i.append(lambda data : np.where(data[:,0] == 'ARG')[0])
+    i.append(lambda data : np.where(data[:,0] == 'ASN')[0])
+    i.append(lambda data : np.where(data[:,0] == 'ASP')[0])
+    i.append(lambda data : np.where(data[:,0] == 'ASX')[0])
+    i.append(lambda data : np.where(data[:,0] == 'CYS')[0])
+    i.append(lambda data : np.where(data[:,0] == 'GLN')[0])
+    i.append(lambda data : np.where(data[:,0] == 'GLU')[0])
+    i.append(lambda data : np.where(data[:,0] == 'GLX')[0])
+    i.append(lambda data : np.where(data[:,0] == 'GLY')[0])
+    i.append(lambda data : np.where(data[:,0] == 'HIS')[0])
+    i.append(lambda data : np.where(data[:,0] == 'ILE')[0])
+    i.append(lambda data : np.where(data[:,0] == 'LEU')[0])
+    i.append(lambda data : np.where(data[:,0] == 'LYS')[0])
+    i.append(lambda data : np.where(data[:,0] == 'MET')[0])
+    i.append(lambda data : np.where(data[:,0] == 'PHE')[0])
+    i.append(lambda data : np.where(data[:,0] == 'PRO')[0])
+    i.append(lambda data : np.where(data[:,0] == 'SER')[0])
+    i.append(lambda data : np.where(data[:,0] == 'THR')[0])
+    i.append(lambda data : np.where(data[:,0] == 'TRP')[0])
+    i.append(lambda data : np.where(data[:,0] == 'TYR')[0])
+    i.append(lambda data : np.where(data[:,0] == 'UNK')[0])
+    i.append(lambda data : np.where(data[:,0] == 'VAL')[0])
+
     return i
 
 def alpha_carbons(data):

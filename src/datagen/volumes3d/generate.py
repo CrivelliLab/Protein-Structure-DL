@@ -122,7 +122,7 @@ if __name__ == '__main__':
     pdb_datagen = data_generator(size=size, resolution=resolution, channels=channels)
 
     # Generate data for each task
-    for i in range(len(tasks)):
+    for i in range(3):
 
         # Parse task
         pdb_id = tasks[i][0].lower()
