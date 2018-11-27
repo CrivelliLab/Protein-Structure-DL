@@ -156,11 +156,11 @@ if __name__ == '__main__':
             continue
 
         # Bin pairwise distances
-        binned_pairwise_distances = bin_pairwise_distances(protein_data, pairwise_distance_bins)
+        data = bin_pairwise_distances(protein_data, pairwise_distance_bins)
         del protein_data
 
         # Save data
-        np.savez(data_folder+'pairwise2d/'+filename, binned_pairwise_distances)
+        np.savez(data_folder+'pairwise2d/'+filename, data)
         if verbose: print('Generating: {} chain {}...'.format(pdb_id, chain_id))
 
-        del bin_pairwise_distances
+        del data
