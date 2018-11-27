@@ -93,6 +93,9 @@ def bin_pairwise_distances(protein_data, pairwise_distance_bins):
         bin_x.append(bin_y)
     binned_pairwise = np.array(bin_x)
 
+    del dist
+    del labels
+
     return binned_pairwise
 
 if __name__ == '__main__':
@@ -154,7 +157,10 @@ if __name__ == '__main__':
 
         # Bin pairwise distances
         binned_pairwise_distances = bin_pairwise_distances(protein_data, pairwise_distance_bins)
+        del protein_data
 
         # Save data
         np.savez(data_folder+'pairwise2d/'+filename, binned_pairwise_distances)
         if verbose: print('Generating: {} chain {}...'.format(pdb_id, chain_id))
+
+        del bin_pairwise_distances
