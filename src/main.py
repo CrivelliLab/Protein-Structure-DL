@@ -25,6 +25,7 @@ def parse_args():
     add_arg('config', nargs='?', default='configs/hello.yaml')
     add_arg('-v', '--verbose', action='store_true')
     add_arg('--show-config', action='store_true')
+    add_arg('--cores', nargs='?', default=1, type=int)
 
     return parser.parse_args()
 
@@ -55,15 +56,15 @@ if __name__ == '__main__':
     batch_size = train_config.pop('batch_size')
 
     if train_dataset.__len__() > 0:
-        train_data_loader = DataLoader(train_dataset, batch_size=batch_size)
+        train_data_loader = DataLoader(train_dataset, batch_size=batch_size, cores=args.cores)
         logging.info('Loaded %g training samples', len(train_dataset))
     else: train_data_loader = None
     if valid_dataset.__len__() > 0:
-        valid_data_loader = DataLoader(valid_dataset, batch_size=batch_size)
+        valid_data_loader = DataLoader(valid_dataset, batch_size=batch_size, cores=args.cores)
         logging.info('Loaded %g validation samples', len(valid_dataset))
     else: valid_data_loader = None
     if test_dataset.__len__() > 0:
-        test_data_loader = DataLoader(test_dataset, batch_size=batch_size)
+        test_data_loader = DataLoader(test_dataset, batch_size=batch_size, cores=args.cores)
         logging.info('Loaded %g test samples', len(test_dataset))
     else: test_data_loader = None
 

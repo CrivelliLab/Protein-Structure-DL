@@ -18,7 +18,7 @@ model_config:
     dilations: 4
     conv_layers: [128,]
     conv_dropouts: [0.0,]
-    pooling_factor: 2
+    pooling_factor: 1
     fc_layers: [128,]
     fc_dropouts: [0.5,]
     nb_classes: 2
@@ -26,6 +26,6 @@ model_config:
     learning_rate: 0.0001
 
 train_config:
-    batch_size: 50
+    batch_size: 300
     nb_epochs: 100
     save_best: True

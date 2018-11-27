@@ -1,6 +1,6 @@
 data_config:
     name: protien_volume_images
-    data_path: ../data/Enzyme
+    data_path: data/Enzyme
     task_type: classification
     nb_classes: 6
     split: [0.7,0.1,0.2]
@@ -8,14 +8,15 @@ data_config:
 
 experiment_config:
     name: classifier
-    output_dir: ../out/enzyme_volume
+    output_dir: out/enzyme_volume
 
 model_config:
     model_type: cnn_3d
     input_shape: [64,64,64,23]
-    conv_layers: [16,32,64]
-    kernel_shapes: [13,9,5]
-    conv_dropouts: [0.1,0.2,0.3]
+    conv_layers: [32,32]
+    kernel_shapes: [5,5]
+    conv_dropouts: [0.1,0.2]
+    pool_layers: [3,3]
     fc_layers: [128,]
     fc_dropouts: [0.5,]
     nb_classes: 6

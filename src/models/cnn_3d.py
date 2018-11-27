@@ -12,7 +12,7 @@ class CNN3D(Model):
         self.define_model(**kwargs)
 
     def define_model(self, input_shape,
-                        conv_layers, kernel_shapes, conv_dropouts, fc_layers, fc_dropouts):
+                        conv_layers, kernel_shapes, conv_dropouts, pool_layers, fc_layers, fc_dropouts):
         '''
         '''
         # Inputs
@@ -20,11 +20,11 @@ class CNN3D(Model):
         self.inputs = [X,]
 
         # Network Defintion
-        for _ in list(zip(conv_layers,kernel_shapes,conv_dropouts)):
+        for _ in list(zip(conv_layers,kernel_shapes,conv_dropouts,pool_layers)):
             X = tf.layers.conv3d(X, int(_[0]), int(_[1]))
             X = tf.layers.batch_normalization(X)
             X = tf.nn.relu(X)
-            X = tf.layers.max_pooling3d(X, 2, 2)
+            X = tf.layers.max_pooling3d(X, int(_[3]), int(_[3]))
             X = tf.layers.dropout(X, float(_[2]))
 
         # Fully Connected Layers

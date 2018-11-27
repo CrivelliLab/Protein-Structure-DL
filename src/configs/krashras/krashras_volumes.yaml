@@ -13,9 +13,10 @@ experiment_config:
 model_config:
     model_type: cnn_3d
     input_shape: [64,64,64,23]
-    conv_layers: [16,32,64]
-    kernel_shapes: [13,9,5]
-    conv_dropouts: [0.1,0.2,0.3]
+    conv_layers: [32,32]
+    kernel_shapes: [5,5]
+    conv_dropouts: [0.1,0.2]
+    pool_layers: [3,3]
     fc_layers: [128,]
     fc_dropouts: [0.5,]
     nb_classes: 2

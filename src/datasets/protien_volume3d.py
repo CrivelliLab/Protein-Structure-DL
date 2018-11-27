@@ -24,17 +24,6 @@ class ProtienVolumeDataset():
         elif self.task_type == 'regression': y = [float(self.data[index][1]),]
         else: raise Exception('Task Type %s unknown' % self.task_type)
 
-        # debug
-        import matplotlib.pyplot as plt
-        from mpl_toolkits.mplot3d import Axes3D
-
-        for i in range(x.shape[-1]):
-            z,x,y = x.nonzero()
-            fig = plt.figure()
-            ax = fig.add_subplot(111, projection='3d')
-            ax.scatter(x, y, -z, zdir='z', c= 'red')
-            plt.show()
-
         data_ = [x,y]
 
         return data_
@@ -77,6 +66,7 @@ def get_datasets(data_path, task_type, nb_classes, split=[0.7,0.1,0.2], seed=123
             filename = pdb_id + '_' + chain_id + '.binvox'
             if not os.path.exists(data_path+'/volume3d/'+filename): continue
             X.append(data_path+'/volume3d/'+filename)
+            Y.append(row[2])
     X = np.expand_dims(X, axis=-1)
     Y = np.expand_dims(Y, axis=-1)
 
