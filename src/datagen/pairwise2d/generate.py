@@ -157,7 +157,10 @@ if __name__ == '__main__':
             continue
 
         # Bin pairwise distances
-        data = bin_pairwise_distances(protein_data, pairwise_distance_bins)
+        try:
+            data = bin_pairwise_distances(protein_data, pairwise_distance_bins)
+        except:
+            if verbose: print("ERROR: ", pdb_id, ',', chain_id)
         del protein_data
 
         # Save data
