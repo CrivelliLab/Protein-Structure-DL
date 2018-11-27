@@ -70,7 +70,7 @@ class ClassifierTrainer(BaseTrainer):
         for variable in tf.trainable_variables():
             shape = variable.get_shape()
             x = 1
-            for _ in shape: x *= _
+            for _ in shape: x *= int(_)
             self.nb_parameters += x
 
     def train_epoch(self, data_loader, sess):

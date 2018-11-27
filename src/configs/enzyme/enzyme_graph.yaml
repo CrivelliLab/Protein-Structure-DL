@@ -3,7 +3,7 @@ data_config:
     data_path: ../data/Enzyme
     task_type: classification
     nb_classes: 6
-    nb_nodes: 1000
+    nb_nodes: 1589
     split: [0.7,0.1,0.2]
     seed: 1234
 
@@ -13,10 +13,11 @@ experiment_config:
 
 model_config:
     model_type: gcnn
-    input_shape: [1000,25,3]
-    diameter: 70.0
+    input_shape: [1589,25,3]
+    diameter: 122.557
     conv_layers: [128,]
     conv_dropouts: [0.0,]
+    pooling_factor: 5
     fc_layers: [128,]
     fc_dropouts: [0.5,]
     nb_classes: 6
@@ -24,6 +25,6 @@ model_config:
     learning_rate: 0.0001
 
 train_config:
-    batch_size: 20
+    batch_size: 50
     nb_epochs: 100
     save_best: True

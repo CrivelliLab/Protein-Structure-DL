@@ -12,7 +12,7 @@ class CNN2D(Model):
         self.define_model(**kwargs)
 
     def define_model(self, input_shape,
-                        conv_layers, conv_dropouts, fc_layers, fc_dropouts):
+                        conv_layers, kernel_shapes, conv_dropouts, fc_layers, fc_dropouts):
         '''
         '''
         # Inputs
@@ -20,10 +20,12 @@ class CNN2D(Model):
         self.inputs = [X,]
 
         # Network Defintion
-        for _ in list(zip(conv_layers,conv_dropouts)):
-            X = tf.layers.conv2d(X, int(_[0]), 1, activation=tf.nn.relu)
+        for _ in list(zip(conv_layers,kernel_shapes,conv_dropouts)):
+            X = tf.layers.conv2d(X, int(_[0]), int(_[1]))
+            X = tf.layers.batch_normalization(X)
+            X = tf.nn.relu(X)
             X = tf.layers.max_pooling2d(X, 2, 2)
-            X = tf.layers.dropout(X, float(_[1]))
+            X = tf.layers.dropout(X, float(_[2]))
 
         # Fully Connected Layers
         F = tf.contrib.layers.flatten(X)

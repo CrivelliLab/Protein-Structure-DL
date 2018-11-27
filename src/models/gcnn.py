@@ -21,7 +21,7 @@ class GCNN(Model):
         self.define_model(**kwargs)
 
     def define_model(self, input_shape, diameter,
-                        conv_layers, conv_dropouts, fc_layers, fc_dropouts):
+                        conv_layers, conv_dropouts, pooling_factor, fc_layers, fc_dropouts):
         '''
         Params:
             input_shape - list(int); [nb_nodes, nb_coords, nb_features]
@@ -37,6 +37,9 @@ class GCNN(Model):
         # Graph Convolutions
         for _ in list(zip(conv_layers,conv_dropouts)):
             V = GraphConv(V, A, int(_[0]), dropout=float(_[1]))
+
+        # Max Pooling
+        V = tf.layers.max_pooling1d(V,pooling_factor,pooling_factor)
 
         # Fully Connected Layers
         F = tf.contrib.layers.flatten(V)

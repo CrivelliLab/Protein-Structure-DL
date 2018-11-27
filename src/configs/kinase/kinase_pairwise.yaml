@@ -1,6 +1,6 @@
 data_config:
     name: protien_pairwise_images
-    data_path: ../data/Kinase
+    data_path: data/Kinase
     task_type: classification
     nb_classes: 2
     split: [0.7,0.1,0.2]
@@ -8,20 +8,21 @@ data_config:
 
 experiment_config:
     name: classifier
-    output_dir: ../out/kinase_pairwise
+    output_dir: out/kinase_pairwise
 
 model_config:
     model_type: cnn_2d
     input_shape: [23,23,9]
     conv_layers: [128,128]
+    kernel_shapes: [5,5]
     conv_dropouts: [0.25,0.25]
     fc_layers: [128,]
     fc_dropouts: [0.5,]
     nb_classes: 2
     optimizer: 'Adam'
-    learning_rate: 0.0001
+    learning_rate: 0.001
 
 train_config:
-    batch_size: 20
+    batch_size: 50
     nb_epochs: 100
     save_best: True

@@ -5,3 +5,4 @@
 /out/*/model
 .DS_Store
 __pycache__
+/data/*.tar.gz

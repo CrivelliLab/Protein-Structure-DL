@@ -1,22 +1,23 @@
 data_config:
     name: protien_graphs
-    data_path: ../data/Kinase
+    data_path: data/Kinase
     task_type: classification
     nb_classes: 2
-    nb_nodes: 300
+    nb_nodes: 344
     split: [0.7,0.1,0.2]
     seed: 1234
 
 experiment_config:
     name: classifier
-    output_dir: ../out/kinase_graph
+    output_dir: out/kinase_graph
 
 model_config:
     model_type: gcnn
-    input_shape: [300,25,3]
-    diameter: 50.0 # edit
+    input_shape: [344,25,3]
+    diameter: 72.141
     conv_layers: [128,]
     conv_dropouts: [0.0,]
+    pooling_factor: 5
     fc_layers: [128,]
     fc_dropouts: [0.5,]
     nb_classes: 2
@@ -24,6 +25,6 @@ model_config:
     learning_rate: 0.0001
 
 train_config:
-    batch_size: 20
+    batch_size: 50
     nb_epochs: 100
     save_best: True
