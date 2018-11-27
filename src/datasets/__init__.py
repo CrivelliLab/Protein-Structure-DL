@@ -1,4 +1,5 @@
 import numpy as np
+from tqdm import tqdm
 
 def get_datasets(name, **data_args):
     if name == 'protien_graphs':
@@ -24,7 +25,7 @@ class DataLoader(object):
     def __iter__(self):
         xx = len(self.dataset.__getitem__(0))
         batch_x = [[] for i in range(xx)]
-        for i in range(self.dataset.__len__()):
+        for i in tqdm(range(self.dataset.__len__())):
             x = self.dataset.__getitem__(i)
             for ii in range(len(x)): batch_x[ii].append(x[ii])
             if len(batch_x[0]) == self.batch_size or i+1 == self.dataset.__len__():
