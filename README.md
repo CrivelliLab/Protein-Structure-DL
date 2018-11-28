@@ -1,4 +1,4 @@
-# Deep Learning Exploration For Protein Structural Classification and Regression
+# Deep Learning Exploration For Protein Structural Classification and Regression Tasks
 Updated: 11/21/18
 
 ## Generating Data

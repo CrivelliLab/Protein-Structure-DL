@@ -2,7 +2,11 @@
 /data/*/pairwise2d/
 /data/*/volume3d/
 /data/*/pdb/
+/data/*/ligands
+/data/*/site.txt
 /out/*/model
 .DS_Store
 __pycache__
 /data/*.tar.gz
+/src/analysis/LGA/MOL2
+/src/analysis/LGA/TMP

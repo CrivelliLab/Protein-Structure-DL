@@ -121,7 +121,7 @@ if __name__ == '__main__':
         with open(data_folder+'data.csv', 'r')as f:
             for i, _ in enumerate(f):
                 row = _[:-1].split(',')
-                if not os.path.exists(data_folder+'pairwise2d/'+row[0]+ '_' + row[1].lower()  + '.npz'):
+                if not os.path.exists(data_folder+'pairwise2d/'+row[0].lower()+ '_' + row[1].lower()  + '.npz'):
                     tasks.append([row[0],row[1]])
 
         if not os.path.exists(data_folder+'pairwise2d'): os.mkdir(data_folder+'pairwise2d')
