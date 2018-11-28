@@ -17,7 +17,7 @@ class ProtienPairwiseDataset():
         '''
         # Load Image
         x = np.load(self.data[index][0])
-        x = x[x.keys()[0]]
+        x = x['arr_0']
 
         if self.task_type == 'classification':
             y = [0 for _ in range(self.nb_classes)]

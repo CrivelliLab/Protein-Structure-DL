@@ -14,11 +14,11 @@ experiment_config:
 model_config:
     model_type: dilated_gcnn
     input_shape: [170,25,3]
-    diameter: 55.717
-    dilations: 4
-    conv_layers: [128,]
-    conv_dropouts: [0.0,]
-    pooling_factor: 2
+    diameter: 200.0
+    dilations: 10
+    conv_layers: [256,]
+    conv_dropouts: [0.5,]
+    pooling_factor: 10
     fc_layers: [128,]
     fc_dropouts: [0.5,]
     nb_classes: 2
@@ -26,6 +26,6 @@ model_config:
     learning_rate: 0.0001
 
 train_config:
-    batch_size: 50
+    batch_size: 300
     nb_epochs: 100
     save_best: True

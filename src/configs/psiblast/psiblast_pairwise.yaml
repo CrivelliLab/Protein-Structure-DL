@@ -23,6 +23,6 @@ model_config:
     learning_rate: 0.001
 
 train_config:
-    batch_size: 50
+    batch_size: 400
     nb_epochs: 100
     save_best: True

@@ -1,6 +1,6 @@
 data_config:
     name: protien_graphs
-    data_path: ../data/Enzyme
+    data_path: data/Enzyme
     task_type: classification
     nb_classes: 6
     nb_nodes: 1589
@@ -9,7 +9,7 @@ data_config:
 
 experiment_config:
     name: classifier
-    output_dir: ../out/enzyme_dilated_graph
+    output_dir: out/enzyme_dilated_graph
 
 model_config:
     model_type: dilated_gcnn
