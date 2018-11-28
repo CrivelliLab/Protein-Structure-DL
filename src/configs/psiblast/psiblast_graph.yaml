@@ -14,10 +14,10 @@ experiment_config:
 model_config:
     model_type: gcnn
     input_shape: [351,25,3]
-    diameter: 73.33
-    conv_layers: [128,]
-    conv_dropouts: [0.0,]
-    pooling_factor: 1
+    diameter: 60.0
+    conv_layers: [128,128]
+    conv_dropouts: [0.0,0.5]
+    pooling_factor: 2
     fc_layers: [128,]
     fc_dropouts: [0.5,]
     nb_classes: 2

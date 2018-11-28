@@ -39,7 +39,8 @@ class GCNN(Model):
             V = GraphConv(V, A, int(_[0]), dropout=float(_[1]))
 
         # Max Pooling
-        V = tf.layers.max_pooling1d(V,pooling_factor,pooling_factor)
+        if pooling_factor > 1:
+            V = tf.layers.max_pooling1d(V,pooling_factor,pooling_factor)
 
         # Fully Connected Layers
         F = tf.contrib.layers.flatten(V)
