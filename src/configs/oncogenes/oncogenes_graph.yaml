@@ -14,9 +14,9 @@ experiment_config:
 model_config:
     model_type: gcnn
     input_shape: [447,25,3]
-    diameter: 85.230
-    conv_layers: [128,]
-    conv_dropouts: [0.0,]
+    diameter: 50.0
+    conv_layers: [128,128]
+    conv_dropouts: [0.0,0.5]
     pooling_factor: 5
     fc_layers: [128,]
     fc_dropouts: [0.5,]
@@ -25,6 +25,6 @@ model_config:
     learning_rate: 0.0001
 
 train_config:
-    batch_size: 50
+    batch_size: 500
     nb_epochs: 100
     save_best: True

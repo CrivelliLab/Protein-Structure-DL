@@ -14,6 +14,10 @@ class ProtienLigandGraphDataset():
         self.task_type = task_type
         self.site_path = site_path
 
+
+    def __getitem__(self, index):
+        '''
+        '''
         # Parse Site
         atoms = ['C','H','O','N','S','UNK']
         body = ['L','R','UNK']
@@ -37,12 +41,8 @@ class ProtienLigandGraphDataset():
                 c.append(row[2:5])
         v = np.array(v, dtype=float)
         c = np.array(c, dtype=float)
-        self.site = [v,c]
+        site = [v,c]
 
-
-    def __getitem__(self, index):
-        '''
-        '''
         # Parse Protein Graph
         v = []
         c = []
@@ -66,8 +66,8 @@ class ProtienLigandGraphDataset():
                 c.append(row[2:5])
         v = np.array(v, dtype=float)
         c = np.array(c, dtype=float)
-        v = np.concatenate([self.site[0], v], axis=0)
-        c = np.concatenate([self.site[1], c], axis=0)
+        v = np.concatenate([site[0], v], axis=0)
+        c = np.concatenate([site[1], c], axis=0)
 
         # Zero Padding
         if v.shape[0] < self.nb_nodes:

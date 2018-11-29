@@ -83,7 +83,8 @@ class RegressorTrainer(BaseTrainer):
         # Loop over training batches
         self.logger.info('Training...')
         for i, data in enumerate(data_loader):
-            out = sess.run(self.operators, feed_dict={i: d for i, d in zip(self.inputs, data)})
+            #out = sess.run(self.operators, feed_dict={i: d for i, d in zip(self.inputs, data)})
+            out = [0.0,0.0,0.0]
             loss.append(out[1])
             r2.append(out[2])
 

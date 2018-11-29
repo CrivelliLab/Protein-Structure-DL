@@ -7,7 +7,7 @@ def get_datasets(name, **data_args):
         from .protien_graph import get_datasets
         return get_datasets(**data_args)
     elif name == 'protienligand_graphs':
-        pass .protienligand_graph import get_datasets
+        from .protienligand_graph import get_datasets
         return get_datasets(**data_args)
     elif name == 'protien_volume_images':
         from .protien_volume3d import get_datasets
