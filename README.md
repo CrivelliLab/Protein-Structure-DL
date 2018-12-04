@@ -49,10 +49,12 @@ This generates graph representations of protein structures with nodes encoding
 residues and edges encoding pairwise distances.
 
 > All data generation scripts can be run in parallel using MPI.
+> EX: $mpirun -n $NODES python3 src/datagen/.........
 
 ## Defining Tensorflow Training Experiment
 Under `/src/configs/` are .yaml files defining neural network training configurations.
-Each file has the following fields:
+Depending on the type of model, model config parameters may vary. For further information,
+please read model documentation. Each file has the following general fields:
 
 ```
 data_config:
@@ -83,6 +85,7 @@ train_config:
 
 ## Running Training
 Once configuration file for training has been defined the following command is used
-to run training.
+to run training. File loader has been paralleized using multithreading library and
+number of cores to use can be set using the --cores flag.
 
-`python3 src/main.py config/config.yaml`
+`python3 src/main.py --cores $CORES config/config.yaml`
