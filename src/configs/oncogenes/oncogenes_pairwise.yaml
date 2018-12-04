@@ -4,7 +4,7 @@ data_config:
     task_type: classification
     nb_classes: 2
     split: [0.7,0.1,0.2]
-    seed: 1234
+    seed: 4321
 
 experiment_config:
     name: classifier

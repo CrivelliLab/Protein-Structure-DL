@@ -34,6 +34,7 @@ class ClassifierTrainer(BaseTrainer):
 
         '''
         # Retrieve Model
+        self.nb_classes = nb_classes
         self.model = get_model(name=model_type, **model_args)
         self.inputs, self.outputs = self.model.get_inputs_outputs()
 
@@ -57,6 +58,9 @@ class ClassifierTrainer(BaseTrainer):
         auc,  auc_update = tf.metrics.auc(tf.argmax(self.inputs[-1], 1), tf.argmax(out, 1), name="auc")
         self.metrics = [acc, prec, recall, f1, auc]
         self.operators = [opt, loss, acc_update, prec_update, recall_update, auc_update]
+        if nb_classes > 2:
+            self.metrics = self.metrics[:-1]
+            self.operators = self.operators[:-1]
 
         # Metric Vars
         running_vars = tf.get_collection(tf.GraphKeys.LOCAL_VARIABLES, scope="accuracy") + \
@@ -104,7 +108,7 @@ class ClassifierTrainer(BaseTrainer):
         summary['train_prec'] = metrics_[1]
         summary['train_recall'] = metrics_[2]
         summary['train_f1'] = metrics_[3]
-        summary['train_auc'] = metrics_[4]
+        if self.nb_classes < 3: summary['train_auc'] = metrics_[4]
 
         # Log Epoch results
         self.logger.info('train time: %.3f' % summary['train_time'])
@@ -113,7 +117,7 @@ class ClassifierTrainer(BaseTrainer):
         self.logger.info('train precision: %.3f' % summary['train_prec'])
         self.logger.info('train recall: %.3f' % summary['train_recall'])
         self.logger.info('train F1: %.3f' % summary['train_f1'])
-        self.logger.info('train AUC: %.3f' % summary['train_auc'])
+        if self.nb_classes < 3: self.logger.info('train AUC: %.3f' % summary['train_auc'])
 
         return summary
 
@@ -149,7 +153,7 @@ class ClassifierTrainer(BaseTrainer):
         summary[mode+'_prec'] = metrics_[1]
         summary[mode+'_recall'] = metrics_[2]
         summary[mode+'_f1'] = metrics_[3]
-        summary[mode+'_auc'] = metrics_[4]
+        if self.nb_classes < 3: summary[mode+'_auc'] = metrics_[4]
 
         # Log epoch results
         self.logger.info(mode+' time: %.3f' % summary[mode+'_time'])
@@ -158,6 +162,6 @@ class ClassifierTrainer(BaseTrainer):
         self.logger.info(mode+' precision: %.3f' % summary[mode+'_prec'])
         self.logger.info(mode+' recall: %.3f' % summary[mode+'_recall'])
         self.logger.info(mode+' F1: %.3f' % summary[mode+'_f1'])
-        self.logger.info(mode+' AUC: %.3f' % summary[mode+'_auc'])
+        if self.nb_classes < 3:  self.logger.info(mode+' AUC: %.3f' % summary[mode+'_auc'])
 
         return summary

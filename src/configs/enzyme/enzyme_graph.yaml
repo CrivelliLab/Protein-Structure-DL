@@ -17,7 +17,7 @@ model_config:
     diameter: 122.557
     conv_layers: [128,]
     conv_dropouts: [0.5,]
-    pooling_factor: 5
+    pooling_factor: 10
     fc_layers: [128,]
     fc_dropouts: [0.5,]
     nb_classes: 6
@@ -25,6 +25,6 @@ model_config:
     learning_rate: 0.0001
 
 train_config:
-    batch_size: 100
+    batch_size: 50
     nb_epochs: 100
     save_best: True

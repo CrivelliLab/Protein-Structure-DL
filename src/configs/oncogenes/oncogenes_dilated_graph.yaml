@@ -3,9 +3,9 @@ data_config:
     data_path: data/OncoGenes
     task_type: classification
     nb_classes: 2
-    nb_nodes: 447
+    nb_nodes: 350
     split: [0.7,0.1,0.2]
-    seed: 1234
+    seed: 4321
 
 experiment_config:
     name: classifier
@@ -13,12 +13,12 @@ experiment_config:
 
 model_config:
     model_type: dilated_gcnn
-    input_shape: [447,25,3]
-    diameter: 500.00
+    input_shape: [350,25,3]
+    diameter: 60.0
     dilations: 10
     conv_layers: [256,]
     conv_dropouts: [0.5,]
-    pooling_factor: 5
+    pooling_factor: 1
     fc_layers: [128,]
     fc_dropouts: [0.5,]
     nb_classes: 2
@@ -26,6 +26,6 @@ model_config:
     learning_rate: 0.0001
 
 train_config:
-    batch_size: 500
+    batch_size: 30
     nb_epochs: 100
     save_best: True

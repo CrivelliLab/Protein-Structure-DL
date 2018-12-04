@@ -44,6 +44,7 @@ class DataLoader(object):
                 data = [self.gather_data(fetch_i[0]),]
                 fetch_i = []
             for x in data:
+                if x[0] is None: continue
                 for ii in range(len(x)):batch_x[ii].append(x[ii])
                 if len(batch_x[0]) == self.batch_size or i+1 == self.dataset.__len__():
                     batch = [np.array(_) for _ in batch_x]

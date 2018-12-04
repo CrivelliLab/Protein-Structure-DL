@@ -16,8 +16,12 @@ class ProtienPairwiseDataset():
         '''
         '''
         # Load Image
-        x = np.load(self.data[index][0])
-        x = x['arr_0']
+        try:
+            x = np.load(self.data[index][0])
+            x = x['arr_0']
+        except:
+            x = None
+            print("Error: Reading File:", self.data[index][0])
 
         if self.task_type == 'classification':
             y = [0 for _ in range(self.nb_classes)]
