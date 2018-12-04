@@ -9,7 +9,7 @@ This script defines a graph convolutional network for tensorflow.
 import numpy as np
 import tensorflow as tf
 from models import Model
-from models.modules.layers import *
+from models.ops.graphconv import *
 
 class GCNN(Model):
 
