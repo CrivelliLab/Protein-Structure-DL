@@ -1,3 +1,13 @@
+'''
+protienligand_graph.py
+
+BUG:
+
+- Code runs slow when using multi cores to load data.
+    This is most likely due to the class object sharing site data when running pool.
+
+'''
+
 import os
 import numpy as np
 import pandas as pd
@@ -14,10 +24,6 @@ class ProtienLigandGraphDataset():
         self.task_type = task_type
         self.site_path = site_path
 
-
-    def __getitem__(self, index):
-        '''
-        '''
         # Parse Site
         atoms = ['C','H','O','N','S','UNK']
         body = ['L','R','UNK']
@@ -41,8 +47,12 @@ class ProtienLigandGraphDataset():
                 c.append(row[2:5])
         v = np.array(v, dtype=float)
         c = np.array(c, dtype=float)
-        site = [v,c]
+        self.site = [v,c]
 
+
+    def __getitem__(self, index):
+        '''
+        '''
         # Parse Protein Graph
         v = []
         c = []

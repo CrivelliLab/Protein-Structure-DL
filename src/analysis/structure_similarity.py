@@ -16,7 +16,7 @@ def parse_args():
     '''
     '''
     # Parse Command Line Arguments
-    parser = argparse.ArgumentParser('generate_protein_graphs.py')
+    parser = argparse.ArgumentParser('sequence_similarity.py')
     add_arg = parser.add_argument
     add_arg('datafolder', nargs='?', default='/')
     add_arg('-v', '--verbose', action='store_true')

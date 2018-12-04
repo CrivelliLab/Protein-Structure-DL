@@ -30,7 +30,7 @@ def parse_args():
     '''
     '''
     # Parse Command Line Arguments
-    parser = argparse.ArgumentParser('generate_protein_volumes3d.py')
+    parser = argparse.ArgumentParser('generate.py')
     add_arg = parser.add_argument
     add_arg('datafolder', nargs='?', default='/')
     add_arg('--size', nargs='?', default=64, type=int)
