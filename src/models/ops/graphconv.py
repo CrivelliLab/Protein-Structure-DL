@@ -9,6 +9,7 @@ Convolution Neural Networks (EGCNNs). These layers were written to operate using
 import numpy as np
 import tensorflow as tf
 
+
 ################################################################################
 
 def VCAInput(nb_nodes, nb_coords, nb_features, e_radius=1, dialations=1, a_mask=None):
@@ -42,6 +43,53 @@ def VCAInput(nb_nodes, nb_coords, nb_features, e_radius=1, dialations=1, a_mask=
     a = [ENorm(a_, e_radius, _, a_mask) for _ in d]
 
     return v, c, a
+
+def VCAInputVanilla(nb_nodes, nb_coords, nb_features, a_mask=None):
+    '''
+
+    '''
+    # Define node feature vector 'V'
+    v = tf.placeholder(tf.float32, [None, nb_nodes, nb_features])
+
+    # Define node coordinate vector 'C'
+    c = tf.placeholder(tf.float32, [None, nb_nodes, nb_coords])
+
+    # Define pairwise adjaceny matrix set 'A'
+    a = L2PDist(c)
+
+    # Apply mask
+    if a_mask is not None:
+        mask_ = tf.convert_to_tensor(a_mask, dtype=tf.float32)
+        mask_ = tf.reshape(mask_, [-1, a_mask.shape[0], a_mask.shape[1]])
+        a = tf.multiply(a, mask_)
+
+    return v, c, a
+
+def LearnedENorm(v,a,nb_filters, d):
+    '''
+    '''
+    # Dimensions
+    batch_size = tf.shape(v)[0]
+    nb_features = int(v.shape[2])
+    nb_nodes = int(v.shape[1])
+
+    # Define trainable parameters for learned e
+    x_i = tf.contrib.layers.xavier_initializer()
+    u = tf.Variable(x_i([nb_features, nb_filters]))
+    u = tf.tile(tf.expand_dims(u, axis=0), [batch_size, 1, 1])
+
+    es = tf.split(u,[1 for i in range(nb_filters)],axis=-1)
+    a_prime = []
+    for _ in es:
+        # Get e
+        u_ = tf.tile(_, [1,1,nb_nodes])
+        e = tf.nn.relu(tf.matmul(v, u_))
+        e = tf.transpose(e, [0,2,1])
+        a_ = tf.exp((-a[0])/(e+0.01))
+        a_prime.append(a_)
+
+    return a_prime
+
 
 def L2PDist(c):
     '''
@@ -87,10 +135,38 @@ def ENorm(a, e_radius=1, d_radius=0, mask=None):
     # Apply mask
     if mask is not None:
         mask_ = tf.convert_to_tensor(mask, dtype=tf.float32)
-        mask_ = tf.reshape(mask_, [-1, mask.shape[0], mask.shape[1]])
-        a = tf.multiply(a, mask)
+        mask_ = tf.reshape(mask_, [-1, mask.shape[0], mask.shape[1]],'valid')
+        a = tf.multiply(a, mask_)
 
     return a
+
+def GraphPool(v,c, pool_size):
+    '''
+    '''
+    v_ = tf.reduce_sum(v,axis=-1)
+    nb_nodes = int(v.shape[1])
+    nb_features = int(v.shape[-1])
+    nb_coords = int(c.shape[-1])
+    batch_size = tf.shape(v)[0]
+    slices = [pool_size for i in range(nb_nodes//pool_size)]
+    if nb_nodes%pool_size> 0: slices = slices+[nb_nodes%pool_size,]
+    vs = tf.split(v_,slices, axis=1)
+    argmaxs = []
+    for i,_ in enumerate(vs):
+        argmax = tf.argmax(_, axis=1) + i*pool_size
+        argmaxs.append(argmax)
+    #indices = [[_,]for _ in argmaxs]
+    #v_prime = tf.gather_nd(v, indices)
+    #c_prime = tf.gather_nd(c, indices)
+    #print(v_prime.shape);exit()
+    v__ = tf.gather(v,argmaxs,axis=-1)
+    c__ = tf.gather(c,argmaxs,axis=-1)
+    print(v__.shape, c__.shape);exit()
+    v_prime = tf.reshape(v__, [batch_size, len(argmaxs), nb_features])
+    c_prime = tf.reshape(c__, [batch_size, len(argmaxs), nb_coords])
+    a_prime = L2PDist(c_prime)
+
+    return v_prime, c_prime, a_prime
 
 def GraphConv(v, a, nb_filters, batch_norm=True, activation=tf.nn.softsign, dropout=0.0):
     '''
