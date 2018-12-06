@@ -159,17 +159,15 @@ def GraphPool(v,c, pool_size):
     vs = tf.split(v_,slices, axis=1)
     argmaxs = []
     for i,_ in enumerate(vs):
-        argmax = tf.argmax(_, axis=1) + i*pool_size
+        argmax = tf.argmax(_, axis=-1, output_type=tf.int32) + i*pool_size
+        argmax = tf.reshape(argmax, [-1,1, 1])
+        r = tf.reshape(tf.range(0, batch_size, 1), [-1, 1, 1])
+        argmax = tf.concat([r,argmax], axis=-1)
         argmaxs.append(argmax)
-    #indices = [[_,]for _ in argmaxs]
-    #v_prime = tf.gather_nd(v, indices)
-    #c_prime = tf.gather_nd(c, indices)
-    #print(v_prime.shape);exit()
-    v__ = tf.gather(v,argmaxs,axis=-1)
-    c__ = tf.gather(c,argmaxs,axis=-1)
-    print(v__.shape, c__.shape);exit()
-    v_prime = tf.reshape(v__, [batch_size, len(argmaxs), nb_features])
-    c_prime = tf.reshape(c__, [batch_size, len(argmaxs), nb_coords])
+    argmaxs = tf.concat(argmaxs, axis=-2)
+    #argmaxs = tf.reshape(argmaxs, [1,batch_size, argmaxs.shape[-2], argmaxs.shape[-1]])
+    v_prime = tf.gather_nd(v,argmaxs)
+    c_prime = tf.gather_nd(c,argmaxs)
     a_prime = L2PDist(c_prime)
 
     return v_prime, c_prime, a_prime
@@ -217,7 +215,7 @@ def GraphConv(v, a, nb_filters, batch_norm=True, activation=tf.nn.softsign, drop
     # Update node features according to graph
     v_ = []
     for _ in a:
-        v_.append(tf.matmul(_, v)/nb_nodes) 
+        v_.append(tf.matmul(_, v)/nb_nodes)
     v_ = tf.concat(v_, axis=-1)
 
     # Apply feature weights
