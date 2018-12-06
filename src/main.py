@@ -51,6 +51,14 @@ if __name__ == '__main__':
     logging.info('Initializing')
     if args.show_config: logging.info('Command line config: %s' % args)
 
+
+    # Check if k_folds
+    if 'k_folds' in experiment_config.keys():
+        k_folds = experiment_config['k_folds']
+        #data_config['k_folds'] = k_folds
+    else: k_folds = 1
+
+
     # Load the datasets
     train_dataset, valid_dataset, test_dataset = get_datasets(**data_config)
     batch_size = train_config.pop('batch_size')

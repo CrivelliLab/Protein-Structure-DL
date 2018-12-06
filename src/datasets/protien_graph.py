@@ -41,7 +41,7 @@ class ProtienGraphDataset():
 
         # Sequence Encoding
         s = np.array(list(range(len(v))), dtype=int)
-        p = self.sequence_encode(s, 2)
+        p = self.sequence_encode(s, 3)
         v = np.concatenate([v,p], axis=-1)
 
         # Zero Padding

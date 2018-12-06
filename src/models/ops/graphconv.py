@@ -70,7 +70,7 @@ def VCAInputVanilla(nb_nodes, nb_coords, nb_features, a_mask=None):
 
     return v, c, a
 
-def LearnedENorm(v,a,nb_filters, d):
+def LearnedENorm(v,a,nb_filters):
     '''
     '''
     # Dimensions
@@ -90,7 +90,8 @@ def LearnedENorm(v,a,nb_filters, d):
         u_ = tf.tile(_, [1,1,nb_nodes])
         e = tf.nn.relu(tf.matmul(v, u_))
         e = tf.transpose(e, [0,2,1])
-        a_ = tf.exp((-a[0])/(e+0.01))
+        #e = tf.clip_by_value(e, 0, d)
+        a_ = tf.exp((-a[0])/(e+0.0001))
         a_prime.append(a_)
 
     return a_prime
@@ -216,7 +217,7 @@ def GraphConv(v, a, nb_filters, batch_norm=True, activation=tf.nn.softsign, drop
     # Update node features according to graph
     v_ = []
     for _ in a:
-        v_.append(tf.matmul(_, v))
+        v_.append(tf.matmul(_, v)/nb_nodes) 
     v_ = tf.concat(v_, axis=-1)
 
     # Apply feature weights
@@ -274,6 +275,7 @@ def GraphAveragePool(v, c, nb_nodes_pool, temp=None, e_radius=1, dialations=1, a
     # Dimensions
     batch_size = tf.shape(v)[0]
     nb_features = int(v.shape[2])
+    nb_nodes = int(v.shape[1])
 
     if not temp: temp = np.sqrt(nb_features)
 
@@ -286,7 +288,7 @@ def GraphAveragePool(v, c, nb_nodes_pool, temp=None, e_radius=1, dialations=1, a
     node_pool_atten = tf.nn.softmax(tf.transpose(tf.matmul(v, u), [0,2,1])/temp, axis=-1)
 
     # Pool features using node_pool_atten
-    v_pool = tf.matmul(node_pool_atten, v)
+    v_pool = tf.matmul(node_pool_atten, v) / nb_nodes
 
     # Pool coordinates using weighted averaging for each new node
     c_pool = tf.matmul(node_pool_atten, c)

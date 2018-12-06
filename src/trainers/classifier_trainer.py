@@ -46,7 +46,9 @@ class ClassifierTrainer(BaseTrainer):
         # Add Loss and Optimizers
         loss = tf.losses.softmax_cross_entropy(self.inputs[-1], y_out)
         if optimizer == 'Adam':
-            opt = tf.train.AdamOptimizer(learning_rate).minimize(loss)
+            update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+            with tf.control_dependencies(update_ops):
+                opt = tf.train.AdamOptimizer(learning_rate).minimize(loss)
         else: raise Exception('Optimizer %s unknown' % optimizer)
 
         # Metrics
@@ -97,6 +99,7 @@ class ClassifierTrainer(BaseTrainer):
         # Loop over training batches
         self.logger.info('Training...')
         for i, data in enumerate(data_loader):
+            data = [True,] + data
             out = sess.run(self.operators, feed_dict={i: d for i, d in zip(self.inputs, data)})
             loss.append(out[1])
 
@@ -142,6 +145,7 @@ class ClassifierTrainer(BaseTrainer):
         # Loop over training batches
         self.logger.info('Evaluating...')
         for i, data in enumerate(data_loader):
+            data = [False,] + data
             out = sess.run(self.operators[1:], feed_dict={i: d for i, d in zip(self.inputs, data)})
             loss.append(out[0])
 

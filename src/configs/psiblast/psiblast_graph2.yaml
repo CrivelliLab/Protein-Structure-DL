@@ -13,10 +13,10 @@ experiment_config:
 
 model_config:
     model_type: gcnn2
-    input_shape: [351,25,3]
-    diameter: 60.0
-    conv_layers: [16,]
-    conv_dropouts: [0.0,]
+    input_shape: [351,26,3]
+    dilations: 5
+    conv_layers: [32,]
+    conv_dropouts: [0.25,]
     pooling_factor: 1
     fc_layers: [128,]
     fc_dropouts: [0.5,]
@@ -26,5 +26,6 @@ model_config:
 
 train_config:
     batch_size: 20
-    nb_epochs: 20
+    nb_epochs: 100
+    early_stop_metric: valid_acc
     save_best: True

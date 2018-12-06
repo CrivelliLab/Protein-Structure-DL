@@ -104,7 +104,7 @@ class BaseTrainer(object):
         '''
         raise NotImplementedError
 
-    def train(self, train_data_loader, valid_data_loader, test_data_loader, nb_epochs=10, save_best=False):
+    def train(self, train_data_loader, valid_data_loader, test_data_loader, nb_epochs=10, early_stop_metric='val_loss',save_best=False):
         '''
         Method defines training loop. If save_best, saves best model according to
         the lowest loss during training.
@@ -125,7 +125,7 @@ class BaseTrainer(object):
             sess.run(tf.global_variables_initializer())
 
             # Loop over epochs
-            best_loss = None
+            best_metric = None
             for i in range(nb_epochs):
                 # Log Epoch
                 self.logger.info('Epoch %i:' % i)
@@ -135,20 +135,28 @@ class BaseTrainer(object):
                 if train_data_loader is not None:
                     sess.run(self.running_vars_initializer)
                     summary.update(self.train_epoch(train_data_loader, sess))
-                    loss = summary['train_loss']
 
                 # Evaluate on this epoch
                 if valid_data_loader is not None:
                     sess.run(self.running_vars_initializer)
                     summary.update(self.evaluate(valid_data_loader, sess, mode='valid'))
-                    loss = summary['valid_loss']
+
+                metric = summary[early_stop_metric]
 
                 # Save summary, checkpoint
                 self.save_summary(summary)
                 if not os.path.exists(self.output_dir+'/model'): os.mkdir(self.output_dir+'/model')
                 if save_best:
-                    if best_loss == None or loss > best_loss:
-                        self.saver.save(sess, self.output_dir+"/model/model.ckpt")
+                    if 'loss' in early_stop_metric:
+                        if best_metric == None or metric < best_metric:
+                            self.logger.info('Current best according to '+early_stop_metric+'. Model Saved.')
+                            best_metric = metric
+                            self.saver.save(sess, self.output_dir+"/model/model.ckpt")
+                    else:
+                        if best_metric == None or metric > best_metric:
+                            self.logger.info('Current best according to '+early_stop_metric+'. Model Saved.')
+                            best_metric = metric
+                            self.saver.save(sess, self.output_dir+"/model/model.ckpt")
 
             # Load best model
             if save_best:

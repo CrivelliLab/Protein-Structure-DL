@@ -21,7 +21,7 @@ class GCNN(Model):
         self.model_name = 'Graph-CNN'
         self.define_model(**kwargs)
 
-    def define_model(self, input_shape, diameter,
+    def define_model(self, input_shape, dilations,
                         conv_layers, conv_dropouts, pooling_factor, fc_layers, fc_dropouts):
         '''
         Params:
@@ -33,37 +33,47 @@ class GCNN(Model):
         '''
         # Inputs
         V, C, A = VCAInputVanilla(input_shape[0], input_shape[2], input_shape[1])
-        self.inputs = [V, C]
+        is_training = tf.placeholder_with_default(True, shape=())
+        self.inputs = [is_training, V, C]
 
         # Graph Convolutions
-        A_ = LearnedENorm(V,A,10,diameter)
+        A_ = LearnedENorm(V,A,dilations)
+
+        '''
         for _ in list(zip(conv_layers,conv_dropouts)):
-            __ = [GraphConv(V, [d,], _[0], batch_norm=True, activation=tf.nn.softsign) for d in A_]
+            V = GraphConv(V, A_, int(_[0]), dropout=float(_[1]))
+        '''
+
+        for _ in list(zip(conv_layers,conv_dropouts)):
+            __ = [GraphConv(V, [d,], _[0], batch_norm=False, activation=None) for d in A_]
             #V = tf.concat(__, axis=-1)
             V = __[0]
             for t in __[1:]: V += t
             V = V / len(__)
-            V = tf.layers.dropout(V, float(_[1]))
+
+            V = tf.nn.tanh(V)
+            V = tf.layers.batch_normalization(V, training=is_training)
+            V = tf.layers.dropout(V, float(_[1]), training=is_training)
+
 
         # Max Pooling
         if pooling_factor > 1:
             V = tf.layers.max_pooling1d(V,pooling_factor,pooling_factor)
 
         '''
-        #print(tf.shape(V)[0], tf.shape(A)[0], tf.shape(A)[0]);exit()
 
-        A__ = LearnedENorm(V_,A_,3)
-        for _ in list(zip(conv_layers[1:],conv_dropouts[1:])):
-            __ = [GraphConv(V_, [d,], int(_[0])//len(A__)) for d in A__]
-            V_ = tf.concat(__, axis=-1)
-            V_ = tf.layers.dropout(V_, float(_[1]))
+        for _ in list(zip(conv_layers,conv_dropouts)):
+            __ = [GraphConv(V, [d,], int(_[0])//len(A_)) for d in A_]
+            V = tf.concat(__, axis=-1)
+            V = tf.layers.dropout(V, float(_[1]))
         '''
+
 
         # Fully Connected Layers
         F = tf.contrib.layers.flatten(V)
         for _ in list(zip(fc_layers,fc_dropouts)):
             F = tf.layers.dense(F, int(_[0]), activation=tf.nn.relu)
-            F = tf.layers.dropout(F, float(_[1]))
+            F = tf.layers.dropout(F, float(_[1]), training=is_training)
 
         # Outputs
         self.outputs = [F,]
