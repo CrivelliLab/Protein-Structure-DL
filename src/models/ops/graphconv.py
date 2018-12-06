@@ -57,6 +57,11 @@ def VCAInputVanilla(nb_nodes, nb_coords, nb_features, a_mask=None):
     # Define pairwise adjaceny matrix set 'A'
     a = L2PDist(c)
 
+    # Mask Empty
+    emp = tf.expand_dims(tf.clip_by_value(tf.reduce_sum(v,axis=-1), 0, 1),axis=-1)
+    a = a * emp
+    a = a * tf.transpose(emp, [0,2,1])
+
     # Apply mask
     if a_mask is not None:
         mask_ = tf.convert_to_tensor(a_mask, dtype=tf.float32)
