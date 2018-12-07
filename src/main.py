@@ -58,7 +58,6 @@ if __name__ == '__main__':
         #data_config['k_folds'] = k_folds
     else: k_folds = 1
 
-
     # Load the datasets
     train_dataset, valid_dataset, test_dataset = get_datasets(**data_config)
     batch_size = train_config.pop('batch_size')

@@ -5,12 +5,6 @@ def get_model(name, **model_args):
     if name == 'gcnn':
         from .gcnn import GCNN
         return GCNN(**model_args)
-    if name == 'dilated_gcnn':
-        from .dilated_gcnn import DilatedGCNN
-        return DilatedGCNN(**model_args)
-    if name == 'gcnn2':
-        from .gcnn_2 import GCNN
-        return GCNN(**model_args)
     elif name == 'cnn_2d':
         from .cnn_2d import CNN2D
         return CNN2D(**model_args)
