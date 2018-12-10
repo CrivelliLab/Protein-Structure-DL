@@ -34,6 +34,7 @@ class BaseTrainer(object):
         self.model = None
         self.nb_parameters = None
         self.saver = None
+        self.final_score = None
 
     def print_model_summary(self):
         '''
@@ -51,7 +52,7 @@ class BaseTrainer(object):
             summary_vals = self.summary.get(key, [])
             self.summary[key] = summary_vals + [val]
 
-    def write_summary(self):
+    def write_summary(self, kfold_i=None):
         '''
         '''
         # Gather History
@@ -72,14 +73,24 @@ class BaseTrainer(object):
 
         # Set Paths
         assert self.output_dir is not None
-        history_file = os.path.join(self.output_dir, 'history.csv')
-        summary_file = os.path.join(self.output_dir, 'summary.csv')
+        if kfold_i is not None:
+            history_file = os.path.join(self.output_dir, 'history_k'+str(kfold_i)+'.csv')
+            summary_file = os.path.join(self.output_dir, 'summary_k'+str(kfold_i)+'.csv')
+        else:
+            history_file = os.path.join(self.output_dir, 'history.csv')
+            summary_file = os.path.join(self.output_dir, 'summary.csv')
         self.logger.info('Saving History to %s' % history_file)
         self.logger.info('Saving Summary to %s' % summary_file)
 
         # Save Training History and Summary
         np.savetxt(history_file, history, fmt= '%1.6f', delimiter=', ',header=header,footer=test)
         summary.to_csv(summary_file, float_format='%1.6f', sep=',')
+
+    def get_best_score(self,):
+        '''
+        '''
+        for _ in self.summary:
+            if 'test' in _: test += str(self.summary[_][0]) + ', '
 
     def build_model(self):
         '''
@@ -104,7 +115,9 @@ class BaseTrainer(object):
         '''
         raise NotImplementedError
 
-    def train(self, train_data_loader, valid_data_loader, test_data_loader, nb_epochs=10, early_stop_metric='val_loss',save_best=False):
+    def train(self, train_data_loader, valid_data_loader, test_data_loader,
+                    nb_epochs=10, early_stop_metric='val_loss',
+                    early_stop_epochs=10, save_best=False):
         '''
         Method defines training loop. If save_best, saves best model according to
         the lowest loss during training.
@@ -126,6 +139,7 @@ class BaseTrainer(object):
 
             # Loop over epochs
             best_metric = None
+            epochs_since_best = 0
             for i in range(nb_epochs):
                 # Log Epoch
                 self.logger.info('Epoch %i:' % i)
@@ -151,12 +165,21 @@ class BaseTrainer(object):
                         if best_metric == None or metric < best_metric:
                             self.logger.info('Current best according to '+early_stop_metric+'. Model Saved.')
                             best_metric = metric
+                            epochs_since_best = 0
                             self.saver.save(sess, self.output_dir+"/model/model.ckpt")
+                        else: epochs_since_best +=1
                     else:
                         if best_metric == None or metric > best_metric:
                             self.logger.info('Current best according to '+early_stop_metric+'. Model Saved.')
                             best_metric = metric
+                            epochs_since_best = 0
                             self.saver.save(sess, self.output_dir+"/model/model.ckpt")
+                        else: epochs_since_best +=1
+
+                # Stop training if no progress have been made
+                if epochs_since_best == early_stop_epochs:
+                    self.logger.info('Stopping training early due to no progress within the last '+ str(early_stop_epochs)+' epochs.')
+                    break
 
             # Load best model
             if save_best:
@@ -167,6 +190,7 @@ class BaseTrainer(object):
             if test_data_loader is not None:
                 sess.run(self.running_vars_initializer)
                 summary.update(self.evaluate(test_data_loader, sess, mode='test'))
+            self.final_score = summary['test_loss']
 
             # Save summary, checkpoint
             self.save_summary(summary)

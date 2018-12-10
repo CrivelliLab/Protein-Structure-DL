@@ -32,9 +32,10 @@ class GCNN(Model):
 
         '''
         # Inputs
-        V, C, A = VCAInputVanilla(input_shape[0], input_shape[2], input_shape[1])
+        V, C, A = VCAInput(input_shape[0], input_shape[2], input_shape[1])
         is_training = tf.placeholder_with_default(True, shape=())
         self.inputs = [is_training, V, C]
+        #A = tf.layers.batch_normalization(A, training=is_training)
 
         # Graph Convolutions
         for _ in list(zip(kernels_per_layer,conv_layers,conv_dropouts,pooling_layers)):

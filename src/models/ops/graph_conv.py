@@ -48,15 +48,22 @@ def GraphKernels(v,a,nb_kernels):
     x_i = tf.contrib.layers.xavier_initializer()
     u = tf.Variable(x_i([nb_features, nb_kernels]))
     u = tf.tile(tf.expand_dims(u, axis=0), [batch_size, 1, 1])
+    b = tf.Variable(x_i([nb_features, nb_kernels]))
+    b = tf.tile(tf.expand_dims(b, axis=0), [batch_size, 1, 1])
 
     es = tf.split(u,[1 for i in range(nb_kernels)],axis=-1)
+    bs = tf.split(b,[1 for i in range(nb_kernels)],axis=-1)
     a_prime = []
-    for _ in es:
+    for i, _ in enumerate(es):
         # Get e
         u_ = tf.tile(_, [1,1,nb_nodes])
-        e = tf.nn.relu(tf.matmul(v, u_))
+        b_ = tf.tile(bs[i], [1,1,nb_nodes])
+        e = tf.nn.softplus(tf.matmul(v, u_))
         e = tf.transpose(e, [0,2,1])
-        a_ = tf.exp((-a[0])/(e+0.0001))
+        b_ = tf.nn.relu(tf.matmul(v, b_))
+        b_ = tf.transpose(b_, [0,2,1])
+        a_ = tf.exp((-(a[0]-b_))/(e+0.0001))
+        #a_ = a_ * tf.to_float(tf.less(a_,tf.fill(tf.shape(a_), 1.0)))
         a_prime.append(a_)
 
     return a_prime
@@ -103,7 +110,7 @@ def GraphPool(v,c, pool_size):
     c_prime = tf.gather_nd(c,argmaxs)
 
     # Average Pool V
-    v_prime = tf.layers.average_pool1d(v,pool_size,pool_size)
+    v_prime = tf.layers.average_pooling1d(v,pool_size,pool_size)
 
     # Generate new A
     a_prime = L2PDist(c_prime)

@@ -11,27 +11,28 @@ class CNN3D(Model):
         self.model_name = '3D-CNN'
         self.define_model(**kwargs)
 
-    def define_model(self, input_shape,
-                        conv_layers, kernel_shapes, conv_dropouts, pool_layers, fc_layers, fc_dropouts):
+    def define_model(self, input_shape, conv_layers, kernel_shapes, conv_dropouts,
+                           pool_layers, fc_layers, fc_dropouts):
         '''
         '''
         # Inputs
         X = tf.placeholder(tf.float32, [None,] + input_shape)
-        self.inputs = [X,]
+        is_training = tf.placeholder_with_default(True, shape=())
+        self.inputs = [is_training,X,]
 
         # Network Defintion
         for _ in list(zip(conv_layers,kernel_shapes,conv_dropouts,pool_layers)):
             X = tf.layers.conv3d(X, int(_[0]), int(_[1]))
-            X = tf.layers.batch_normalization(X)
+            X = tf.layers.batch_normalization(X, training=is_training)
             X = tf.nn.relu(X)
             X = tf.layers.max_pooling3d(X, int(_[3]), int(_[3]))
-            X = tf.layers.dropout(X, float(_[2]))
+            X = tf.layers.dropout(X, float(_[2]), training=is_training)
 
         # Fully Connected Layers
         F = tf.contrib.layers.flatten(X)
         for _ in list(zip(fc_layers,fc_dropouts)):
             F = tf.layers.dense(F, int(_[0]), activation=tf.nn.relu)
-            F = tf.layers.dropout(F, float(_[1]))
+            F = tf.layers.dropout(F, float(_[1]), training=is_training)
 
         # Outputs
         self.outputs = [F,]

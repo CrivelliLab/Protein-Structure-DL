@@ -45,6 +45,12 @@ class ClassifierTrainer(BaseTrainer):
 
         # Add Loss and Optimizers
         loss = tf.losses.softmax_cross_entropy(self.inputs[-1], y_out)
+
+        # L2 normalization
+        #vars_   = tf.trainable_variables()
+        #lossL2 = tf.add_n([ tf.nn.l2_loss(v) for v in vars_]) * 0.001
+        #loss = loss + lossL2
+
         if optimizer == 'Adam':
             update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
             with tf.control_dependencies(update_ops):

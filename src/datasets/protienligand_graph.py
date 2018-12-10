@@ -103,7 +103,7 @@ class ProtienLigandGraphDataset():
         '''
         return len(self.data)
 
-def get_datasets(data_path, nb_nodes, task_type, nb_classes, split=[0.7,0.1,0.2], seed=1234):
+def get_datasets(data_path, nb_nodes, task_type, nb_classes, split=[0.7,0.1,0.2], k_fold=None, seed=1234):
     '''
     '''
     # Load examples
@@ -120,12 +120,30 @@ def get_datasets(data_path, nb_nodes, task_type, nb_classes, split=[0.7,0.1,0.2]
     X = np.expand_dims(X, axis=-1)
     Y = np.expand_dims(Y, axis=-1)
 
-    # Split Examples
-    x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=split[2], random_state=seed)
-    x_train, x_valid, y_train, y_valid = train_test_split(x_train, y_train, test_size=split[1]/(split[0]+split[1]), random_state=seed)
-    data_train = np.concatenate([x_train,y_train],axis=-1)
-    data_test = np.concatenate([x_test,y_test],axis=-1)
-    data_valid = np.concatenate([x_valid,y_valid],axis=-1)
+    if k_fold is not None:
+        # Split into K Folds and return training, validation and test
+        np.random.seed(seed)
+        data = np.concatenate([X,Y],axis=-1)
+        np.random.shuffle(data)
+        fs = len(data)//int(k_fold[0])
+        ind = [fs*(i+1) for i in range(len(data)//fs)]
+        remainder = len(data)%fs
+        for i in range(remainder):
+            for j in range(i%len(ind)+1):
+                ind[-(j+1)] += 1
+        folds = np.split(data.copy(), ind, axis=0)
+        data_test = folds.pop(int(k_fold[1]))
+        data_train = np.concatenate(folds,axis=0)
+        x_train, x_valid, y_train, y_valid = train_test_split(data_train[:,0:1], data_train[:,1:], test_size=float(k_fold[-1]), random_state=seed)
+        data_train = np.concatenate([x_train,y_train],axis=-1)
+        data_valid = np.concatenate([x_valid,y_valid],axis=-1)
+    else:
+        # Split Examples
+        x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=split[2], random_state=seed)
+        x_train, x_valid, y_train, y_valid = train_test_split(x_train, y_train, test_size=split[1]/(split[0]+split[1]), random_state=seed)
+        data_train = np.concatenate([x_train,y_train],axis=-1)
+        data_test = np.concatenate([x_test,y_test],axis=-1)
+        data_valid = np.concatenate([x_valid,y_valid],axis=-1)
 
     # Initialize Dataset Iterators
     site_path = data_path + '/site.txt'

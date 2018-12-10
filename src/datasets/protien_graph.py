@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 
 class ProtienGraphDataset():
 
-    def __init__(self, data, nb_nodes, task_type, nb_classes, cluster_size):
+    def __init__(self, data, nb_nodes, task_type, nb_classes, cluster_size, augment=1):
         '''
         '''
         self.data = data
@@ -13,6 +13,11 @@ class ProtienGraphDataset():
         self.nb_classes = nb_classes
         self.task_type = task_type
         self.cluster_size = cluster_size
+        self.augment = augment
+        if self.augment > 1:
+            augment_flags = np.concatenate([np.zeros((len(self.data),1)),np.ones((len(self.data)*(self.augment-1),1))],axis=0)
+            self.data = np.concatenate([self.data.copy() for i in range(self.augment)],axis=0)
+            self.data = np.concatenate([self.data,augment_flags],axis=-1)
 
     def __getitem__(self, index):
         '''
@@ -43,6 +48,11 @@ class ProtienGraphDataset():
         s = np.array(list(range(len(v))), dtype=int)
         p = self.sequence_encode(s, 3)
         v = np.concatenate([v,p], axis=-1)
+
+        # Augment with guasian kernel
+        if self.data.shape[-1]==3 and self.data[index][2]:
+            random_shift = np.concatenate([np.expand_dims(np.random.uniform(0, 1,c.shape[0]), axis=-1) for _ in range(c.shape[-1])], axis=-1)
+            c = c + random_shift
 
         # Zero Padding
         if v.shape[0] < self.nb_nodes:
@@ -89,7 +99,7 @@ class ProtienGraphDataset():
 
         return sequence_enc
 
-def get_datasets(data_path, nb_nodes, task_type, nb_classes, cluster_size=1, split=[0.7,0.1,0.2], seed=1234):
+def get_datasets(data_path, nb_nodes, task_type, nb_classes, cluster_size=1, split=[0.7,0.1,0.2], k_fold=None, augment=1, seed=1234):
     '''
     '''
     # Load examples
@@ -107,15 +117,33 @@ def get_datasets(data_path, nb_nodes, task_type, nb_classes, cluster_size=1, spl
     X = np.expand_dims(X, axis=-1)
     Y = np.expand_dims(Y, axis=-1)
 
-    # Split Examples
-    x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=split[2], random_state=seed)
-    x_train, x_valid, y_train, y_valid = train_test_split(x_train, y_train, test_size=split[1]/(split[0]+split[1]), random_state=seed)
-    data_train = np.concatenate([x_train,y_train],axis=-1)
-    data_test = np.concatenate([x_test,y_test],axis=-1)
-    data_valid = np.concatenate([x_valid,y_valid],axis=-1)
+    if k_fold is not None:
+        # Split into K Folds and return training, validation and test
+        np.random.seed(seed)
+        data = np.concatenate([X,Y],axis=-1)
+        np.random.shuffle(data)
+        fs = len(data)//int(k_fold[0])
+        ind = [fs*(i+1) for i in range(len(data)//fs)]
+        remainder = len(data)%fs
+        for i in range(remainder):
+            for j in range(i%len(ind)+1):
+                ind[-(j+1)] += 1
+        folds = np.split(data.copy(), ind, axis=0)
+        data_test = folds.pop(int(k_fold[1]))
+        data_train = np.concatenate(folds,axis=0)
+        x_train, x_valid, y_train, y_valid = train_test_split(data_train[:,0:1], data_train[:,1:], test_size=float(k_fold[-1]), random_state=seed)
+        data_train = np.concatenate([x_train,y_train],axis=-1)
+        data_valid = np.concatenate([x_valid,y_valid],axis=-1)
+    else:
+        # Split Examples
+        x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=split[2], random_state=seed)
+        x_train, x_valid, y_train, y_valid = train_test_split(x_train, y_train, test_size=split[1]/(split[0]+split[1]), random_state=seed)
+        data_train = np.concatenate([x_train,y_train],axis=-1)
+        data_test = np.concatenate([x_test,y_test],axis=-1)
+        data_valid = np.concatenate([x_valid,y_valid],axis=-1)
 
     # Initialize Dataset Iterators
-    train_dataset = ProtienGraphDataset(data_train, nb_nodes, task_type, nb_classes, cluster_size)
+    train_dataset = ProtienGraphDataset(data_train, nb_nodes, task_type, nb_classes, cluster_size, augment)
     valid_dataset = ProtienGraphDataset(data_valid, nb_nodes, task_type, nb_classes, cluster_size)
     test_dataset = ProtienGraphDataset(data_test, nb_nodes, task_type, nb_classes, cluster_size)
 

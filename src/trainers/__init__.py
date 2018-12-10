@@ -2,6 +2,8 @@ def get_trainer(name, **trainer_args):
     '''
     Factory function for retrieving a trainer.
     '''
+    if 'k_folds' in trainer_args.keys(): trainer_args.pop('k_folds')
+    if 'k_fold_valid' in trainer_args.keys(): trainer_args.pop('k_fold_valid')
     if name == 'classifier':
         from .classifier_trainer import ClassifierTrainer
         return ClassifierTrainer(**trainer_args)
