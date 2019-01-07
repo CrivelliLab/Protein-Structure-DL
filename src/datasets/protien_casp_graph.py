@@ -51,7 +51,7 @@ class ProtienGraphDataset():
 
         # Augment with guasian kernel
         if self.data.shape[-1]==3 and self.data[index][2]:
-            random_shift = np.concatenate([np.expand_dims(np.random.uniform(0, 0.25, c.shape[0]), axis=-1) for _ in range(c.shape[-1])], axis=-1)
+            random_shift = np.concatenate([np.expand_dims(np.random.uniform(0, 1,c.shape[0]), axis=-1) for _ in range(c.shape[-1])], axis=-1)
             c = c + random_shift
 
         # Zero Padding

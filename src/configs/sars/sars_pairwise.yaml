@@ -1,0 +1,30 @@
+data_config:
+    name: protienligand_pairwise
+    data_path: data/SARS_DEBUG
+    task_type: regression
+    nb_classes: 1
+    split: [0.7,0.1,0.2]
+    seed: 1234
+
+experiment_config:
+    name: regressor
+    output_dir: out/sars_pairwise
+
+model_config:
+    model_type: cnn_2d
+    input_shape: [23,23,9]
+    conv_layers: [128,128]
+    kernel_shapes: [5,5]
+    conv_dropouts: [0.25,0.25]
+    fc_layers: [128,]
+    fc_dropouts: [0.5,]
+    nb_classes: 2
+    optimizer: 'Adam'
+    learning_rate: 0.001
+
+train_config:
+    batch_size: 20
+    nb_epochs: 100
+    early_stop_metric: valid_loss
+    early_stop_epochs: 10
+    save_best: True

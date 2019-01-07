@@ -13,6 +13,19 @@ import tensorflow as tf
 
 def VCAInput(nb_nodes, nb_coords, nb_features, a_mask=None):
     '''
+    Method returns Tensorflow placeholders for graph convolutional networks.
+
+    Params:
+        nb_nodes - int; number of nodes in graphs
+        nb_coords - int; number of spatial dimensions for points
+        nb_features - int; number of features per node
+        a_mask - np.array(); mask to apply on adjacency matrix
+
+    Returns:
+        v - Rank 3 tensor defining the node features; BATCHxNxF
+        c - Rank 3 tensor defining coordinates of nodes in n-euclidean space; BATCHxNxC
+        a - Rank 3 tensor defining L2 distances between nodes according to tensor c; BATCHxNxN
+
     '''
     # Define node feature vector 'V'
     v = tf.placeholder(tf.float32, [None, nb_nodes, nb_features])
@@ -38,13 +51,26 @@ def VCAInput(nb_nodes, nb_coords, nb_features, a_mask=None):
 
 def GraphKernels(v,a,nb_kernels):
     '''
+    Method defines tensorflow layer which learns a graph kernel in order to normailize
+    pairwise euclidean distances found in tensor a, according to node features in
+    tensor v. The final set of normalized adjacency tensors a_prime have values
+    ranging from [0,1].
+
+    Params:
+        v - Rank 3 tensor defining the node features; BATCHxNxF
+        a - Rank 3 tensor defining L2 distances between nodes according to tensor c; BATCHxNxN
+        nb_kernels - int; number of learned kernels
+
+    Returns:
+        a_prime - list(tf.arrays); list of normalized adjacency tensors; BATCHxNxN
+
     '''
     # Dimensions
     batch_size = tf.shape(v)[0]
     nb_features = int(v.shape[2])
     nb_nodes = int(v.shape[1])
 
-    # Define trainable parameters for learned e
+    # Define trainable parameters for learned e and b
     x_i = tf.contrib.layers.xavier_initializer()
     u = tf.Variable(x_i([nb_features, nb_kernels]))
     u = tf.tile(tf.expand_dims(u, axis=0), [batch_size, 1, 1])
@@ -60,10 +86,10 @@ def GraphKernels(v,a,nb_kernels):
         b_ = tf.tile(bs[i], [1,1,nb_nodes])
         e = tf.nn.softplus(tf.matmul(v, u_))
         e = tf.transpose(e, [0,2,1])
-        b_ = tf.nn.relu(tf.matmul(v, b_))
+        #b_ = tf.nn.relu(tf.matmul(v, b_))
+        b_ = tf.matmul(v, b_)
         b_ = tf.transpose(b_, [0,2,1])
-        a_ = tf.exp((-(a[0]-b_))/(e+0.0001))
-        #a_ = a_ * tf.to_float(tf.less(a_,tf.fill(tf.shape(a_), 1.0)))
+        a_ = tf.nn.sigmoid((e*a[0])+b_)
         a_prime.append(a_)
 
     return a_prime
@@ -71,6 +97,7 @@ def GraphKernels(v,a,nb_kernels):
 
 def L2PDist(c):
     '''
+    Method calculate L2 pariwise distances between coordinates in tensor c.
 
     Params:
         c - Rank 3 tensor defining coordinates of nodes in n-euclidean space.

@@ -1,24 +1,23 @@
 data_config:
     name: protien_graphs
-    data_path: data/PsiBlast
+    data_path: data/Kinase
     task_type: classification
     nb_classes: 2
-    nb_nodes: 351
-    augment: 1
+    nb_nodes: 344
     split: [0.7,0.1,0.2]
     seed: 1234
 
 experiment_config:
     name: classifier
-    output_dir: out/psiblast_graph
+    output_dir: out/kinase_graph_new
 
 model_config:
     model_type: gcnn
-    input_shape: [351,26,3]
-    kernels_per_layer: [10,]
-    conv_layers: [16,]
+    input_shape: [344,26,3]
+    kernels_per_layer: [8,]
+    conv_layers: [64,]
     conv_dropouts: [0.25,]
-    pooling_layers: [3,]
+    pooling_layers: [1,]
     fc_layers: [128,]
     fc_dropouts: [0.5,]
     nb_classes: 2
@@ -27,7 +26,6 @@ model_config:
 
 train_config:
     batch_size: 20
-    nb_epochs: 25
+    nb_epochs: 100
     early_stop_metric: valid_loss
-    early_stop_epochs: 10
     save_best: True
