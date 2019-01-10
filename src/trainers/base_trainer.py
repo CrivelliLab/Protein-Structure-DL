@@ -117,7 +117,7 @@ class BaseTrainer(object):
 
     def train(self, train_data_loader, valid_data_loader, test_data_loader,
                     nb_epochs=10, early_stop_metric='val_loss',
-                    early_stop_epochs=10, save_best=False):
+                    early_stop_epochs=0, save_best=False):
         '''
         Method defines training loop. If save_best, saves best model according to
         the lowest loss during training.
@@ -177,9 +177,10 @@ class BaseTrainer(object):
                         else: epochs_since_best +=1
 
                 # Stop training if no progress have been made
-                if epochs_since_best == early_stop_epochs:
-                    self.logger.info('Stopping training early due to no progress within the last '+ str(early_stop_epochs)+' epochs.')
-                    break
+                if early_stop_epochs > 0:
+                    if epochs_since_best == early_stop_epochs:
+                        self.logger.info('Stopping training early due to no progress within the last '+ str(early_stop_epochs)+' epochs.')
+                        break
 
             # Load best model
             if save_best:

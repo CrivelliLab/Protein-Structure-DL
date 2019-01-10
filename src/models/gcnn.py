@@ -48,13 +48,12 @@ class GCNN(Model):
             V = tf.layers.dropout(V, float(_[2]), training=is_training)
 
             # Sequence Graph Pooling
-            if int(_[3]) > 1: V,C,A = GraphPool(V,C,int(_[3]))
-
+            if int(_[3]) > 1: V,C,A = MaxSeqGraphPool(V,C,int(_[3]))
 
         # Fully Connected Layers
         F = tf.contrib.layers.flatten(V)
         for _ in list(zip(fc_layers,fc_dropouts)):
-            F = tf.layers.dense(F, int(_[0]), activation=tf.nn.relu)
+            F = tf.layers.dense(F, int(_[0]), activation=tf.nn.sigmoid)
             F = tf.layers.dropout(F, float(_[1]), training=is_training)
 
         # Outputs

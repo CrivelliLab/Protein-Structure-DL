@@ -18,6 +18,9 @@ def get_datasets(name, **data_args):
     else:
         raise Exception('Dataset %s unknown' % name)
 
+def next_(i):
+    return dataset.__getitem__(i)
+
 class DataLoader(object):
 
     def __init__(self, dataset, batch_size=1, cores=1):
@@ -26,7 +29,10 @@ class DataLoader(object):
         self.cores = cores
 
     def __iter__(self):
-        if self.cores > 1: self.pool = Pool(self.cores)
+        def init():
+            global dataset
+            dataset = self.dataset
+        if self.cores > 1: pool = Pool(self.cores, init, ())
         xx = len(self.dataset.__getitem__(0))
         batch_x = [[] for i in range(xx)]
         fetch_i = []
@@ -34,14 +40,14 @@ class DataLoader(object):
             fetch_i.append(i)
             if self.cores > 1:
                 if len(fetch_i) == self.cores:
-                    data = self.pool.map(self.gather_data, fetch_i)
+                    data = pool.map(next_, fetch_i)
                     fetch_i = []
                 elif i+1 == self.dataset.__len__():
-                    data = [self.gather_data(fi) for fi in fetch_i]
+                    data = [self.dataset.__getitem__(fi) for fi in fetch_i]
                     fetch_i = []
                 else: continue
             else:
-                data = [self.gather_data(fetch_i[0]),]
+                data = [self.dataset.__getitem__(fetch_i[0]),]
                 fetch_i = []
             for x in data:
                 if x[0] is None: continue
@@ -50,7 +56,7 @@ class DataLoader(object):
                     batch = [np.array(_) for _ in batch_x]
                     yield batch
                     batch_x = [[] for i in range(xx)]
-        if self.cores > 1: self.pool.close()
+        if self.cores > 1: pool.close()
 
     def __getstate__(self):
         self_dict = self.__dict__.copy()
@@ -59,6 +65,3 @@ class DataLoader(object):
 
     def __setstate__(self, state):
         self.__dict__.update(state)
-
-    def gather_data(self, i):
-        return self.dataset.__getitem__(i)

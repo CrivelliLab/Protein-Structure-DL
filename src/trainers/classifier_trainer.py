@@ -15,6 +15,27 @@ import numpy as np
 import tensorflow as tf
 from .base_trainer import BaseTrainer
 from models import get_model
+import multiprocessing
+
+def bg(gen):
+    def _bg_gen(gen,conn):
+        for data in gen:
+            if conn.recv():
+                conn.send(data)
+        conn.send(StopIteration)
+
+    parent_conn, child_conn = multiprocessing.Pipe()
+    p = multiprocessing.Process(target=_bg_gen, args=(gen,child_conn))
+    p.start()
+
+    parent_conn.send(True)
+    while True:
+        parent_conn.send(True)
+        x = parent_conn.recv()
+        if x is StopIteration:
+            return
+        else:
+            yield x
 
 class ClassifierTrainer(BaseTrainer):
 
@@ -104,7 +125,7 @@ class ClassifierTrainer(BaseTrainer):
 
         # Loop over training batches
         self.logger.info('Training...')
-        for i, data in enumerate(data_loader):
+        for i, data in enumerate(bg(data_loader)):
             data = [True,] + data
             out = sess.run(self.operators, feed_dict={i: d for i, d in zip(self.inputs, data)})
             loss.append(out[1])
@@ -150,7 +171,7 @@ class ClassifierTrainer(BaseTrainer):
 
         # Loop over training batches
         self.logger.info('Evaluating...')
-        for i, data in enumerate(data_loader):
+        for i, data in enumerate(bg(data_loader)):
             data = [False,] + data
             out = sess.run(self.operators[1:], feed_dict={i: d for i, d in zip(self.inputs, data)})
             loss.append(out[0])

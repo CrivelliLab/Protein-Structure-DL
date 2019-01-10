@@ -14,9 +14,9 @@ experiment_config:
 model_config:
     model_type: gcnn
     input_shape: [170,26,3]
-    kernels_per_layer: [8,]
-    conv_layers: [64,]
-    conv_dropouts: [0.25,]
+    kernels_per_layer: [1,]
+    conv_layers: [32,]
+    conv_dropouts: [0.0,]
     pooling_layers: [1,]
     fc_layers: [128,]
     fc_dropouts: [0.5,]

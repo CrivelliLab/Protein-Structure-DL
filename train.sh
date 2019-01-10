@@ -25,11 +25,11 @@ GPUS=0
 #CUDA_VISIBLE_DEVICES=$GPUS python3 src/main.py --cores 6 src/configs/enzyme/enzyme_volumes.yaml
 
 ## New GCNN with updated graph kernels
-CUDA_VISIBLE_DEVICES=$GPUS python3 src/main.py --cores 6 src/configs/psiblast/psiblast_graph_new.yaml
-CUDA_VISIBLE_DEVICES=$GPUS python3 src/main.py --cores 6 src/configs/krashras/krashras_graph_new.yaml
-CUDA_VISIBLE_DEVICES=$GPUS python3 src/main.py --cores 6 src/configs/kinase/kinase_graph_new.yaml
-CUDA_VISIBLE_DEVICES=$GPUS python3 src/main.py --cores 6 src/configs/oncogenes/oncogenes_graph_new.yaml
-CUDA_VISIBLE_DEVICES=$GPUS python3 src/main.py --cores 6 src/configs/enzyme/enzyme_graph_new.yaml
+#CUDA_VISIBLE_DEVICES=$GPUS python3 src/main.py --cores 2 src/configs/psiblast/psiblast_graph_new.yaml
+#CUDA_VISIBLE_DEVICES=$GPUS python3 src/main.py --cores 2 src/configs/krashras/krashras_graph_new.yaml
+#CUDA_VISIBLE_DEVICES=$GPUS python3 src/main.py --cores 8 src/configs/kinase/kinase_graph_new.yaml
+#CUDA_VISIBLE_DEVICES=$GPUS python3 src/main.py --cores 8 src/configs/oncogenes/oncogenes_graph_new.yaml
+CUDA_VISIBLE_DEVICES=$GPUS python3 src/main.py --cores 8 src/configs/enzyme/enzyme_graph_new.yaml
 
 ## CASP Structure Scoring Experiments
 #CUDA_VISIBLE_DEVICES=$GPUS python3 src/main.py --cores 6 src/configs/casp/casp_graph.yaml

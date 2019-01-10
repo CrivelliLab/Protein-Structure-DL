@@ -49,7 +49,7 @@ def VCAInput(nb_nodes, nb_coords, nb_features, a_mask=None):
 
     return v, c, a
 
-def GraphKernels(v,a,nb_kernels):
+def GraphKernels(v, a, nb_kernels):
     '''
     Method defines tensorflow layer which learns a graph kernel in order to normailize
     pairwise euclidean distances found in tensor a, according to node features in
@@ -70,30 +70,28 @@ def GraphKernels(v,a,nb_kernels):
     nb_features = int(v.shape[2])
     nb_nodes = int(v.shape[1])
 
-    # Define trainable parameters for learned e and b
-    x_i = tf.contrib.layers.xavier_initializer()
-    u = tf.Variable(x_i([nb_features, nb_kernels]))
-    u = tf.tile(tf.expand_dims(u, axis=0), [batch_size, 1, 1])
-    b = tf.Variable(x_i([nb_features, nb_kernels]))
-    b = tf.tile(tf.expand_dims(b, axis=0), [batch_size, 1, 1])
+    # Define trainable parameters
+    w1 = tf.Variable(tf.truncated_normal([nb_features, nb_kernels], stddev=np.sqrt(2/((nb_nodes*nb_features)+(nb_nodes*nb_kernels)))))
+    w2 = tf.Variable(tf.truncated_normal([nb_features, nb_kernels], stddev=np.sqrt(2/((nb_nodes*nb_features)+(nb_nodes*nb_kernels)))))
+    w1 = tf.tile(tf.expand_dims(w1, axis=0), [batch_size, 1, 1])
+    w2 = tf.tile(tf.expand_dims(w2, axis=0), [batch_size, 1, 1])
 
-    es = tf.split(u,[1 for i in range(nb_kernels)],axis=-1)
-    bs = tf.split(b,[1 for i in range(nb_kernels)],axis=-1)
+    # Normalize adjacency using learned graph kernels
+    w1 = tf.split(w1,[1 for i in range(nb_kernels)],axis=-1)
+    w2 = tf.split(w2,[1 for i in range(nb_kernels)],axis=-1)
     a_prime = []
-    for i, _ in enumerate(es):
-        # Get e
-        u_ = tf.tile(_, [1,1,nb_nodes])
-        b_ = tf.tile(bs[i], [1,1,nb_nodes])
-        e = tf.nn.softplus(tf.matmul(v, u_))
-        e = tf.transpose(e, [0,2,1])
-        #b_ = tf.nn.relu(tf.matmul(v, b_))
-        b_ = tf.matmul(v, b_)
-        b_ = tf.transpose(b_, [0,2,1])
-        a_ = tf.nn.sigmoid((e*a[0])+b_)
+    for _ in list(zip(w1,w2)):
+        w1_ = tf.tile(_[0], [1,1,nb_nodes])
+        w2_ = tf.tile(_[1], [1,1,nb_nodes])
+        e1 = tf.matmul(v, w1_)
+        e2 = tf.matmul(v, w2_)
+        e2 = tf.transpose(e2, [0,2,1])
+        e = tf.nn.softplus(e1+e2)
+        x = e * a
+        a_ = tf.exp(-(x*x))
         a_prime.append(a_)
 
     return a_prime
-
 
 def L2PDist(c):
     '''
@@ -114,18 +112,35 @@ def L2PDist(c):
 
     return a
 
-def GraphPool(v,c, pool_size):
+def MaxSeqGraphPool(v, c, pool_size):
     '''
+    Method preforms sequence based max pooling on graph structure according to node features V.
+    Coordinate features C are max pooled according to features in V and then new adjacency matrix A
+    is generated from the pooled C. V and C are assumed to be in sequential order.
+
+    Params:
+        v - Rank 3 tensor defining the node features; BATCHxNxF
+        c - Rank 3 tensor defining coordinates of nodes in n-euclidean space; BATCHxNxC
+        pool_size - int32; pool window size along sequence.
+
+    Returns:
+        v - Rank 3 tensor defining the node features for pooled V; BATCHx(N/pool_size)xF
+        c - Rank 3 tensor defining coordinates of nodes in n-euclidean space for pooled C; BATCHx(N/pool_size)xC
+        a - Rank 3 tensor defining L2 distances between nodes according to tensor c; BATCHx(N/pool_size)xN
+
     '''
-    # Max Pool C according to values from V
-    v_ = tf.reduce_sum(v,axis=-1)
+    # Dimensions
     nb_nodes = int(v.shape[1])
     nb_features = int(v.shape[-1])
     nb_coords = int(c.shape[-1])
     batch_size = tf.shape(v)[0]
+
+    # Max Pool C according to values from V
+    v_ = tf.reduce_sum(v,axis=-1)
     slices = [pool_size for i in range(nb_nodes//pool_size)]
-    if nb_nodes%pool_size> 0: slices = slices+[nb_nodes%pool_size,]
+    if nb_nodes%pool_size > 0: slices = slices+[nb_nodes%pool_size,]
     vs = tf.split(v_,slices, axis=1)
+    if nb_nodes%pool_size > 0: vs = vs[:-1]
     argmaxs = []
     for i,_ in enumerate(vs):
         argmax = tf.argmax(_, axis=-1, output_type=tf.int32) + i*pool_size
@@ -136,8 +151,8 @@ def GraphPool(v,c, pool_size):
     argmaxs = tf.concat(argmaxs, axis=-2)
     c_prime = tf.gather_nd(c,argmaxs)
 
-    # Average Pool V
-    v_prime = tf.layers.average_pooling1d(v,pool_size,pool_size)
+    # Max Pool V
+    v_prime = tf.layers.max_pooling1d(v,pool_size,pool_size)
 
     # Generate new A
     a_prime = L2PDist(c_prime)
@@ -175,15 +190,13 @@ def GraphConv(v, a, nb_filters):
     support = len(a)
 
     # Define trainable parameters for feature weights
-    x_i = tf.contrib.layers.xavier_initializer()
-    w = tf.Variable(x_i([nb_features*support, nb_filters]))
+    w = tf.Variable(tf.truncated_normal([nb_features*support, nb_filters], stddev=np.sqrt(2/((nb_features*support)+(nb_filters)))))
     w = tf.tile(tf.expand_dims(w, axis=0), [batch_size, 1, 1])
     b = tf.Variable(tf.zeros([nb_filters]))
 
     # Update node features according to graph
     v_ = []
-    for _ in a:
-        v_.append(tf.matmul(_, v)/nb_nodes)
+    for _ in a: v_.append(tf.matmul(_, v)/nb_nodes)
     v_ = tf.concat(v_, axis=-1)
 
     # Apply feature weights

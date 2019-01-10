@@ -5,15 +5,15 @@ from sklearn.model_selection import train_test_split
 
 class ProtienGraphDataset():
 
-    def __init__(self, data, nb_nodes, task_type, nb_classes, cluster_size, augment=1):
+    def __init__(self, data, nb_nodes, task_type, nb_classes, augment=1, fuzzy_radius=0.2):
         '''
         '''
         self.data = data
         self.nb_nodes = nb_nodes
         self.nb_classes = nb_classes
         self.task_type = task_type
-        self.cluster_size = cluster_size
         self.augment = augment
+        self.fuzzy_radius = fuzzy_radius
         if self.augment > 1:
             augment_flags = np.concatenate([np.zeros((len(self.data),1)),np.ones((len(self.data)*(self.augment-1),1))],axis=0)
             self.data = np.concatenate([self.data.copy() for i in range(self.augment)],axis=0)
@@ -23,26 +23,23 @@ class ProtienGraphDataset():
         '''
         '''
         # Parse Protein Graph
+        data_ = None
+        with open(self.data[index][0], 'r')as f:
+            data_ = f.readlines(65536)
+
         v = []
         c = []
-        with open(self.data[index][0], 'r')as f:
-            for i, _ in enumerate(f):
-                if i/self.cluster_size >= self.nb_nodes: break
-                row = _[:-1].split()
-                res = [0 for _ in range(23)]
-                res[int(row[3])] = 1
-                v.append(res)
-                c.append(row[-3:])
+        for i, _ in enumerate(data_):
+            if i >= self.nb_nodes: break
+            row = _[:-1].split()
+            res = [0 for _ in range(23)]
+            res[int(row[3])] = 1
+            v.append(res)
+            c.append(row[-3:])
+        del data_
         v = np.array(v, dtype=float)
         c = np.array(c, dtype=float)
         c = c - c.mean(axis=0) # Center on origin
-
-        # Graph Reduction
-        if self.cluster_size > 1:
-            c_c = np.array_split(c, len(c)/self.cluster_size + (len(c)%self.cluster_size> 0))
-            c = np.array([np.mean(_,axis=0) for _ in c_c])
-            v_c = np.array_split(v, len(v)/self.cluster_size + (len(v)%self.cluster_size > 0))
-            v = np.array([np.mean(_,axis=0) for _ in v_c])
 
         # Sequence Encoding
         s = np.array(list(range(len(v))), dtype=int)
@@ -51,7 +48,7 @@ class ProtienGraphDataset():
 
         # Augment with guasian kernel
         if self.data.shape[-1]==3 and self.data[index][2]:
-            random_shift = np.concatenate([np.expand_dims(np.random.uniform(0, 0.25, c.shape[0]), axis=-1) for _ in range(c.shape[-1])], axis=-1)
+            random_shift = np.concatenate([np.expand_dims(np.random.normal(0.0, self.fuzzy_radius, c.shape[0]), axis=-1) for _ in range(c.shape[-1])], axis=-1)
             c = c + random_shift
 
         # Zero Padding
@@ -99,7 +96,7 @@ class ProtienGraphDataset():
 
         return sequence_enc
 
-def get_datasets(data_path, nb_nodes, task_type, nb_classes, cluster_size=1, split=[0.7,0.1,0.2], k_fold=None, augment=1, seed=1234):
+def get_datasets(data_path, nb_nodes, task_type, nb_classes, split=[0.7,0.1,0.2], k_fold=None, augment=1, fuzzy_radius=0.2, seed=1234):
     '''
     '''
     # Load examples
@@ -143,8 +140,8 @@ def get_datasets(data_path, nb_nodes, task_type, nb_classes, cluster_size=1, spl
         data_valid = np.concatenate([x_valid,y_valid],axis=-1)
 
     # Initialize Dataset Iterators
-    train_dataset = ProtienGraphDataset(data_train, nb_nodes, task_type, nb_classes, cluster_size, augment)
-    valid_dataset = ProtienGraphDataset(data_valid, nb_nodes, task_type, nb_classes, cluster_size)
-    test_dataset = ProtienGraphDataset(data_test, nb_nodes, task_type, nb_classes, cluster_size)
+    train_dataset = ProtienGraphDataset(data_train, nb_nodes, task_type, nb_classes, augment, fuzzy_radius)
+    valid_dataset = ProtienGraphDataset(data_valid, nb_nodes, task_type, nb_classes)
+    test_dataset = ProtienGraphDataset(data_test, nb_nodes, task_type, nb_classes)
 
     return train_dataset, valid_dataset, test_dataset
