@@ -23,9 +23,11 @@ class ProtienGraphDataset():
         '''
         '''
         # Parse Protein Graph
-        data_ = None
+        data_ = []
         with open(self.data[index][0], 'r')as f:
-            data_ = f.readlines(65536)
+            for i,_ in enumerate(f):
+                if i >= self.nb_nodes: break
+                data_.append(_)
 
         v = []
         c = []

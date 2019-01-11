@@ -3,7 +3,7 @@ data_config:
     data_path: data/Enzyme
     task_type: classification
     nb_classes: 6
-    nb_nodes: 1000
+    nb_nodes: 1400
     split: [0.7,0.1,0.2]
     augment: 1
     fuzzy_radius: 0.25
@@ -15,19 +15,19 @@ experiment_config:
 
 model_config:
     model_type: gcnn
-    input_shape: [1000,26,3]
-    kernels_per_layer: [1]
-    conv_layers: [256]
-    conv_dropouts: [0.25]
-    pooling_layers: [5]
-    fc_layers: [128,]
+    input_shape: [1400,26,3]
+    kernels_per_layer: [2]
+    conv_layers: [128]
+    conv_dropouts: [0.1]
+    pooling_layers: [10]
+    fc_layers: [256,]
     fc_dropouts: [0.5]
     nb_classes: 6
     optimizer: 'Adam'
     learning_rate: 0.0001
 
 train_config:
-    batch_size: 10
+    batch_size: 50
     nb_epochs: 100
     early_stop_metric: valid_loss
     save_best: True

@@ -19,6 +19,28 @@ import pandas as pd
 import tensorflow as tf
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
+import multiprocessing
+
+def bg(gen):
+    def _bg_gen(gen,conn):
+        for data in gen:
+            if conn.recv():
+                conn.send(data)
+        conn.send(StopIteration)
+
+    parent_conn, child_conn = multiprocessing.Pipe()
+    p = multiprocessing.Process(target=_bg_gen, args=(gen,child_conn))
+    p.start()
+
+    parent_conn.send(True)
+    while True:
+        parent_conn.send(True)
+        x = parent_conn.recv()
+        if x is StopIteration:
+            return
+        else:
+            yield x
+
 class BaseTrainer(object):
 
     def __init__(self, output_dir=None):

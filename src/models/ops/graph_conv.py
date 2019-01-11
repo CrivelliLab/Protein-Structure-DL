@@ -114,9 +114,8 @@ def L2PDist(c):
 
 def MaxSeqGraphPool(v, c, pool_size):
     '''
-    Method preforms sequence based max pooling on graph structure according to node features V.
-    Coordinate features C are max pooled according to features in V and then new adjacency matrix A
-    is generated from the pooled C. V and C are assumed to be in sequential order.
+    Method preforms sequence based average pooling on graph structure.
+    V and C are assumed to be in sequential order.
 
     Params:
         v - Rank 3 tensor defining the node features; BATCHxNxF
@@ -129,30 +128,9 @@ def MaxSeqGraphPool(v, c, pool_size):
         a - Rank 3 tensor defining L2 distances between nodes according to tensor c; BATCHx(N/pool_size)xN
 
     '''
-    # Dimensions
-    nb_nodes = int(v.shape[1])
-    nb_features = int(v.shape[-1])
-    nb_coords = int(c.shape[-1])
-    batch_size = tf.shape(v)[0]
-
-    # Max Pool C according to values from V
-    v_ = tf.reduce_sum(v,axis=-1)
-    slices = [pool_size for i in range(nb_nodes//pool_size)]
-    if nb_nodes%pool_size > 0: slices = slices+[nb_nodes%pool_size,]
-    vs = tf.split(v_,slices, axis=1)
-    if nb_nodes%pool_size > 0: vs = vs[:-1]
-    argmaxs = []
-    for i,_ in enumerate(vs):
-        argmax = tf.argmax(_, axis=-1, output_type=tf.int32) + i*pool_size
-        argmax = tf.reshape(argmax, [-1,1, 1])
-        r = tf.reshape(tf.range(0, batch_size, 1), [-1, 1, 1])
-        argmax = tf.concat([r,argmax], axis=-1)
-        argmaxs.append(argmax)
-    argmaxs = tf.concat(argmaxs, axis=-2)
-    c_prime = tf.gather_nd(c,argmaxs)
-
-    # Max Pool V
-    v_prime = tf.layers.max_pooling1d(v,pool_size,pool_size)
+    # Average Pool V and C
+    v_prime = tf.layers.average_pooling1d(v,pool_size,pool_size)
+    c_prime = tf.layers.average_pooling1d(c,pool_size,pool_size)
 
     # Generate new A
     a_prime = L2PDist(c_prime)

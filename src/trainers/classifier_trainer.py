@@ -13,29 +13,8 @@ cross entropy as loss function. The following metrics are defined for trainier:
 import time
 import numpy as np
 import tensorflow as tf
-from .base_trainer import BaseTrainer
+from .base_trainer import BaseTrainer, bg
 from models import get_model
-import multiprocessing
-
-def bg(gen):
-    def _bg_gen(gen,conn):
-        for data in gen:
-            if conn.recv():
-                conn.send(data)
-        conn.send(StopIteration)
-
-    parent_conn, child_conn = multiprocessing.Pipe()
-    p = multiprocessing.Process(target=_bg_gen, args=(gen,child_conn))
-    p.start()
-
-    parent_conn.send(True)
-    while True:
-        parent_conn.send(True)
-        x = parent_conn.recv()
-        if x is StopIteration:
-            return
-        else:
-            yield x
 
 class ClassifierTrainer(BaseTrainer):
 
