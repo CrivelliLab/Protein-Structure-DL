@@ -39,10 +39,10 @@ class GCNN(Model):
         for i,_ in enumerate(list(zip(kernels_per_layer,conv_layers,conv_dropouts,pooling_layers))):
 
             # Graph Kernels for Euchlidean Distances
-            A_ = GraphKernels(V, A, int(_[0]), training=is_training, namespace='graphkernels_'+str(i)+'_')
+            A_ = GraphKernels(V, A[0], int(_[0]), training=is_training, namespace='graphkernels_'+str(i)+'_')
 
             # Cosine distances for angular contribution to graph kernels
-            A_ = AngularContribution(V, CosinePDist(C), A_, training=is_training, namespace='angularcontr_'+str(i)+'_')
+            A_ = AngularContribution(V, A[1], A_, training=is_training, namespace='angularcontr_'+str(i)+'_')
 
             # Preform Graph Covolution
             V = GraphConv(V, A_, int(_[1]), namespace='graphconv_'+str(i)+'_')

@@ -35,19 +35,23 @@ def VCAInput(nb_nodes, nb_coords, nb_features, a_mask=None):
 
     # Define pairwise adjaceny matrix set 'A'
     a = L2PDist(c)
+    a_c = CosinePDist(c)
 
     # Mask Empty Nodes
     emp = tf.expand_dims(tf.clip_by_value(tf.reduce_sum(v,axis=-1), 0, 1),axis=-1)
+    a_c = a_c * emp
     a = a * emp
     a = a * tf.transpose(emp, [0,2,1])
+    a_c = a_c * tf.transpose(emp, [0,2,1])
 
     # Apply mask
     if a_mask is not None:
         mask_ = tf.convert_to_tensor(a_mask, dtype=tf.float32)
         mask_ = tf.reshape(mask_, [-1, a_mask.shape[0], a_mask.shape[1]])
         a = tf.multiply(a, mask_)
+        a_c = tf.multiply(a, mask_)
 
-    return v, c, a
+    return v, c, [a,a_c]
 
 def L2PDist(c, namespace='l2pdist_a'):
     '''
@@ -244,6 +248,6 @@ def AverageSeqGraphPool(v, c, pool_size, namespace='averseqgraphpool_'):
     c_prime = tf.layers.average_pooling1d(c, pool_size, pool_size, name=namespace+'cprime')
 
     # Generate new A
-    a_prime = L2PDist(c_prime, namespace=namespace+'aprime')
+    a_prime = [L2PDist(c_prime, namespace=namespace+'aprime'), CosinePDist(c_prime)]
 
     return v_prime, c_prime, a_prime
