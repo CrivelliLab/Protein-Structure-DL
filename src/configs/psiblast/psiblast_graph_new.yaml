@@ -4,21 +4,22 @@ data_config:
     task_type: classification
     nb_classes: 2
     nb_nodes: 351
-    augment: 10
     split: [0.7,0.1,0.2]
+    augment: 20
+    fuzzy_radius: 0.25
     seed: 1234
 
 experiment_config:
     name: classifier
-    output_dir: out/psiblast_graph_new2
+    output_dir: out/psiblast_graph_new
 
 model_config:
     model_type: gcnn
     input_shape: [351,26,3]
-    kernels_per_layer: [1,] #[1,1,1,1]
-    conv_layers: [64,] #[32,32,64,64]
-    conv_dropouts: [0.0,] #[0.0,0.0,0.0,0.0]
-    pooling_layers: [2,] #[1,1,1,1]
+    kernels_per_layer: [1,1]
+    conv_layers: [64,128]
+    conv_dropouts: [0.1,0.1]
+    pooling_layers: [2,2]
     fc_layers: [128,]
     fc_dropouts: [0.5,]
     nb_classes: 2
@@ -29,5 +30,5 @@ train_config:
     batch_size: 50
     nb_epochs: 100
     early_stop_metric: valid_loss
-    early_stop_epochs: 10
+    early_stop_epochs: 5
     save_best: True

@@ -49,7 +49,45 @@ def VCAInput(nb_nodes, nb_coords, nb_features, a_mask=None):
 
     return v, c, a
 
-def GraphKernels(v, a, nb_kernels):
+def L2PDist(c, namespace='l2pdist_a'):
+    '''
+    Method calculate L2 pariwise distances between coordinates in tensor c.
+
+    Params:
+        c - Rank 3 tensor defining coordinates of nodes in n-euclidean space.
+
+    Returns:
+        a - Rank 3 tensor defining pairwise adjacency matrix of nodes.
+
+    '''
+    # Calculate L2 pairwise distances
+    l2 = tf.reduce_sum(c*c, 2)
+    l2 = tf.reshape(l2, [-1, 1, l2.shape[-1]])
+    a = l2 - 2*tf.matmul(c, tf.transpose(c, [0,2,1])) + tf.transpose(l2, [0,2,1])
+    a = tf.abs(a, name=namespace)
+
+    return a
+
+def CosinePDist(c):
+    '''
+    Method calculates cosine pairwise distances between coordinates in tensor c.
+
+    Params:
+        c - Rank 3 tensor defining coordinates of nodes in n-euclidean space.
+
+    Returns:
+        a - rak 3 tensor defining cosine pairwise adjacency matrix of nodes.
+
+    '''
+    # Calculate cosine similarity
+    normalized = tf.nn.l2_normalize(c, axis=-1)
+    prod = tf.matmul(normalized, normalized, adjoint_b=True)
+    a = (1 - prod) / 2.0
+    a = 1 - a
+
+    return a
+
+def GraphKernels(v, a, nb_kernels, training=None, namespace='graphkernel_'):
     '''
     Method defines tensorflow layer which learns a graph kernel in order to normailize
     pairwise euclidean distances found in tensor a, according to node features in
@@ -80,70 +118,70 @@ def GraphKernels(v, a, nb_kernels):
     w1 = tf.split(w1,[1 for i in range(nb_kernels)],axis=-1)
     w2 = tf.split(w2,[1 for i in range(nb_kernels)],axis=-1)
     a_prime = []
-    for _ in list(zip(w1,w2)):
+    for i, _ in enumerate(list(zip(w1,w2))):
         w1_ = tf.tile(_[0], [1,1,nb_nodes])
         w2_ = tf.tile(_[1], [1,1,nb_nodes])
         e1 = tf.matmul(v, w1_)
         e2 = tf.matmul(v, w2_)
         e2 = tf.transpose(e2, [0,2,1])
-        e = tf.nn.softplus(e1+e2)
+        e = tf.nn.softplus(e1+e2, name=namespace+'k_'+str(i))
+        if training is not None: tf.layers.batch_normalization(e, training=training)
         x = e * a
         a_ = tf.exp(-(x*x))
         a_prime.append(a_)
 
     return a_prime
 
-def L2PDist(c):
+def AngularContribution(v, c_a, a, training=None, namespace='angularcontr_'):
     '''
-    Method calculate L2 pariwise distances between coordinates in tensor c.
-
-    Params:
-        c - Rank 3 tensor defining coordinates of nodes in n-euclidean space.
-
-    Returns:
-        a - Rank 3 tensor defining pairwise adjacency matrix of nodes.
-
-    '''
-    # Calculate L2 pairwise distances
-    l2 = tf.reduce_sum(c*c, 2)
-    l2 = tf.reshape(l2, [-1, 1, l2.shape[-1]])
-    a = l2 - 2*tf.matmul(c, tf.transpose(c, [0,2,1])) + tf.transpose(l2, [0,2,1])
-    a = tf.abs(a)
-
-    return a
-
-def MaxSeqGraphPool(v, c, pool_size):
-    '''
-    Method preforms sequence based average pooling on graph structure.
-    V and C are assumed to be in sequential order.
+    Method defines tensorflow layer which learns a linear combination of cosine distance
+    tensor c_a and graph kernel normalized euclidean distance tensors a, according to node features in
+    tensor v.
 
     Params:
         v - Rank 3 tensor defining the node features; BATCHxNxF
-        c - Rank 3 tensor defining coordinates of nodes in n-euclidean space; BATCHxNxC
-        pool_size - int32; pool window size along sequence.
+        a - Rank 3 tensor defining cosine distances between nodes according to tensor c; BATCHxNxN
+        a - list(tf.arrays); list of normalized adjacency tensors; BATCHxNxN
 
     Returns:
-        v - Rank 3 tensor defining the node features for pooled V; BATCHx(N/pool_size)xF
-        c - Rank 3 tensor defining coordinates of nodes in n-euclidean space for pooled C; BATCHx(N/pool_size)xC
-        a - Rank 3 tensor defining L2 distances between nodes according to tensor c; BATCHx(N/pool_size)xN
+        a_prime - list(tf.arrays); list of normalized adjacency tensors; BATCHxNxN
 
     '''
-    # Average Pool V and C
-    v_prime = tf.layers.average_pooling1d(v,pool_size,pool_size)
-    c_prime = tf.layers.average_pooling1d(c,pool_size,pool_size)
+    # Dimensions
+    batch_size = tf.shape(v)[0]
+    nb_features = int(v.shape[2])
+    nb_nodes = int(v.shape[1])
+    nb_kernels = len(a)
 
-    # Generate new A
-    a_prime = L2PDist(c_prime)
+    # Define trainable parameters
+    w1 = tf.Variable(tf.truncated_normal([nb_features, nb_kernels], stddev=np.sqrt(2/((nb_nodes*nb_features)+(nb_nodes*nb_kernels)))))
+    w2 = tf.Variable(tf.truncated_normal([nb_features, nb_kernels], stddev=np.sqrt(2/((nb_nodes*nb_features)+(nb_nodes*nb_kernels)))))
+    w1 = tf.tile(tf.expand_dims(w1, axis=0), [batch_size, 1, 1])
+    w2 = tf.tile(tf.expand_dims(w2, axis=0), [batch_size, 1, 1])
 
-    return v_prime, c_prime, a_prime
+    # Normalize adjacency using learned graph kernels
+    w1 = tf.split(w1,[1 for i in range(nb_kernels)],axis=-1)
+    w2 = tf.split(w2,[1 for i in range(nb_kernels)],axis=-1)
+    a_prime = []
+    for i, _ in enumerate(list(zip(w1,w2))):
+        w1_ = tf.tile(_[0], [1,1,nb_nodes])
+        w2_ = tf.tile(_[1], [1,1,nb_nodes])
+        e1 = tf.matmul(v, w1_)
+        e2 = tf.matmul(v, w2_)
+        e2 = tf.transpose(e2, [0,2,1])
+        z = tf.nn.sigmoid(e1+e2, name=namespace+'z_'+str(i))
+        if training is not None: tf.layers.batch_normalization(z, training=training)
+        a_ = tf.add((z*c_a), ((1-z)*a[i]))
+        a_prime.append(a_)
 
-def GraphConv(v, a, nb_filters):
+    return a_prime
+
+def GraphConv(v, a, nb_filters, namespace='graphconv_'):
     '''
     Method defines basic graph convolution operation using inputs V and A. First,
-    features between nodes are progated through the graph according to adjacency matrix
-    A. Next, new features are computed according to trainable parameters to produce
-    node feature tensor V'. If applicable, batch normalization, activation and dropout
-    are applied to V' in that order.
+    features between nodes are progated through the graph according to adjacency matrix set
+    A. Next, new features are mapped according to fully connected layer to produce
+    node feature tensor V'.
 
     It's important to note that this implemenation of graph convolutions does not
     parameterize each edge in the graph, rather a single weight is shared between all edges
@@ -151,6 +189,9 @@ def GraphConv(v, a, nb_filters):
     of seperate adjacency matricies for each edge independently which is severly inefficient
     due to sparsity. This problem is currently being researched.That being said, single-weight
     graph convolutions still preform reasonably well using euclidean pairwise distance representations.
+
+    Update: Graph Kernel parameterization prior to graph convolution provides substantial improvement over
+    single-weight convolution.
 
     Params:
         v - Rank 3 tensor defining node features.
@@ -168,9 +209,9 @@ def GraphConv(v, a, nb_filters):
     support = len(a)
 
     # Define trainable parameters for feature weights
-    w = tf.Variable(tf.truncated_normal([nb_features*support, nb_filters], stddev=np.sqrt(2/((nb_features*support)+(nb_filters)))))
+    w = tf.Variable(tf.truncated_normal([nb_features*support, nb_filters], stddev=np.sqrt(2/((nb_features*support)+(nb_filters)))),name=namespace+'w')
     w = tf.tile(tf.expand_dims(w, axis=0), [batch_size, 1, 1])
-    b = tf.Variable(tf.zeros([nb_filters]))
+    b = tf.Variable(tf.zeros([nb_filters]), name=namespace+'b')
 
     # Update node features according to graph
     v_ = []
@@ -178,6 +219,31 @@ def GraphConv(v, a, nb_filters):
     v_ = tf.concat(v_, axis=-1)
 
     # Apply feature weights
-    v_prime = tf.add(tf.matmul(v_, w), b)
+    v_prime = tf.add(tf.matmul(v_, w), b, name=namespace+'vprime')
 
     return v_prime
+
+def AverageSeqGraphPool(v, c, pool_size, namespace='averseqgraphpool_'):
+    '''
+    Method preforms sequence based average pooling on graph structure.
+    V and C are assumed to be in sequential order.
+
+    Params:
+        v - Rank 3 tensor defining the node features; BATCHxNxF
+        c - Rank 3 tensor defining coordinates of nodes in n-euclidean space; BATCHxNxC
+        pool_size - int32; pool window size along sequence.
+
+    Returns:
+        v - Rank 3 tensor defining the node features for pooled V; BATCHx(N/pool_size)xF
+        c - Rank 3 tensor defining coordinates of nodes in n-euclidean space for pooled C; BATCHx(N/pool_size)xC
+        a - Rank 3 tensor defining L2 distances between nodes according to tensor c; BATCHx(N/pool_size)xN
+
+    '''
+    # Average Pool V and C
+    v_prime = tf.layers.average_pooling1d(v, pool_size, pool_size, name=namespace+'vprime')
+    c_prime = tf.layers.average_pooling1d(c, pool_size, pool_size, name=namespace+'cprime')
+
+    # Generate new A
+    a_prime = L2PDist(c_prime, namespace=namespace+'aprime')
+
+    return v_prime, c_prime, a_prime

@@ -36,19 +36,22 @@ class GCNN(Model):
         self.inputs = [is_training, V, C]
 
         # Graph Convolutions
-        for _ in list(zip(kernels_per_layer,conv_layers,conv_dropouts,pooling_layers)):
+        for i,_ in enumerate(list(zip(kernels_per_layer,conv_layers,conv_dropouts,pooling_layers))):
 
-            # Graph Kerenels
-            A_ = GraphKernels(V,A,int(_[0]))
+            # Graph Kernels for Euchlidean Distances
+            A_ = GraphKernels(V, A, int(_[0]), training=is_training, namespace='graphkernels_'+str(i)+'_')
+
+            # Cosine distances for angular contribution to graph kernels
+            A_ = AngularContribution(V, CosinePDist(C), A_, training=is_training, namespace='angularcontr_'+str(i)+'_')
 
             # Preform Graph Covolution
-            V = GraphConv(V, A_, int(_[1]))
+            V = GraphConv(V, A_, int(_[1]), namespace='graphconv_'+str(i)+'_')
             V = tf.nn.tanh(V)
             V = tf.layers.batch_normalization(V, training=is_training)
             V = tf.layers.dropout(V, float(_[2]), training=is_training)
 
             # Sequence Graph Pooling
-            if int(_[3]) > 1: V,C,A = MaxSeqGraphPool(V,C,int(_[3]))
+            if int(_[3]) > 1: V,C,A = AverageSeqGraphPool(V,C,int(_[3]), namespace='averseqgraphpool_'+str(i)+'_')
 
         # Fully Connected Layers
         F = tf.contrib.layers.flatten(V)

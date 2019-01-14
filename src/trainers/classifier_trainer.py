@@ -41,7 +41,7 @@ class ClassifierTrainer(BaseTrainer):
         # Add ouput classification layer
         Y = tf.placeholder(tf.float32, [None, nb_classes])
         self.inputs.append(Y)
-        y_out = tf.layers.dense(self.outputs[0], nb_classes)
+        y_out = tf.layers.dense(self.outputs[0], nb_classes, name='presoftmax_out')
 
         # Add Loss and Optimizers
         loss = tf.losses.softmax_cross_entropy(self.inputs[-1], y_out)
@@ -59,6 +59,7 @@ class ClassifierTrainer(BaseTrainer):
 
         # Metrics
         out = tf.nn.softmax(y_out)
+        self.outputs.append(y_out)
         acc,  acc_update = tf.metrics.accuracy(tf.argmax(self.inputs[-1], 1), tf.argmax(out, 1), name="accuracy")
         prec,  prec_update = tf.metrics.precision(tf.argmax(self.inputs[-1], 1), tf.argmax(out, 1), name="precision")
         recall,  recall_update = tf.metrics.recall(tf.argmax(self.inputs[-1], 1), tf.argmax(out, 1), name="recall")

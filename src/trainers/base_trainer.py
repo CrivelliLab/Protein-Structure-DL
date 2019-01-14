@@ -184,14 +184,14 @@ class BaseTrainer(object):
                 if not os.path.exists(self.output_dir+'/model'): os.mkdir(self.output_dir+'/model')
                 if save_best:
                     if 'loss' in early_stop_metric:
-                        if best_metric == None or metric < best_metric:
+                        if best_metric == None or metric <= best_metric:
                             self.logger.info('Current best according to '+early_stop_metric+'. Model Saved.')
                             best_metric = metric
                             epochs_since_best = 0
                             self.saver.save(sess, self.output_dir+"/model/model.ckpt")
                         else: epochs_since_best +=1
                     else:
-                        if best_metric == None or metric > best_metric:
+                        if best_metric == None or metric >= best_metric:
                             self.logger.info('Current best according to '+early_stop_metric+'. Model Saved.')
                             best_metric = metric
                             epochs_since_best = 0
