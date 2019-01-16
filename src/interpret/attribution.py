@@ -6,17 +6,29 @@ from trainers.base_trainer import bg
 
 ################################################################################
 
-def spatial_attribution(inputs, outputs, loss, layer, data):
+def attribution(inputs, output_loss, layer, data, sess):
     '''
     '''
-    pass
-    
-def channel_attribution(inputs, outputs, loss, layer, data):
-    '''
-    '''
-    pass
+    var_grad = tf.gradients(output_loss, [layer])[0]
+    linear_atrribution = var_grad
+    _ = sess.run(linear_atrribution, feed_dict={i: d for i, d in zip(inputs, data)})
+    return _
 
-def layer_attribution(inputs, outputs, loss, layer, data):
+def channel_attribution(inputs, output_loss, layer, data, sess):
     '''
     '''
-    pass
+    var_grad = tf.gradients(output_loss, [layer])[0]
+    linear_atrribution = var_grad * layer
+    linear_atrribution = tf.reduce_mean(linear_atrribution, axis=1)
+    _ = sess.run(linear_atrribution, feed_dict={i: d for i, d in zip(inputs, data)})
+    return _
+
+def layer_attribution(inputs, output_loss, layer, data, sess):
+    '''
+    '''
+    var_grad = tf.gradients(output_loss, [layer])[0]
+    linear_atrribution = var_grad * layer
+    linear_atrribution = tf.reduce_mean(linear_atrribution, axis=-1)
+    linear_atrribution = tf.reduce_mean(linear_atrribution, axis=-1)
+    _ = sess.run(linear_atrribution, feed_dict={i: d for i, d in zip(inputs, data)})
+    return _
