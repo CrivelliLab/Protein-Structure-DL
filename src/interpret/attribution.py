@@ -6,13 +6,11 @@ from trainers.base_trainer import bg
 
 ################################################################################
 
-def attribution(inputs, output_loss, layer, data, sess):
+def attribution(inputs, output_loss, layer):
     '''
     '''
     var_grad = tf.gradients(output_loss, [layer])[0]
-    linear_atrribution = var_grad
-    _ = sess.run(linear_atrribution, feed_dict={i: d for i, d in zip(inputs, data)})
-    return _
+    return var_grad
 
 def channel_attribution(inputs, output_loss, layer, data, sess):
     '''

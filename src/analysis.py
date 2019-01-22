@@ -154,17 +154,26 @@ if __name__ == '__main__':
         # Classification Max Activation Sample
         #loss = tf.losses.softmax_cross_entropy(trainer.inputs[-1], trainer.outputs[-1])
         #attrib = channel_attribution(trainer.inputs, loss, graphconv_filters[gf][0], sample, sess)[0]
-
+        k = 10
         v_atr = {}
         c_atr = {}
+        vc_atr = {}
+        losses = {}
+        l2pdist =  L2PDist(trainer.inputs[-2])
+        cpdist = CosinePDist(trainer.inputs[-2])
+        loss = tf.losses.softmax_cross_entropy(trainer.inputs[-1], trainer.outputs[-1])
+        v_attr = attribution(trainer.inputs, loss, trainer.inputs[1]) #sample, sess
+        c_attr = attribution(trainer.inputs, loss, trainer.inputs[2])
         for i, _ in enumerate(data_loader):
             sample = [False,] + _
             sample_id = data_loader.dataset.data[i][0].split('/')[-1][:-4]
             sample_class = data_loader.dataset.data[i][1]
 
+            loss_val = activation(trainer.inputs, loss, sample, sess)
+
             # PDist and CosinePDist
 
-            a = activation(trainer.inputs, L2PDist(trainer.inputs[-2]), sample, sess)[0]
+            a = activation(trainer.inputs, l2pdist, sample, sess)[0]
             a__ = a / np.max(a)
             a = np.exp(-(a__*a__))
             '''
@@ -176,7 +185,7 @@ if __name__ == '__main__':
             plt.show()
             '''
 
-            ca = activation(trainer.inputs, CosinePDist(trainer.inputs[-2]), sample, sess)[0]
+            ca = activation(trainer.inputs, cpdist , sample, sess)[0]
             '''
             plt.matshow(ca, cmap='seismic')
             plt.title('Cosine A' + ' : ' + sample_id + ' : ' + sample_class)
@@ -215,47 +224,61 @@ if __name__ == '__main__':
                 plt.colorbar()
                 plt.show()
             '''
+
             # Input Attribution To Classification
-            loss = tf.losses.softmax_cross_entropy(trainer.inputs[-1], trainer.outputs[-1])
-            attrib_v = attribution(trainer.inputs, loss, trainer.inputs[1], sample, sess)[0]
-            attrib_v = attrib_v * sample[1][0]
+            attrib_v = _ = sess.run(v_attr, feed_dict={i: d for i, d in zip(trainer.inputs, sample)})[0]
+            #attrib_v = attrib_v * sample[1][0]
             attrib_v = np.sum(attrib_v,axis=-1)
+            attrib_v = regress_ksegments(attrib_v, np.ones(attrib_v.shape), k)
             attrib_v = attrib_v / np.max(np.abs(attrib_v))
-            attrib_v = regress_ksegments(attrib_v, np.ones(attrib_v.shape), 10)
             if sample[-1][0][0] not in v_atr:
                 v_atr[sample[-1][0][0]]=[]
                 v_atr[sample[-1][0][0]].append(attrib_v)
             else: v_atr[sample[-1][0][0]].append(attrib_v)
-            attrib_v = np.transpose(np.expand_dims(attrib_v,axis=-1))
-            attrib_v = np.concatenate([attrib_v for j in range(20)], axis=0)
+            #attrib_v = np.transpose(np.expand_dims(attrib_v,axis=-1))
+            #attrib_v = np.concatenate([attrib_v for j in range(20)], axis=0)
             '''
             plt.matshow(attrib_v, cmap='seismic', vmin=-1, vmax=1)
-            plt.title('Input V Attribution : ' + sample_id + ' : ' + sample_class, y=1.75)
+            plt.title('Input V Attribution : ' + sample_id + ' : ' + sample_class, y=1.15)
             plt.xlabel("Nodes")
             plt.colorbar()
             plt.show()
             '''
 
-            attrib_c = attribution(trainer.inputs, loss, trainer.inputs[2], sample, sess)
-            attrib_c = np.sum(attrib_c[0],axis=-1)
-            attrib_c = attrib_c *a_
+            attrib_c = sess.run(c_attr, feed_dict={i: d for i, d in zip(trainer.inputs, sample)})[0]
+            #attrib_c = attrib_c * np.concatenate([np.expand_dims(a_,axis=-1) for j in range(attrib_c.shape[-1])], axis=-1)
+            attrib_c = np.sum(attrib_c,axis=-1)
+            #attrib_c = np.sum(attrib_c[0],axis=-1)
+            attrib_c = regress_ksegments(attrib_c, np.ones(attrib_c.shape), k)
             attrib_c = attrib_c / np.max(np.abs(attrib_c))
-            attrib_c = regress_ksegments(attrib_c, np.ones(attrib_c.shape), 10)
             if sample[-1][0][0] not in c_atr:
                 c_atr[sample[-1][0][0]]=[]
                 c_atr[sample[-1][0][0]].append(attrib_c)
             else: c_atr[sample[-1][0][0]].append(attrib_c)
-            attrib_c = np.transpose(np.expand_dims(attrib_c,axis=-1))
-            attrib_c = np.concatenate([attrib_c for j in range(20)], axis=0)
+            #attrib_c = np.transpose(np.expand_dims(attrib_c,axis=-1))
+            #attrib_c = np.concatenate([attrib_c for j in range(20)], axis=0)
+
+            attrib_vc = (attrib_c + attrib_v)/2.0
+            if sample[-1][0][0] not in vc_atr:
+                vc_atr[sample[-1][0][0]]=[]
+                vc_atr[sample[-1][0][0]].append(attrib_vc)
+            else: vc_atr[sample[-1][0][0]].append(attrib_vc)
+
+            if sample[-1][0][0] not in losses:
+                losses[sample[-1][0][0]]=[]
+                losses[sample[-1][0][0]].append([sample_id, loss_val])
+            else: losses[sample[-1][0][0]].append([sample_id, loss_val])
+
             '''
             plt.matshow(attrib_c, cmap='seismic', vmin=-1, vmax=1)
-            plt.title('Input C Attribution : ' + sample_id + ' : ' + sample_class, y=1.75)
+            plt.title('Input C Attribution : ' + sample_id + ' : ' + sample_class, y=1.15)
             plt.xlabel("Nodes")
             plt.colorbar()
             plt.show()
             '''
 
             continue
+            '''
 
             # Graph Kernels Attribution to Classifciation
             print('Graph Kernel Attribution to Classifciations')
@@ -316,22 +339,60 @@ if __name__ == '__main__':
                         plt.xlabel("Nodes")
                         plt.colorbar()
                         plt.show()
+        '''
         #Plot Range
         for key in c_atr.keys():
             x = list(range(len(c_atr[key][0])))
             y = np.array(c_atr[key])
-            plt.plot(x,np.average(y,axis=0), color='black')
-            plt.fill_between(x,np.min(y,axis=0),np.max(y,axis=0), color='red', alpha=0.4)
+            plt.plot(x,np.zeros((len(x))), color='black')
+            plt.plot(x,np.average(y,axis=0), color='black', linestyle='dashed')
+            plt.plot(x,np.average(y,axis=0)-np.std(y,axis=0), color='black')
+            plt.plot(x,np.average(y,axis=0)+np.std(y,axis=0), color='black')
+            plt.fill_between(x,np.zeros((len(x))),np.ones((len(x))), color='red', alpha=0.4)
+            plt.fill_between(x,-1*np.ones((len(x))),np.zeros((len(x))), color='blue', alpha=0.4)
             plt.ylim(-1,1)
+            plt.title('C'+str(key))
             plt.show()
 
         for key in v_atr.keys():
             x = list(range(len(v_atr[key][0])))
             y = np.array(v_atr[key])
-            plt.plot(x,np.average(y,axis=0), color='black')
-            plt.fill_between(x,np.min(y,axis=0),np.max(y,axis=0), color='red', alpha=0.4)
+            plt.plot(x,np.zeros((len(x))), color='black')
+            plt.plot(x,np.average(y,axis=0), color='black', linestyle='dashed')
+            plt.plot(x,np.average(y,axis=0)-np.std(y,axis=0), color='black')
+            plt.plot(x,np.average(y,axis=0)+np.std(y,axis=0), color='black')
+            plt.fill_between(x,np.zeros((len(x))),np.ones((len(x))), color='red', alpha=0.4)
+            plt.fill_between(x,-1*np.ones((len(x))),np.zeros((len(x))), color='blue', alpha=0.4)
             plt.ylim(-1,1)
+            plt.title('V'+str(key))
             plt.show()
+
+        for key in vc_atr.keys():
+            x = list(range(len(vc_atr[key][0])))
+            y = np.array(vc_atr[key])
+            plt.plot(x,np.zeros((len(x))), color='black')
+            plt.plot(x,np.average(y,axis=0), color='black', linestyle='dashed')
+            plt.plot(x,np.average(y,axis=0)-np.std(y,axis=0), color='black')
+            plt.plot(x,np.average(y,axis=0)+np.std(y,axis=0), color='black')
+            plt.fill_between(x,np.zeros((len(x))),np.ones((len(x))), color='red', alpha=0.4)
+            plt.fill_between(x,-1*np.ones((len(x))),np.zeros((len(x))), color='blue', alpha=0.4)
+            plt.ylim(-1,1)
+            plt.title('VC:'+str(key))
+            plt.show()
+
+        for key in losses.keys():
+            x = list(range(len(vc_atr[key][0])))
+            losses_ = np.array(losses[key])
+            top_10 = losses_[:,1].astype('float').argsort()[:10]
+            for _ in top_10:
+                y = np.array(v_atr[key][_])
+                y = np.transpose(np.expand_dims(y,axis=-1))
+                y = np.concatenate([y for j in range(15)], axis=0)
+                plt.matshow(y, cmap='seismic', vmin=-1, vmax=1)
+                plt.title('Input VC Attribution : ' + losses_[_,0] + ' : ' + str(key), y=1.15)
+                plt.xlabel("Nodes")
+                plt.colorbar()
+                plt.show()
 
 
     # Print some conclusions
