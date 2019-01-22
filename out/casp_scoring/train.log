@@ -1,0 +1,203 @@
+2019-01-07 10:01:30,313 INFO Initializing
+2019-01-07 10:01:30,790 INFO Loaded 359 training samples
+2019-01-07 10:01:30,791 INFO Loaded 52 validation samples
+2019-01-07 10:01:30,791 INFO Loaded 103 test samples
+2019-01-07 10:01:35,936 INFO Model: Graph-CNN
+2019-01-07 10:01:35,936 INFO Parameters: 701093
+2019-01-07 10:01:36,145 INFO Epoch 0:
+2019-01-07 10:01:36,161 INFO Training...
+2019-01-07 10:01:41,764 INFO train time: 5.600
+2019-01-07 10:01:41,764 INFO train loss average: 0.278
+2019-01-07 10:01:41,764 INFO train loss median: 0.256
+2019-01-07 10:01:41,764 INFO train loss range: 0.561
+2019-01-07 10:01:41,765 INFO Evaluating...
+2019-01-07 10:01:42,385 INFO valid time: 0.620
+2019-01-07 10:01:42,385 INFO valid loss average: 1.000
+2019-01-07 10:01:42,385 INFO valid loss median: 1.000
+2019-01-07 10:01:42,385 INFO valid loss range: 0.000
+2019-01-07 10:01:42,386 INFO Current best according to valid_loss_median. Model Saved.
+2019-01-07 10:01:42,637 INFO Epoch 1:
+2019-01-07 10:01:42,637 INFO Training...
+2019-01-07 10:01:47,732 INFO train time: 5.095
+2019-01-07 10:01:47,733 INFO train loss average: 0.156
+2019-01-07 10:01:47,733 INFO train loss median: 0.125
+2019-01-07 10:01:47,733 INFO train loss range: 0.394
+2019-01-07 10:01:47,733 INFO Evaluating...
+2019-01-07 10:01:48,269 INFO valid time: 0.536
+2019-01-07 10:01:48,269 INFO valid loss average: 1.000
+2019-01-07 10:01:48,270 INFO valid loss median: 1.000
+2019-01-07 10:01:48,270 INFO valid loss range: 0.000
+2019-01-07 10:01:48,270 INFO Epoch 2:
+2019-01-07 10:01:48,271 INFO Training...
+2019-01-07 10:01:53,341 INFO train time: 5.070
+2019-01-07 10:01:53,341 INFO train loss average: 0.143
+2019-01-07 10:01:53,341 INFO train loss median: 0.104
+2019-01-07 10:01:53,341 INFO train loss range: 0.391
+2019-01-07 10:01:53,342 INFO Evaluating...
+2019-01-07 10:01:53,803 INFO valid time: 0.460
+2019-01-07 10:01:53,803 INFO valid loss average: 1.000
+2019-01-07 10:01:53,803 INFO valid loss median: 1.000
+2019-01-07 10:01:53,803 INFO valid loss range: 0.000
+2019-01-07 10:01:53,803 INFO Epoch 3:
+2019-01-07 10:01:53,804 INFO Training...
+2019-01-07 10:01:58,718 INFO train time: 4.914
+2019-01-07 10:01:58,718 INFO train loss average: 0.105
+2019-01-07 10:01:58,718 INFO train loss median: 0.080
+2019-01-07 10:01:58,718 INFO train loss range: 0.267
+2019-01-07 10:01:58,719 INFO Evaluating...
+2019-01-07 10:01:59,211 INFO valid time: 0.492
+2019-01-07 10:01:59,211 INFO valid loss average: 1.000
+2019-01-07 10:01:59,211 INFO valid loss median: 1.000
+2019-01-07 10:01:59,211 INFO valid loss range: 0.000
+2019-01-07 10:01:59,212 INFO Epoch 4:
+2019-01-07 10:01:59,212 INFO Training...
+2019-01-07 10:02:04,972 INFO train time: 5.759
+2019-01-07 10:02:04,973 INFO train loss average: 0.093
+2019-01-07 10:02:04,973 INFO train loss median: 0.080
+2019-01-07 10:02:04,974 INFO train loss range: 0.255
+2019-01-07 10:02:04,974 INFO Evaluating...
+2019-01-07 10:02:05,478 INFO valid time: 0.504
+2019-01-07 10:02:05,478 INFO valid loss average: 1.000
+2019-01-07 10:02:05,479 INFO valid loss median: 1.000
+2019-01-07 10:02:05,479 INFO valid loss range: 0.000
+2019-01-07 10:02:05,479 INFO Epoch 5:
+2019-01-07 10:02:05,479 INFO Training...
+2019-01-07 10:02:09,833 INFO Initializing
+2019-01-07 10:02:10,237 INFO Loaded 359 training samples
+2019-01-07 10:02:10,237 INFO Loaded 52 validation samples
+2019-01-07 10:02:10,237 INFO Loaded 103 test samples
+2019-01-07 10:02:15,926 INFO Model: Graph-CNN
+2019-01-07 10:02:15,926 INFO Parameters: 701093
+2019-01-07 10:02:16,101 INFO Epoch 0:
+2019-01-07 10:02:16,115 INFO Training...
+2019-01-07 10:02:21,590 INFO train time: 5.474
+2019-01-07 10:02:21,590 INFO train loss average: 0.284
+2019-01-07 10:02:21,591 INFO train loss median: 0.300
+2019-01-07 10:02:21,591 INFO train loss range: 0.468
+2019-01-07 10:02:21,591 INFO Evaluating...
+2019-01-07 10:02:22,182 INFO valid time: 0.590
+2019-01-07 10:02:22,182 INFO valid loss average: 1.000
+2019-01-07 10:02:22,182 INFO valid loss median: 1.000
+2019-01-07 10:02:22,182 INFO valid loss range: 0.000
+2019-01-07 10:02:22,183 INFO Current best according to valid_loss_median. Model Saved.
+2019-01-07 10:02:22,393 INFO Epoch 1:
+2019-01-07 10:02:22,393 INFO Training...
+2019-01-07 10:02:27,427 INFO train time: 5.034
+2019-01-07 10:02:27,428 INFO train loss average: 0.174
+2019-01-07 10:02:27,428 INFO train loss median: 0.140
+2019-01-07 10:02:27,428 INFO train loss range: 0.491
+2019-01-07 10:02:27,429 INFO Evaluating...
+2019-01-07 10:02:27,930 INFO valid time: 0.501
+2019-01-07 10:02:27,931 INFO valid loss average: 1.000
+2019-01-07 10:02:27,931 INFO valid loss median: 1.000
+2019-01-07 10:02:27,931 INFO valid loss range: 0.000
+2019-01-07 10:02:27,931 INFO Epoch 2:
+2019-01-07 10:02:27,932 INFO Training...
+2019-01-07 10:02:33,506 INFO train time: 5.574
+2019-01-07 10:02:33,507 INFO train loss average: 0.112
+2019-01-07 10:02:33,507 INFO train loss median: 0.098
+2019-01-07 10:02:33,507 INFO train loss range: 0.332
+2019-01-07 10:02:33,508 INFO Evaluating...
+2019-01-07 10:02:34,029 INFO valid time: 0.521
+2019-01-07 10:02:34,029 INFO valid loss average: 1.000
+2019-01-07 10:02:34,030 INFO valid loss median: 1.000
+2019-01-07 10:02:34,030 INFO valid loss range: 0.000
+2019-01-07 10:02:34,030 INFO Epoch 3:
+2019-01-07 10:02:34,031 INFO Training...
+2019-01-07 10:02:39,383 INFO train time: 5.352
+2019-01-07 10:02:39,384 INFO train loss average: 0.106
+2019-01-07 10:02:39,384 INFO train loss median: 0.087
+2019-01-07 10:02:39,384 INFO train loss range: 0.320
+2019-01-07 10:02:39,384 INFO Evaluating...
+2019-01-07 10:02:39,844 INFO valid time: 0.460
+2019-01-07 10:02:39,845 INFO valid loss average: 1.000
+2019-01-07 10:02:39,845 INFO valid loss median: 1.000
+2019-01-07 10:02:39,845 INFO valid loss range: 0.000
+2019-01-07 10:02:39,845 INFO Epoch 4:
+2019-01-07 10:02:39,845 INFO Training...
+2019-01-07 10:02:45,419 INFO train time: 5.573
+2019-01-07 10:02:45,419 INFO train loss average: 0.071
+2019-01-07 10:02:45,419 INFO train loss median: 0.052
+2019-01-07 10:02:45,419 INFO train loss range: 0.227
+2019-01-07 10:02:45,420 INFO Evaluating...
+2019-01-07 10:02:45,925 INFO valid time: 0.505
+2019-01-07 10:02:45,925 INFO valid loss average: 1.000
+2019-01-07 10:02:45,925 INFO valid loss median: 1.000
+2019-01-07 10:02:45,925 INFO valid loss range: 0.000
+2019-01-07 10:02:45,928 INFO Restoring parameters from out/casp_scoring/model/model.ckpt
+2019-01-07 10:02:45,966 INFO Evaluating...
+2019-01-07 10:02:46,938 INFO test time: 0.972
+2019-01-07 10:02:46,938 INFO test loss average: 1.000
+2019-01-07 10:02:46,938 INFO test loss median: 1.000
+2019-01-07 10:02:46,938 INFO test loss range: 0.000
+2019-01-07 10:05:35,391 INFO Initializing
+2019-01-07 10:05:35,803 INFO Loaded 359 training samples
+2019-01-07 10:05:35,803 INFO Loaded 52 validation samples
+2019-01-07 10:05:35,804 INFO Loaded 103 test samples
+2019-01-07 10:05:40,955 INFO Model: Graph-CNN
+2019-01-07 10:05:40,956 INFO Parameters: 701093
+2019-01-07 10:05:41,179 INFO Epoch 0:
+2019-01-07 10:05:41,192 INFO Training...
+2019-01-07 10:05:46,991 INFO train time: 5.797
+2019-01-07 10:05:46,991 INFO train loss average: 0.325
+2019-01-07 10:05:46,991 INFO train loss median: 0.352
+2019-01-07 10:05:46,992 INFO train loss range: 0.484
+2019-01-07 10:05:46,992 INFO Evaluating...
+2019-01-07 10:05:47,611 INFO valid time: 0.619
+2019-01-07 10:05:47,612 INFO valid loss average: 1.000
+2019-01-07 10:05:47,612 INFO valid loss median: 1.000
+2019-01-07 10:05:47,612 INFO valid loss range: 0.000
+2019-01-07 10:05:47,612 INFO Current best according to valid_loss_median. Model Saved.
+2019-01-07 10:05:47,815 INFO Epoch 1:
+2019-01-07 10:05:47,815 INFO Training...
+2019-01-07 10:05:52,832 INFO train time: 5.017
+2019-01-07 10:05:52,832 INFO train loss average: 0.192
+2019-01-07 10:05:52,832 INFO train loss median: 0.172
+2019-01-07 10:05:52,833 INFO train loss range: 0.438
+2019-01-07 10:05:52,833 INFO Evaluating...
+2019-01-07 10:05:53,399 INFO valid time: 0.565
+2019-01-07 10:05:53,399 INFO valid loss average: 1.000
+2019-01-07 10:05:53,399 INFO valid loss median: 1.000
+2019-01-07 10:05:53,399 INFO valid loss range: 0.000
+2019-01-07 10:05:53,400 INFO Epoch 2:
+2019-01-07 10:05:53,400 INFO Training...
+2019-01-07 10:05:58,691 INFO train time: 5.290
+2019-01-07 10:05:58,691 INFO train loss average: 0.125
+2019-01-07 10:05:58,691 INFO train loss median: 0.115
+2019-01-07 10:05:58,691 INFO train loss range: 0.253
+2019-01-07 10:05:58,692 INFO Evaluating...
+2019-01-07 10:05:59,790 INFO valid time: 1.097
+2019-01-07 10:05:59,790 INFO valid loss average: 1.000
+2019-01-07 10:05:59,790 INFO valid loss median: 1.000
+2019-01-07 10:05:59,791 INFO valid loss range: 0.000
+2019-01-07 10:05:59,791 INFO Epoch 3:
+2019-01-07 10:05:59,792 INFO Training...
+2019-01-07 10:06:05,965 INFO train time: 6.173
+2019-01-07 10:06:05,965 INFO train loss average: 0.156
+2019-01-07 10:06:05,965 INFO train loss median: 0.118
+2019-01-07 10:06:05,965 INFO train loss range: 0.366
+2019-01-07 10:06:05,966 INFO Evaluating...
+2019-01-07 10:06:06,436 INFO valid time: 0.470
+2019-01-07 10:06:06,436 INFO valid loss average: 1.000
+2019-01-07 10:06:06,436 INFO valid loss median: 1.000
+2019-01-07 10:06:06,437 INFO valid loss range: 0.000
+2019-01-07 10:06:06,437 INFO Epoch 4:
+2019-01-07 10:06:06,438 INFO Training...
+2019-01-07 10:06:12,086 INFO train time: 5.647
+2019-01-07 10:06:12,086 INFO train loss average: 0.093
+2019-01-07 10:06:12,086 INFO train loss median: 0.101
+2019-01-07 10:06:12,086 INFO train loss range: 0.173
+2019-01-07 10:06:12,087 INFO Evaluating...
+2019-01-07 10:06:12,584 INFO valid time: 0.497
+2019-01-07 10:06:12,584 INFO valid loss average: 1.000
+2019-01-07 10:06:12,584 INFO valid loss median: 1.000
+2019-01-07 10:06:12,584 INFO valid loss range: 0.000
+2019-01-07 10:06:12,587 INFO Restoring parameters from out/casp_scoring/model/model.ckpt
+2019-01-07 10:06:12,623 INFO Evaluating...
+2019-01-07 10:06:13,905 INFO test time: 1.282
+2019-01-07 10:06:13,905 INFO test loss average: 1.000
+2019-01-07 10:06:13,906 INFO test loss median: 1.000
+2019-01-07 10:06:13,906 INFO test loss range: 0.000
+2019-01-07 10:06:13,973 INFO Saving History to out/casp_scoring/history.csv
+2019-01-07 10:06:13,973 INFO Saving Summary to out/casp_scoring/summary.csv
+2019-01-07 10:06:13,980 INFO All done!

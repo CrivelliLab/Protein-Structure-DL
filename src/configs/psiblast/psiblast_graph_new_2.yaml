@@ -1,33 +1,33 @@
 data_config:
     name: protien_graphs
-    data_path: data/Enzyme
+    data_path: data/PsiBlast
     task_type: classification
-    nb_classes: 6
-    nb_nodes: 800
+    nb_classes: 2
+    nb_nodes: 351
     split: [0.7,0.1,0.2]
-    augment: 10
-    fuzzy_radius: 0.15
+    augment: 30
+    fuzzy_radius: 0.25
     seed: 1234
 
 experiment_config:
     name: classifier
-    output_dir: out/enzyme_graph_new
+    output_dir: out/psiblast_graph_new_2
 
 model_config:
     model_type: gcnn
-    input_shape: [800,26,3]
-    kernels_per_layer: [2]
-    conv_layers: [256]
+    input_shape: [351,26,3]
+    kernels_per_layer: [1,]
+    conv_layers: [128,]
     conv_dropouts: [0.1,]
-    pooling_layers: [8]
-    fc_layers: [256,]
-    fc_dropouts: [0.5]
-    nb_classes: 6
+    pooling_layers: [2,]
+    fc_layers: [128,]
+    fc_dropouts: [0.5,]
+    nb_classes: 2
     optimizer: 'Adam'
     learning_rate: 0.0001
 
 train_config:
-    batch_size: 25
+    batch_size: 500
     nb_epochs: 100
     early_stop_metric: valid_loss
     early_stop_epochs: 5

@@ -21,7 +21,7 @@ model_config:
     conv_dropouts: [0.1,0.1,0.1,0.1]
     pooling_layers: [2,2,2,2]
     fc_layers: [128,]
-    fc_dropouts: [0.5,]
+    fc_dropouts: [0.5]
     nb_classes: 2
     optimizer: 'Adam'
     learning_rate: 0.0001
