@@ -46,7 +46,7 @@ def parse_pdb(path, chain, all_chains=False, first=False):
     seq_data = []
     helix_data = []
     beta_data = []
-    complex_data = []
+    complex_data = {}
     protein_data = []
     res_ = None
     res_i = None
@@ -63,7 +63,7 @@ def parse_pdb(path, chain, all_chains=False, first=False):
                 for _ in row_[4:]:
                     try: ress = residues.index(_)
                     except: ress = residues.index('UNK')
-                    seq_data.append([row_[2], ress])
+                    seq_data.append([row_[2].upper(), ress])
 
             if row[:5] == 'HELIX':
                 if not all_chains and row[19] != chain.upper(): continue
@@ -127,11 +127,11 @@ def parse_pdb(path, chain, all_chains=False, first=False):
                         protein_data.append(res_data)
 
                 if len(protein_data) > 0:
-                    complex_data.append(protein_data)
+                    complex_data[row[21].upper()] = protein_data
                     protein_data = []
                     if not all_chains or first: break
 
-
+    if len(complex_data)==0: return []
     # No Sequence Data
     if len(seq_data) < 1:
         chains_ = []
@@ -145,7 +145,7 @@ def parse_pdb(path, chain, all_chains=False, first=False):
         seq_data = np.concatenate([chains_, ress_], axis=-1)
 
     # Set Sequence Data
-    data = []
+    data = {}
     last_chain = -1
     temp = []
     ii = 1
@@ -155,16 +155,17 @@ def parse_pdb(path, chain, all_chains=False, first=False):
         t[1] = ii
         ii += 1
         if last_chain != _[0] or i+1 == len(seq_data):
-            last_chain = _[0]
             if i+1 == len(seq_data): temp.append(t)
             if len(temp) > 0:
-                data.append(np.array(temp))
+                data[last_chain] = np.array(temp)
                 temp = []
                 ii = 0
             else: temp.append(t)
+            last_chain = _[0]
         else:
             temp.append(t)
 
+    '''
     last_chain = None
     temp_i = -1
     for i,_ in enumerate(helix_data):
@@ -176,16 +177,16 @@ def parse_pdb(path, chain, all_chains=False, first=False):
     last_chain = None
     temp_i = -1
     for i,_ in enumerate(beta_data):
-        if last_chain != _[0]:
-            last_chain = _[0]
+        if last_chain != _[0].upper():
+            last_chain = _[0].upper()
             temp_i +=1
         data[temp_i][_[1]-1:_[2]-1,6] = 1
+    '''
+    for i in data.keys():
+        data[i] = data[i].astype('int').astype('str')
 
-    for i, _ in enumerate(data):
-        data[i] = _.astype('int').astype('str')
-
-    for ii,_ in enumerate(complex_data):
-        chain_data = np.array(_)
+    for ii in complex_data.keys():
+        chain_data = np.array(complex_data[ii])
         chain_c = chain_data[:,2:5].astype('float')
         chain_sc_c = chain_data[:,5:].astype('float')
         chain_centroid = np.mean(chain_c,axis=0)
@@ -197,6 +198,8 @@ def parse_pdb(path, chain, all_chains=False, first=False):
         chain_c = -(chain_c)
         residue_orientation = [1-cosine(chain_c[i], chain_sc_c[i]) for i in range(len(chain_c))]
 
+        if ii not in data: continue
+
         # Try First three res align
         offset = -1
         for j in range(len(chain_data)-3):
@@ -207,16 +210,6 @@ def parse_pdb(path, chain, all_chains=False, first=False):
             if offset != -1: break
 
         if offset == -1: 
-            print(path)
-            offset = -1
-            for j in range(2):
-                for i, _ in enumerate(data[ii][:-3]):
-                    print(data[ii][i:i+3,2].tolist(),chain_data[j:j+3, 1].tolist())
-                    if data[ii][i:i+3,2].tolist() == chain_data[j:j+3, 1].tolist():
-                        offset = int(data[ii][i,1]) - int(chain_data[j,0])
-                        break
-            exit()
-
             return []
 
         for i in range(len(chain_data)):
@@ -234,7 +227,7 @@ def parse_pdb(path, chain, all_chains=False, first=False):
             if data[ii][i,0] == 1: tmp = i
             else: data[ii][i,-3:] = data[ii][tmp,-3:]
 
-    data = np.concatenate(data, axis=0)
+    data = np.concatenate([data[ii] for ii in data.keys()], axis=0)
     if len(data) == 0: return []
 
     return data
