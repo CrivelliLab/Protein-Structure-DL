@@ -108,7 +108,7 @@ def parse_pdb(path, chain, all_chains=False, first=False):
                     if res_c is not None:
                         res_data = [res_i, ress] + res_c + sidechain_c
                         protein_data.append(res_data)
-                    res_i = row[23:26]
+                    res_i = row[22:26]
 
             if row[:3] == 'TER':
                 if sidechain_flag == True:
@@ -198,14 +198,31 @@ def parse_pdb(path, chain, all_chains=False, first=False):
         residue_orientation = [1-cosine(chain_c[i], chain_sc_c[i]) for i in range(len(chain_c))]
 
         # Try First three res align
-        offset = 0
-        for i, _ in enumerate(data[ii]):
-            if data[ii][i:i+3,2].tolist() == chain_data[0:3, 1].tolist():
-                offset = int(data[ii][i,1]) - int(chain_data[i,0])
+        offset = -1
+        for j in range(len(chain_data)-3):
+            for i, _ in enumerate(data[ii][:-3]):
+                if data[ii][i:i+3,2].tolist() == chain_data[j:j+3, 1].tolist():
+                    offset = int(data[ii][i,1]) - int(chain_data[j,0])
+                    break
+            if offset != -1: break
+
+        if offset == -1: 
+            print(path)
+            offset = -1
+            for j in range(2):
+                for i, _ in enumerate(data[ii][:-3]):
+                    print(data[ii][i:i+3,2].tolist(),chain_data[j:j+3, 1].tolist())
+                    if data[ii][i:i+3,2].tolist() == chain_data[j:j+3, 1].tolist():
+                        offset = int(data[ii][i,1]) - int(chain_data[j,0])
+                        break
+            exit()
+
+            return []
 
         for i in range(len(chain_data)):
             ir = int(chain_data[i][0]) - 1 + offset
             if ir >= len(data[ii]): break
+            if ir < 0: continue
             data[ii][ir,0] = 1
             data[ii][ir,3] = str(residue_depth_percentile[i])[:6]
             data[ii][ir,-3:] = chain_data[i,2:5]
