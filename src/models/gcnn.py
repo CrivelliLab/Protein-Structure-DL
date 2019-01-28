@@ -31,9 +31,14 @@ class GCNN(Model):
 
         '''
         # Inputs
-        V, C, A = VCAInput(input_shape[0], input_shape[2], input_shape[1])
+        V, C, A, M = VCAInput(input_shape[0], input_shape[2], input_shape[1])
         is_training = tf.placeholder_with_default(True, shape=())
-        self.inputs = [is_training, V, C]
+        self.inputs = [is_training, V, C, M]
+
+        # Apply Mask
+        A_ = []
+        for a in A: A_.append(a*M)
+        A = A_
 
         # Graph Convolutions
         for i,_ in enumerate(list(zip(kernels_per_layer,conv_layers,conv_dropouts,pooling_layers))):

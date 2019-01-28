@@ -33,10 +33,14 @@ def VCAInput(nb_nodes, nb_coords, nb_features, a_mask=None):
     # Define node coordinate vector 'C'
     c = tf.placeholder(tf.float32, [None, nb_nodes, nb_coords])
 
+    # Define mask placeholder
+    m = tf.placeholder(tf.float32, [None, nb_nodes, nb_nodes])
+
     # Define pairwise adjaceny matrix set 'A'
     a = L2PDist(c)
     a_c = CosinePDist(c)
 
+    '''
     # Mask Empty Nodes
     emp = tf.expand_dims(tf.clip_by_value(tf.reduce_sum(v,axis=-1), 0, 1),axis=-1)
     a_c = a_c * emp
@@ -50,8 +54,9 @@ def VCAInput(nb_nodes, nb_coords, nb_features, a_mask=None):
         mask_ = tf.reshape(mask_, [-1, a_mask.shape[0], a_mask.shape[1]])
         a = tf.multiply(a, mask_)
         a_c = tf.multiply(a, mask_)
+    '''
 
-    return v, c, [a,a_c]
+    return v, c, [a,a_c], m
 
 def L2PDist(c, namespace='l2pdist_a'):
     '''

@@ -1,0 +1,28 @@
+data_config:
+    name: protien_pairwise_images
+    data_path: data/OncoGenes
+    task_type: classification
+    nb_classes: 2
+    split: [0.7,0.1,0.2]
+    seed: 4321
+
+experiment_config:
+    name: classifier
+    output_dir: out/oncogenes_pairwise
+
+model_config:
+    model_type: cnn_2d
+    input_shape: [23,23,9]
+    conv_layers: [128,128]
+    kernel_shapes: [5,5]
+    conv_dropouts: [0.25,0.25]
+    fc_layers: [128,]
+    fc_dropouts: [0.5,]
+    nb_classes: 2
+    optimizer: 'Adam'
+    learning_rate: 0.001
+
+train_config:
+    batch_size: 500
+    nb_epochs: 100
+    save_best: True

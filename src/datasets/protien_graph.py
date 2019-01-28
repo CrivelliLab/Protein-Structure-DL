@@ -19,6 +19,8 @@ class ProtienGraphDataset():
             self.data = np.concatenate([self.data.copy() for i in range(self.augment)],axis=0)
             self.data = np.concatenate([self.data,augment_flags],axis=-1)
 
+        self.ident = np.eye(nb_nodes)
+
     def __getitem__(self, index):
         '''
         '''
@@ -30,23 +32,31 @@ class ProtienGraphDataset():
                 data_.append(_)
 
         v = []
+        v_ = []
+        s = []
         c = []
+        m = []
         for i, _ in enumerate(data_):
             if i >= self.nb_nodes: break
             row = _[:-1].split()
             res = [0 for _ in range(23)]
-            res[int(row[3])] = 1
+            res[int(row[2])] = 1
             v.append(res)
+            v_.append(row[3:5])
             c.append(row[-3:])
+            s.append(int(row[1]))
+            m.append(int(row[0]))
         del data_
         v = np.array(v, dtype=float)
+        v_ = np.array(v_,dtype=float)
         c = np.array(c, dtype=float)
         c = c - c.mean(axis=0) # Center on origin
+        m = np.array(m, dtype=float)
 
         # Sequence Encoding
-        s = np.array(list(range(len(v))), dtype=int)
-        p = self.sequence_encode(s, 3)
-        v = np.concatenate([v,p], axis=-1)
+        #s = np.array(list(range(len(v))), dtype=int)
+        p = self.sequence_encode(s, 4)
+        v = np.concatenate([v,v_,p], axis=-1)
 
         # Augment with guasian kernel
         if self.data.shape[-1]==3 and self.data[index][2]:
@@ -59,8 +69,16 @@ class ProtienGraphDataset():
             v_[:v.shape[0],:v.shape[1]] = v
             c_ = np.zeros((self.nb_nodes, c.shape[1]))
             c_[:c.shape[0],:c.shape[1]] = c
+            m_ = np.zeros((self.nb_nodes))
+            m_[:m.shape[0]] = m
             v = v_
             c = c_
+            m = m_
+
+        # Set MasK
+        m = np.repeat(np.expand_dims(m,axis=-1), len(m), axis=-1)
+        m = m + self.ident
+        m[m>1] = 1
 
         if self.task_type == 'classification':
             y = [0 for _ in range(self.nb_classes)]
@@ -68,7 +86,7 @@ class ProtienGraphDataset():
         elif self.task_type == 'regression': y = [float(self.data[index][1]),]
         else: raise Exception('Task Type %s unknown' % self.task_type)
 
-        data_ = [v,c,y]
+        data_ = [v,c,m,y]
 
         return data_
 
@@ -115,6 +133,11 @@ def get_datasets(data_path, nb_nodes, task_type, nb_classes, split=[0.7,0.1,0.2]
             Y.append(row[2])
     X = np.expand_dims(X, axis=-1)
     Y = np.expand_dims(Y, axis=-1)
+
+    # Get Class Compossition
+    unique, counts = np.unique(Y, return_counts=True)
+    for i in range(len(unique)):
+        print('CLASS[COUNTS]: ', unique[i], counts[i])
 
     if k_fold is not None:
         # Split into K Folds and return training, validation and test

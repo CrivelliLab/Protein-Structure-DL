@@ -5,6 +5,7 @@
 /data/*/ligands
 /data/*/site.txt
 /out/*/model
+/out/*/interpret/
 .DS_Store
 __pycache__
 /data/*.tar.gz

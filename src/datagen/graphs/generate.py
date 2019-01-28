@@ -5,10 +5,16 @@ README:
 This script parses pdb for resiude types and (x,y,z) coordinates for construction
 of protein graphs.
 
+BUGS:
+- There is a current bug with PDB files who's crystal structure residue indexes do not
+match the sequence of the chain. These PDBs are not processed.
+
 '''
 import os
 import numpy as np
 import pandas as pd
+from  scipy.spatial.distance import euclidean, cosine
+from scipy.stats import percentileofscore as perc
 import argparse
 from mpi4py import MPI
 
@@ -37,37 +43,171 @@ def parse_pdb(path, chain, all_chains=False, first=False):
     '''
     '''
     # Parse residue, atom type and atomic coordinates
+    seq_data = []
+    helix_data = []
+    beta_data = []
+    complex_data = []
     protein_data = []
-    res_i = 1
-    chain_i = 1
+    res_ = None
+    res_i = None
+    res_c = None
+    sidechain_data = []
+    sidechain_flag = False
+    sidechain_counter = 0
     with open(path, 'r') as f:
         lines = f.readlines()
         for row in lines:
+            if row[:6] == 'SEQRES':
+                row_ = row[:-1].split()
+                if not all_chains and row_[2] != chain.upper(): continue
+                for _ in row_[4:]:
+                    try: ress = residues.index(_)
+                    except: ress = residues.index('UNK')
+                    seq_data.append([row_[2], ress])
 
-            # Amino Level Information
+            if row[:5] == 'HELIX':
+                if not all_chains and row[19] != chain.upper(): continue
+                helix_data.append([row[19], int(row[22:25]), int(row[34:37])])
+
+            if row[:5] == 'SHEET':
+                if not all_chains and row[21] != chain.upper(): continue
+                beta_data.append([row[21], int(row[23:26]), int(row[34:37])])
+
             if row[:4] == 'ATOM':
-                if not all_chains and row[21] != chain.upper(): pass
-                else:
+
+                # Check if for chain
+                if not all_chains and row[21] != chain.upper(): continue
+
+                if res_i is None: res_i = row[22:26]
+
+                if row[22:26] == res_i:
+
                     if row[12:17] in [' CA  ',' CA A']:
-                        try: ress = residues.index(row[17:20])
-                        except: ress = residues.index('UNK')
-                        atom_data = [int(row[23:26]), chain_i, res_i,
-                                        ress,
-                                        row[30:38].strip(),
-                                        row[38:46].strip(),
-                                        row[47:54].strip()]
-                        protein_data.append(atom_data)
-                        res_i += 1
+                        res_ = row[17:20]
+                        res_c = [row[30:38].strip(), row[38:46].strip(), row[47:54].strip()]
+                        sidechain_flag = True
+                        sidechain_counter += 1
+                    else:
+                        if sidechain_flag:
+                            if sidechain_counter > 2:
+                                sidechain_data.append([row[30:38].strip(), row[38:46].strip(), row[47:54].strip()])
+                            else:
+                                sidechain_counter += 1
+
+                else:
+                    try: ress = residues.index(res_)
+                    except: ress = residues.index('UNK')
+                    if len(sidechain_data)> 0:
+                        sidechain_data = np.array(sidechain_data).astype('float')
+                        sidechain_c = np.mean(sidechain_data, axis=0).tolist()
+                        sidechain_data = []
+                    else:
+                        sidechain_c = res_c
+                    sidechain_flag = False
+                    sidechain_counter = 0
+                    if res_c is not None:
+                        res_data = [res_i, ress] + res_c + sidechain_c
+                        protein_data.append(res_data)
+                    res_i = row[23:26]
+
             if row[:3] == 'TER':
+                if sidechain_flag == True:
+                    try: ress = residues.index(res_)
+                    except: ress = residues.index('UNK')
+                    if len(sidechain_data)> 0:
+                        sidechain_data = np.array(sidechain_data).astype('float')
+                        sidechain_c = np.mean(sidechain_data, axis=0).tolist()
+                        sidechain_data = []
+                    else:
+                        sidechain_c = res_c
+                    sidechain_flag = False
+                    sidechain_counter = 0
+                    if res_c is not None:
+                        res_data = [res_i, ress] + res_c + sidechain_c
+                        protein_data.append(res_data)
+
                 if len(protein_data) > 0:
-                    chain_i +=1
-                    res_i = 0
+                    complex_data.append(protein_data)
+                    protein_data = []
                     if not all_chains or first: break
 
-    protein_data = np.array(protein_data)
-    if len(protein_data) == 0: return []
 
-    return protein_data
+    data = []
+    last_chain = -1
+    temp = []
+    ii = 1
+    for i,_ in enumerate(seq_data):
+        t = np.zeros((10))
+        t[2] = _[1]
+        t[1] = ii
+        ii += 1
+        if last_chain != _[0] or i+1 == len(seq_data):
+            last_chain = _[0]
+            if i+1 == len(seq_data): temp.append(t)
+            if len(temp) > 0:
+                data.append(np.array(temp))
+                temp = []
+                ii = 0
+            else: temp.append(t)
+        else:
+            temp.append(t)
+
+    last_chain = None
+    temp_i = -1
+    for i,_ in enumerate(helix_data):
+        if last_chain != _[0]:
+            last_chain = _[0]
+            temp_i +=1
+        data[temp_i][_[1]-1:_[2]-1,5] = 1
+
+    last_chain = None
+    temp_i = -1
+    for i,_ in enumerate(beta_data):
+        if last_chain != _[0]:
+            last_chain = _[0]
+            temp_i +=1
+        data[temp_i][_[1]-1:_[2]-1,6] = 1
+
+    for i, _ in enumerate(data):
+        data[i] = _.astype('int').astype('str')
+
+    for ii,_ in enumerate(complex_data):
+        chain_data = np.array(_)
+        chain_c = chain_data[:,2:5].astype('float')
+        chain_sc_c = chain_data[:,5:].astype('float')
+        chain_centroid = np.mean(chain_c,axis=0)
+        residue_depth = np.array([euclidean(chain_centroid, c) for c in chain_c])
+        residue_depth_percentile = [1- perc(residue_depth, d)/100.0 for d in residue_depth]
+        chain_c = chain_c - chain_centroid
+        chain_sc_c = chain_sc_c - chain_centroid
+        chain_sc_c = chain_sc_c - chain_c
+        chain_c = -(chain_c)
+        residue_orientation = [1-cosine(chain_c[i], chain_sc_c[i]) for i in range(len(chain_c))]
+
+        # Try First three res align
+        offset = 0
+        for i, _ in enumerate(data[ii]):
+            if data[ii][i:i+3,2].tolist() == chain_data[0:3, 1].tolist():
+                offset = int(data[ii][i,1]) - int(chain_data[i,0])
+
+        for i in range(len(chain_data)):
+            ir = int(chain_data[i][0]) - 1 + offset
+            if ir >= len(data[ii]): break
+            data[ii][ir,0] = 1
+            data[ii][ir,3] = str(residue_depth_percentile[i])[:6]
+            data[ii][ir,-3:] = chain_data[i,2:5]
+            if np.isnan(residue_orientation[i]): data[ii][ir,4] = '0.0000'
+            else: data[ii][ir,4] =  str(residue_orientation[i])[:6]
+
+        tmp = 0
+        for i, _ in enumerate(data[ii]):
+            if data[ii][i,0] == 1: tmp = i
+            else: data[ii][i,-3:] = data[ii][tmp,-3:]
+
+    data = np.concatenate(data, axis=0)
+    if len(data) == 0: return []
+
+    return data
 
 if __name__ == '__main__':
 
@@ -108,6 +248,7 @@ if __name__ == '__main__':
     # Fetch PDBs
     prime_lens = []
     diameters = []
+    fails = 0
     for t in tasks:
 
         # Task IDs
@@ -116,14 +257,17 @@ if __name__ == '__main__':
         filename = pdb_id + '_' + chain_id.lower() + '.txt'
 
         # Use all chains
+        if verbose: print('Generating: {} chain {}...'.format(pdb_id, chain_id))
         if chain_id == '0': all_chains = True
 
         # Parse PDB
         if not os.path.exists(data_folder+'pdb/'+pdb_id+'.pdb'):
+            fails += 1
             if verbose: print("PDB not found: " + pdb_id+ '.pdb')
             continue
         protein_data = parse_pdb(data_folder+'pdb/'+pdb_id+'.pdb', chain_id, all_chains, first)
         if len(protein_data) == 0:
+            fails += 1
             if verbose: print("NO DATA: ", pdb_id, ',', chain_id)
             continue
         prime_lens.append(len(protein_data))
@@ -135,7 +279,6 @@ if __name__ == '__main__':
         with open(data_folder+'graph/'+filename, 'w') as f:
             for i, _ in enumerate(protein_data):
                 f.write(' '.join(_)+'\n')
-        if verbose: print('Generating: {} chain {}...'.format(pdb_id, chain_id))
 
     # Print graph size stats
     prime_lens = np.expand_dims(prime_lens, axis=-1).astype('int')
@@ -144,8 +287,10 @@ if __name__ == '__main__':
 
     # Gather stats
     stats_ = comm.gather(stats,root=0)
+    fails_ = comm.gather(fails,root=0)
 
     if rank == 0:
+        if verbose: print("NUMBER OF FAILED GENERATIONS: ", sum(fails_))
         stats = np.concatenate(stats_, axis=0)
         df = pd.DataFrame(stats)
         df.columns = ['nb_residues','diameters']

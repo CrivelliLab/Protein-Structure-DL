@@ -1,0 +1,29 @@
+data_config:
+    name: protien_volume_images
+    data_path: data/OncoGenes
+    task_type: classification
+    nb_classes: 2
+    split: [0.7,0.1,0.2]
+    seed: 1234
+
+experiment_config:
+    name: classifier
+    output_dir: out/oncogenes_volume
+
+model_config:
+    model_type: cnn_3d
+    input_shape: [64,64,64,23]
+    conv_layers: [32,32]
+    kernel_shapes: [5,5]
+    conv_dropouts: [0.1,0.2]
+    pool_layers: [3,3]
+    fc_layers: [128,]
+    fc_dropouts: [0.5,]
+    nb_classes: 2
+    optimizer: 'Adam'
+    learning_rate: 0.0001
+
+train_config:
+    batch_size: 1
+    nb_epochs: 100
+    save_best: True
