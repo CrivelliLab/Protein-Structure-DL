@@ -132,6 +132,19 @@ def parse_pdb(path, chain, all_chains=False, first=False):
                     if not all_chains or first: break
 
 
+    # No Sequence Data
+    if len(seq_data) < 1:
+        chains_ = []
+        ress_ = []
+        for _ in complex_data:
+            chains = np.array([' ' for i in range(len(_))])
+            chains_.append(chains)
+            ress_.append(_[:,1])
+        chains_ = np.expand_dims(np.concatenate(chains_, axis=0),axis=-1)
+        ress_ = np.expand_dims(np.concatenate(ress_, axis=0),axis=-1)
+        seq_data = np.concatenate([chains_, ress_], axis=-1)
+
+    # Set Sequence Data
     data = []
     last_chain = -1
     temp = []
