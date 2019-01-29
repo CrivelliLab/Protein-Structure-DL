@@ -139,7 +139,7 @@ class BaseTrainer(object):
 
     def train(self, train_data_loader, valid_data_loader, test_data_loader,
                     nb_epochs=10, early_stop_metric='val_loss',
-                    early_stop_epochs=0, save_best=False):
+                    early_stop_epochs=0, load_prev=False, save_best=False):
         '''
         Method defines training loop. If save_best, saves best model according to
         the lowest loss during training.
@@ -158,6 +158,10 @@ class BaseTrainer(object):
 
             # Setup the variable initialisation
             sess.run(tf.global_variables_initializer())
+
+            if load_prev:
+                if os.path.exists(self.output_dir+"/model/model.ckpt"):
+                    self.saver.restore(sess, self.output_dir+"/model/model.ckpt")
 
             # Loop over epochs
             best_metric = None

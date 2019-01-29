@@ -256,3 +256,34 @@ def AverageSeqGraphPool(v, c, pool_size, namespace='averseqgraphpool_'):
     a_prime = [L2PDist(c_prime, namespace=namespace+'aprime'), CosinePDist(c_prime)]
 
     return v_prime, c_prime, a_prime
+
+def ClassAttention(v, classes, fc_layers=[], fc_dropouts=[], training=None):
+
+    # Dimensions
+    batch_size = tf.shape(v)[0]
+    nb_features = int(v.shape[2])
+
+    # Define trainable parameters for attention weights
+    x_i = tf.contrib.layers.xavier_initializer()
+    u = tf.Variable(x_i([nb_features, classes]))
+    u = tf.tile(tf.expand_dims(u, axis=0), [batch_size, 1, 1])
+
+    # Calculate node_pool contribution using attention
+    node_pool_atten = tf.nn.softmax(tf.transpose(tf.matmul(v, u), [0,2,1])/np.sqrt(nb_features), axis=-1)
+
+    # Pool features using node_pool_atten
+    v_pool = tf.matmul(node_pool_atten, v)
+    v_pool_split = tf.split(v_pool, [1 for i in range(classes)], axis=1)
+
+    out = []
+    for i, _ in enumerate(v_pool_split):
+        F= tf.contrib.layers.flatten(_)
+        for fc in list(zip(fc_layers,fc_dropouts)):
+            F = tf.layers.dense(F, int(fc[0]), activation=tf.nn.leaky_relu)
+            F = tf.layers.dropout(F, float(fc[1]), training=training)
+        F = tf.layers.dense(F, 1)
+        out.append(F)
+
+    out = tf.concat(out, axis=-1, name='presoftmax_out')
+
+    return out
