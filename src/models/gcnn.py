@@ -59,18 +59,14 @@ class GCNN(Model):
             if int(_[3]) > 1: V,C,A = AverageSeqGraphPool(V,C,int(_[3]), namespace='averseqgraphpool_'+str(i)+'_')
 
 
-        # Class attention
-        F = ClassAttention(V, 2, fc_layers, fc_dropouts, training=is_training)
-
-        '''
+        # Node attention
+        F = NodeAttention(V, 5, fc_layers, fc_dropouts, training=is_training)
 
         # Fully Connected Layers
-        F = tf.contrib.layers.flatten(V)
+        #F = tf.contrib.layers.flatten(V)
         for _ in list(zip(fc_layers,fc_dropouts)):
             F = tf.layers.dense(F, int(_[0]), activation=tf.nn.sigmoid)
             F = tf.layers.dropout(F, float(_[1]), training=is_training)
 
-        '''
-
         # Outputs
-        self.outputs = [None,F]
+        self.outputs = [F,]
