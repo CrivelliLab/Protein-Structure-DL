@@ -52,7 +52,7 @@ class ProtienLigandGraphDataset():
 
         # Spatial Ordering Using SPC
         data = np.concatenate([v,c],axis=-1)
-        sorted_data = self.__hilbert_sort(data, self.curve, self.diameter, 2**self.curve_order, self.site_com)
+        sorted_data = self.__hilbert_sort(data, self.curve, self.diameter, 2**self.curve_order)
         v = sorted_data[:,:-3]
         c = sorted_data[:,-3:]
 
