@@ -5,7 +5,7 @@ data_config:
     nb_nodes: 1100
     nb_classes: 1
     curve_order: 5
-    diameter: 250.0
+    diameter: 38.0
     split: [0.7,0.1,0.2]
     seed: 1234
 
@@ -16,7 +16,7 @@ experiment_config:
 model_config:
     model_type: gcnn
     input_shape: [1100,9,3]
-    kernel_limit: 250.0
+    kernel_limit: 38.0
     kernels_per_layer: [2,2,4,4]
     conv_layers: [64,64,128,128]
     conv_dropouts: [0.1,0.1,0.1]

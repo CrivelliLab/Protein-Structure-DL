@@ -78,6 +78,7 @@ class ProtienLigandGraphDataset():
         c = np.array(c, dtype=float)
         v = np.concatenate([self.site[0], v], axis=0)
         c = np.concatenate([self.site[1], c], axis=0)
+        c = c - c.mean(axis=0) # Center on origin
 
         # Spatial Ordering Using SPC
         data = np.concatenate([v,c],axis=-1)
