@@ -3,9 +3,9 @@ data_config:
     data_path: data/PsiBlast
     task_type: classification
     nb_classes: 2
-    nb_nodes: 234
+    nb_nodes: 381
     split: [0.7,0.1,0.2]
-    augment: 25
+    augment: 20
     fuzzy_radius: 0.25
     seed: 1234
 
@@ -15,11 +15,12 @@ experiment_config:
 
 model_config:
     model_type: gcnn
-    input_shape: [234,29,3]
-    kernels_per_layer: [1,1]
-    conv_layers: [32,32,]
-    conv_dropouts: [0.1,0.1]
-    pooling_layers: [3,3,]
+    input_shape: [381,29,3]
+    kernel_limit: 136.0
+    kernels_per_layer: [2,2,4,4]
+    conv_layers: [64,64,128,128]
+    conv_dropouts: [0.1,0.1,0.1]
+    pooling_layers: [2,2,2,2]
     fc_layers: [128,]
     fc_dropouts: [0.5,]
     nb_classes: 2
@@ -30,5 +31,5 @@ train_config:
     batch_size: 50
     nb_epochs: 100
     early_stop_metric: valid_loss
-    early_stop_epochs: 5
+    early_stop_epochs: 10
     save_best: True

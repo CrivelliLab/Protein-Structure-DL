@@ -42,20 +42,11 @@ class ClassifierTrainer(BaseTrainer):
         # Add ouput classification layer
         Y = tf.placeholder(tf.float32, [None, nb_classes])
         self.inputs.append(Y)
-        if len(self.outputs) < 2:
-            y_out = tf.layers.dense(self.outputs[0], nb_classes, name='presoftmax_out')
-            self.outputs.append(y_out)
-        else:
-            y_out = self.outputs[-1]
+        y_out = tf.layers.dense(self.outputs[0], nb_classes, name='presoftmax_out')
+        self.outputs.append(y_out)
 
         # Add Loss and Optimizers
         loss = tf.losses.softmax_cross_entropy(self.inputs[-1], y_out)
-
-        # L2 normalization
-        #vars_   = tf.trainable_variables()
-        #lossL2 = tf.add_n([ tf.nn.l2_loss(v) for v in vars_]) * 0.001
-        #loss = loss + lossL2
-
         if optimizer == 'Adam':
             update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
             with tf.control_dependencies(update_ops):

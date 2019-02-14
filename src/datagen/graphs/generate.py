@@ -209,7 +209,7 @@ def parse_pdb(path, chain, all_chains=False, first=False):
                     break
             if offset != -1: break
 
-        if offset == -1: 
+        if offset == -1:
             return []
 
         for i in range(len(chain_data)):
@@ -224,8 +224,9 @@ def parse_pdb(path, chain, all_chains=False, first=False):
 
         tmp = 0
         for i, _ in enumerate(data[ii]):
-            if data[ii][i,0] == 1: tmp = i
-            else: data[ii][i,-3:] = data[ii][tmp,-3:]
+            if data[ii][i,0] == '1': tmp = i
+            else:
+                data[ii][i,-3:] = data[ii][tmp,-3:]
 
     data = np.concatenate([data[ii] for ii in data.keys()], axis=0)
     if len(data) == 0: return []
@@ -295,8 +296,9 @@ if __name__ == '__main__':
             continue
         prime_lens.append(len(protein_data))
         dia = protein_data[:,-3:].astype('float')
-        dia = dia - dia.mean(axis=0)
-        diameters.append(np.max(np.abs(dia))*2)
+        dia = dia - np.mean(dia, axis=0)
+        dia = np.max(np.abs(dia))*2
+        diameters.append(dia)
 
         # Save graph
         with open(data_folder+'graph/'+filename, 'w') as f:

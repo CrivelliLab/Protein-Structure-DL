@@ -37,26 +37,11 @@ def VCAInput(nb_nodes, nb_coords, nb_features, a_mask=None):
     m = tf.placeholder(tf.float32, [None, nb_nodes, nb_nodes])
 
     # Define pairwise adjaceny matrix set 'A'
-    a = L2PDist(c)
-    a_c = CosinePDist(c)
+    a_l2 = L2PDist(c)
+    a_cos = CosinePDist(c, m)
+    a = [a_l2, a_cos]
 
-    '''
-    # Mask Empty Nodes
-    emp = tf.expand_dims(tf.clip_by_value(tf.reduce_sum(v,axis=-1), 0, 1),axis=-1)
-    a_c = a_c * emp
-    a = a * emp
-    a = a * tf.transpose(emp, [0,2,1])
-    a_c = a_c * tf.transpose(emp, [0,2,1])
-
-    # Apply mask
-    if a_mask is not None:
-        mask_ = tf.convert_to_tensor(a_mask, dtype=tf.float32)
-        mask_ = tf.reshape(mask_, [-1, a_mask.shape[0], a_mask.shape[1]])
-        a = tf.multiply(a, mask_)
-        a_c = tf.multiply(a, mask_)
-    '''
-
-    return v, c, [a,a_c], m
+    return v, c, a, m
 
 def L2PDist(c, namespace='l2pdist_a'):
     '''
@@ -77,7 +62,7 @@ def L2PDist(c, namespace='l2pdist_a'):
 
     return a
 
-def CosinePDist(c):
+def CosinePDist(c, mask=None, namespace='cospdist_a'):
     '''
     Method calculates cosine pairwise distances between coordinates in tensor c.
 
@@ -92,11 +77,15 @@ def CosinePDist(c):
     normalized = tf.nn.l2_normalize(c, axis=-1)
     prod = tf.matmul(normalized, normalized, adjoint_b=True)
     a = (1 - prod) / 2.0
-    a = 1 - a
+    if mask is not None:
+        a = 1 - a
+        a = tf.multiply(a, mask, name=namespace)
+    else:
+        a = tf.add(-a, 1, name=namespace)
 
     return a
 
-def GraphKernels(v, a, nb_kernels, training=None, namespace='graphkernel_'):
+def GraphKernels(v, a, nb_kernels, kernel_limit=100.0, mask=None, training=None, namespace='graphkernel_'):
     '''
     Method defines tensorflow layer which learns a graph kernel in order to normailize
     pairwise euclidean distances found in tensor a, according to node features in
@@ -118,29 +107,30 @@ def GraphKernels(v, a, nb_kernels, training=None, namespace='graphkernel_'):
     nb_nodes = int(v.shape[1])
 
     # Define trainable parameters
-    w1 = tf.Variable(tf.truncated_normal([nb_features, nb_kernels], stddev=np.sqrt(2/((nb_nodes*nb_features)+(nb_nodes*nb_kernels)))))
-    w2 = tf.Variable(tf.truncated_normal([nb_features, nb_kernels], stddev=np.sqrt(2/((nb_nodes*nb_features)+(nb_nodes*nb_kernels)))))
-    w1 = tf.tile(tf.expand_dims(w1, axis=0), [batch_size, 1, 1])
-    w2 = tf.tile(tf.expand_dims(w2, axis=0), [batch_size, 1, 1])
+    w = tf.Variable(tf.truncated_normal([nb_features, nb_kernels*2], stddev=np.sqrt(2/((nb_nodes*nb_features)+(nb_nodes*nb_kernels)))))
+    w = tf.tile(tf.expand_dims(w, axis=0), [batch_size, 1, 1])
 
     # Normalize adjacency using learned graph kernels
-    w1 = tf.split(w1,[1 for i in range(nb_kernels)],axis=-1)
-    w2 = tf.split(w2,[1 for i in range(nb_kernels)],axis=-1)
+    w = tf.split(w,[2 for i in range(nb_kernels)],axis=-1)
     a_prime = []
-    for i, _ in enumerate(list(zip(w1,w2))):
-        w1_ = tf.tile(_[0], [1,1,nb_nodes])
-        w2_ = tf.tile(_[1], [1,1,nb_nodes])
-        e1 = tf.matmul(v, w1_)
-        e2 = tf.matmul(v, w2_)
-        e2 = tf.transpose(e2, [0,2,1])
-        e = tf.nn.softplus(e1+e2, name=namespace+'k_'+str(i))
-        if training is not None: tf.layers.batch_normalization(e, training=training)
-        x = e * a
-        a_ = tf.exp(-(x*x))
+    for i, _ in enumerate(w):
+        y = tf.matmul(v, _)
+        c_1 , c_2, = tf.split(y,[1,1],axis=-1)
+        c_2 = tf.transpose(c_2, [0,2,1])
+        c = c_1 + c_2
+        if training is not None: c = tf.layers.batch_normalization(c, training=training)
+        c = tf.nn.sigmoid(c)
+        c = tf.multiply(c, kernel_limit, name=namespace+'c_'+str(i)) + 0.00001
+        if mask is not None:
+            a_ = tf.exp(-((a*a)/(2*c*c)))
+            a_ = tf.multiply(a_, mask, name=namespace+'k_'+str(i))
+        else:
+            a_ = tf.exp(-((a*a)/(2*c*c)), name=namespace+'k_'+str(i))
         a_prime.append(a_)
 
     return a_prime
 
+""" DISCONTINUED: NO PERFORMANCE INCREASE
 def AngularContribution(v, c_a, a, training=None, namespace='angularcontr_'):
     '''
     Method defines tensorflow layer which learns a linear combination of cosine distance
@@ -184,8 +174,9 @@ def AngularContribution(v, c_a, a, training=None, namespace='angularcontr_'):
         a_prime.append(a_)
 
     return a_prime
+"""
 
-def GraphConv(v, a, nb_filters, namespace='graphconv_'):
+def GraphConv(v, a, nb_filters, activation, training=None, namespace='graphconv_'):
     '''
     Method defines basic graph convolution operation using inputs V and A. First,
     features between nodes are progated through the graph according to adjacency matrix set
@@ -228,7 +219,13 @@ def GraphConv(v, a, nb_filters, namespace='graphconv_'):
     v_ = tf.concat(v_, axis=-1)
 
     # Apply feature weights
-    v_prime = tf.add(tf.matmul(v_, w), b, name=namespace+'vprime')
+    v_prime = tf.add(tf.matmul(v_, w), b)
+
+    # Activation and BatcNorm
+    if training is not None:
+        v_prime = tf.layers.batch_normalization(v_prime, training=training)
+        v_prime = activation(v_prime, name=namespace+'vprime')
+    else: v_prime = activation(v_prime, name=namespace+'vprime')
 
     return v_prime
 
@@ -253,26 +250,28 @@ def AverageSeqGraphPool(v, c, pool_size, namespace='averseqgraphpool_'):
     c_prime = tf.layers.average_pooling1d(c, pool_size, pool_size, name=namespace+'cprime')
 
     # Generate new A
-    a_prime = [L2PDist(c_prime, namespace=namespace+'aprime'), CosinePDist(c_prime)]
+    a_prime = [L2PDist(c_prime, namespace=namespace+'l2pdist_a'), CosinePDist(c_prime, namespace=namespace+'cospdist_a')]
 
     return v_prime, c_prime, a_prime
 
-def NodeAttention(v, nodes, fc_layers=[], fc_dropouts=[], training=None):
-
+def MultiHeadAttention(v, nb_nodes):
+    '''
+    '''
     # Dimensions
     batch_size = tf.shape(v)[0]
     nb_features = int(v.shape[2])
 
+    temp = np.sqrt(nb_features)
+
     # Define trainable parameters for attention weights
     x_i = tf.contrib.layers.xavier_initializer()
-    u = tf.Variable(x_i([nb_features, nodes]))
+    u = tf.Variable(x_i([nb_features, nb_nodes]))
     u = tf.tile(tf.expand_dims(u, axis=0), [batch_size, 1, 1])
 
     # Calculate node_pool contribution using attention
-    node_pool_atten = tf.nn.softmax(tf.transpose(tf.matmul(v, u), [0,2,1])/np.sqrt(nb_features), axis=-1)
+    node_atten = tf.nn.softmax(tf.transpose(tf.matmul(v, u), [0,2,1])/temp, axis=-1)
 
     # Pool features using node_pool_atten
-    v_pool = tf.matmul(node_pool_atten, v)
-    F= tf.contrib.layers.flatten(v_pool)
+    v_prime = tf.matmul(node_atten, v)
 
-    return F
+    return v_prime

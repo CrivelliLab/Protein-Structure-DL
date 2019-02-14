@@ -3,10 +3,10 @@ data_config:
     data_path: data/KrasHras
     task_type: classification
     nb_classes: 2
-    nb_nodes: 180
+    nb_nodes: 185
     split: [0.7,0.1,0.2]
-    augment: 20
-    fuzzy_radius: 0.05
+    augment: 10
+    fuzzy_radius: 0.1
     seed: 1234
 
 experiment_config:
@@ -15,9 +15,10 @@ experiment_config:
 
 model_config:
     model_type: gcnn
-    input_shape: [180,29,3]
-    kernels_per_layer: [1,1,1,1]
-    conv_layers: [32,32,32,32]
+    input_shape: [185,29,3]
+    kernel_limit: 118.0
+    kernels_per_layer: [4,4,4,4]
+    conv_layers: [16,16,16,16]
     conv_dropouts: [0.1,0.1,0.1,0.1]
     pooling_layers: [2,2,2,2]
     fc_layers: [128,]
@@ -30,5 +31,5 @@ train_config:
     batch_size: 50
     nb_epochs: 100
     early_stop_metric: valid_loss
-    early_stop_epochs: 5
+    early_stop_epochs: 10
     save_best: True

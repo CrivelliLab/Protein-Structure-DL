@@ -16,12 +16,13 @@ experiment_config:
 model_config:
     model_type: gcnn
     input_shape: [344,26,3]
-    kernels_per_layer: [1,]
-    conv_layers: [128]
-    conv_dropouts: [0.1]
-    pooling_layers: [2]
-    fc_layers: [256,]
-    fc_dropouts: [0.5]
+    kernel_limit: 73.0
+    kernels_per_layer: [2,2,4,4]
+    conv_layers: [64,64,128,128]
+    conv_dropouts: [0.1,0.1,0.1]
+    pooling_layers: [2,2,2,2]
+    fc_layers: [128,]
+    fc_dropouts: [0.5,]
     nb_classes: 2
     optimizer: 'Adam'
     learning_rate: 0.0001

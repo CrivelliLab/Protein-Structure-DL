@@ -1,3 +1,7 @@
+'''
+protein_graph.py
+
+'''
 import os
 import numpy as np
 import pandas as pd
@@ -77,7 +81,7 @@ class ProtienGraphDataset():
 
         # Set MasK
         m = np.repeat(np.expand_dims(m,axis=-1), len(m), axis=-1)
-        m = m + self.ident
+        m = (m*m.T) + self.ident
         m[m>1] = 1
 
         if self.task_type == 'classification':

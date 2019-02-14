@@ -22,10 +22,15 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import multiprocessing
 
 def bg(gen):
+    '''
+    Method is used to run batch retrieval as a parallel process.
+    This allows the next bathc to be compiled during tensorflow network
+    updates.
+
+    '''
     def _bg_gen(gen,conn):
         for data in gen:
-            if conn.recv():
-                conn.send(data)
+            if conn.recv(): conn.send(data)
         conn.send(StopIteration)
 
     parent_conn, child_conn = multiprocessing.Pipe()
@@ -36,10 +41,8 @@ def bg(gen):
     while True:
         parent_conn.send(True)
         x = parent_conn.recv()
-        if x is StopIteration:
-            return
-        else:
-            yield x
+        if x is StopIteration: return
+        else: yield x
 
 class BaseTrainer(object):
 

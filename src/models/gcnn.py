@@ -20,7 +20,7 @@ class GCNN(Model):
         self.model_name = 'Graph-CNN'
         self.define_model(**kwargs)
 
-    def define_model(self, input_shape, kernels_per_layer,
+    def define_model(self, input_shape, kernels_per_layer, kernel_limit,
                         conv_layers, conv_dropouts, pooling_layers, fc_layers, fc_dropouts):
         '''
         Params:
@@ -35,37 +35,32 @@ class GCNN(Model):
         is_training = tf.placeholder_with_default(True, shape=())
         self.inputs = [is_training, V, C, M]
 
-        # Apply Mask
-        A_ = []
-        for a in A: A_.append(a*M)
-        A = A_
-
         # Graph Convolutions
         for i,_ in enumerate(list(zip(kernels_per_layer,conv_layers,conv_dropouts,pooling_layers))):
 
             # Graph Kernels for Euchlidean Distances
-            A_ = GraphKernels(V, A[0], int(_[0]), training=is_training, namespace='graphkernels_'+str(i)+'_')
-
-            # Cosine distances for angular contribution to graph kernels
-            A_ = AngularContribution(V, A[1], A_, training=is_training, namespace='angularcontr_'+str(i)+'_')
+            A_ = GraphKernels(V, A[0], int(_[0]), kernel_limit, mask=M, training=is_training, namespace='graphkernels_'+str(i)+'_')
+            A_ = A_+ A[1:] # ADD Cosine Similarity Back
 
             # Preform Graph Covolution
-            V = GraphConv(V, A_, int(_[1]), namespace='graphconv_'+str(i)+'_')
-            V = tf.nn.tanh(V)
-            V = tf.layers.batch_normalization(V, training=is_training)
+            V = GraphConv(V, A_, int(_[1]), activation=tf.nn.leaky_relu, training=is_training,  namespace='graphconv_'+str(i)+'_')
             V = tf.layers.dropout(V, float(_[2]), training=is_training)
 
             # Sequence Graph Pooling
-            if int(_[3]) > 1: V,C,A = AverageSeqGraphPool(V,C,int(_[3]), namespace='averseqgraphpool_'+str(i)+'_')
+            if int(_[3]) > 1:
+                V,C,A = AverageSeqGraphPool(V,C,int(_[3]), namespace='averseqgraphpool_'+str(i)+'_')
+                M = tf.layers.max_pooling2d(tf.expand_dims(M,axis=-1), int(_[3]), int(_[3]))
+                M = tf.squeeze(M, axis=-1)
 
-
-        # Node attention
-        F = NodeAttention(V, 5, fc_layers, fc_dropouts, training=is_training)
+        # MultiHeadAttention for order learning
+        V = MultiHeadAttention(V, int(V.shape[1]))
 
         # Fully Connected Layers
-        #F = tf.contrib.layers.flatten(V)
+        F = tf.contrib.layers.flatten(V)
         for _ in list(zip(fc_layers,fc_dropouts)):
-            F = tf.layers.dense(F, int(_[0]), activation=tf.nn.sigmoid)
+            F = tf.layers.dense(F, int(_[0]))
+            F = tf.layers.batch_normalization(F, training=is_training)
+            F = tf.nn.leaky_relu(F)
             F = tf.layers.dropout(F, float(_[1]), training=is_training)
 
         # Outputs

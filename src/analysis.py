@@ -8,8 +8,7 @@ import numpy as np
 import tensorflow as tf
 from datasets import get_datasets, DataLoader
 from trainers import get_trainer
-from interpret.activation import *
-from interpret.attribution import *
+from models.ops.interpret import *
 from trainers.base_trainer import bg
 import matplotlib.pyplot as plt
 from models.ops.graph_conv import *
@@ -145,7 +144,8 @@ if __name__ == '__main__':
                 graphconv_filters[op.name] = op.values()
 
             if 'graphkernels' in op.name and len(op.name.split('/'))==1:
-                graph_kernels[op.name] = op.values()
+                if 'c_' in op.name:
+                    graph_kernels[op.name] = op.values()
 
             if 'angularcontr' in op.name and len(op.name.split('/'))==1:
                 angular_contr[op.name] = op.values()
@@ -167,16 +167,23 @@ if __name__ == '__main__':
             mask = np.sum(sample[3][0],axis=-1)
             mask[mask<2] = 0
             mask[mask>0] = 1
-            mask = np.repeat(np.expand_dims(mask,axis=-1), 3, axis=-1)
+
+            i_ = 0
+            for t in range(len(mask)):
+                if mask[t] == 1:
+                    i_ = t
+                    break
 
             # Algin KrasHras
-            start_res = [14,18,7]
+            start_res = [18,7,20] #14
             ind = 0
             for j in range(len(sample[1][0])-2):
                 args = np.argmax(sample[1][0][j:j+3,:23],axis=-1).tolist()
                 if args == start_res:
                     ind = j
+                    break
             if ind > 0:
+                mask = np.concatenate([mask[ind:], np.zeros((ind))],axis=0)
                 sample[1][0] = np.concatenate([sample[1][0][ind:], np.zeros((ind, sample[1][0].shape[1]))],axis=0)
                 sample[2][0] = np.concatenate([sample[2][0][ind:], np.zeros((ind, sample[2][0].shape[1]))],axis=0)
                 temp = np.zeros(sample[3][0].shape)
@@ -189,116 +196,82 @@ if __name__ == '__main__':
                 if np.sum(sample[1][0][j,:23]) == 0:
                     l = '-'
                 else:
-                    ind = np.argmax(sample[1][0][j,:23])
-                    l = residues[ind]
+                    ind_ = np.argmax(sample[1][0][j,:23])
+                    l = residues[ind_]
                 seq.append(l)
+            ind = ind - i_
+
 
             # Input Attribution To Classification
+            mask = np.repeat(np.expand_dims(mask,axis=-1), 3, axis=-1)
             loss_val = activation(trainer.inputs, loss, sample, sess)
             attrib_v = _ = sess.run(v_attr, feed_dict={i: d for i, d in zip(trainer.inputs, sample)})[0]
             attrib_v = attrib_v * sample[1][0]
-            v_res = np.sum(attrib_v[:,0:23], axis=-1)
-            v_depth = attrib_v[:,23]
-            v_orien = attrib_v[:,24]
-            v_seq = np.sum(attrib_v[:,25:], axis=-1)
-            v_all = (v_res+v_depth+v_orien+v_seq) / 4.0
-            v_all_clustered = regress_ksegments(v_all, np.ones(v_all.shape), k)
-            v_res = v_res / np.max(np.abs(v_res))
-            v_depth = v_depth / np.max(np.abs(v_depth))
-            v_orien = v_orien / np.max(np.abs(v_orien))
-            v_seq = v_seq / np.max(np.abs(v_seq))
-            v_all  = v_all / np.max(np.abs(v_all))
-            v_all_threshold = v_all.copy()
-            v_all_threshold[np.abs(v_all_threshold) < 0.5] = 0
-            v_all_clustered  = v_all_clustered / np.max(np.abs(v_all_clustered))
-            v_all_threshold = v_all_threshold / np.max(np.abs(v_all_threshold))
             attrib_c = sess.run(c_attr, feed_dict={i: d for i, d in zip(trainer.inputs, sample)})[0]
             attrib_c = attrib_c * sample[2][0] * mask
-            c_x = attrib_c[:,0]
-            c_y = attrib_c[:,1]
-            c_z = attrib_c[:,2]
-            c_x = c_x / np.max(np.abs(c_x))
-            c_y = c_y / np.max(np.abs(c_y))
-            c_z = c_z / np.max(np.abs(c_z))
-            c_all = (c_x+c_y+c_z)/3.0
-            c_all_clustered = regress_ksegments(c_all, np.ones(c_all.shape), k)
-            c_all = c_all / np.max(np.abs(c_all))
-            c_all_threshold = c_all.copy()
-            c_all_threshold[np.abs(c_all_threshold) < 0.5] = 0
-            c_all_clustered = c_all_clustered / np.max(np.abs(c_all_clustered))
-            c_all_threshold = c_all_threshold / np.max(np.abs(c_all_threshold))
-            vc_all = (v_all + c_all) / 2.0
-            vc_all_clustered = regress_ksegments(vc_all, np.ones(vc_all.shape), k)
-            vc_all  = vc_all / np.max(np.abs(vc_all))
-            vc_all_threshold = vc_all.copy()
-            vc_all_threshold[np.abs(vc_all_threshold) < 0.5] = 0
-            #vc_all_clustered  = vc_all_clustered / np.max(np.abs(vc_all_clustered))
-            vc_all_threshold = vc_all_threshold / np.max(np.abs(vc_all_threshold))
+            vc_all = np.sum(np.concatenate([attrib_v*1000, attrib_c*1000],axis=-1), axis=-1)
+            attrib = np.array([ -(mask[:,0]-1), vc_all])
 
-            attrib = np.array([v_res, v_depth, v_orien, v_seq, c_x, c_y, c_z,
-                            v_all, c_all, vc_all, -(mask[:,0]-1),v_all_clustered, c_all_clustered,  vc_all_clustered,
-                            v_all_threshold, c_all_threshold,  vc_all_threshold])
+            '''
+            # Graph Kernels For Input
+            kernels = []
+            for gk in graph_kernels.keys():
+                kernel = activation(trainer.inputs, graph_kernels[gk], sample, sess)[0]
+                kernel
+            '''
 
+            # Stored Example data
             if sample_class not in losses:
                 losses[sample_class] = []
                 losses[sample_class].append([sample_id, loss_val])
             else: losses[sample_class].append([sample_id, loss_val])
+            attributions[sample_id] = [attrib,seq,ind]
 
-            attributions[sample_id] = [attrib,seq]
-
-
+    # Plot Attributions for top n examples
     for key in losses.keys():
         losses_ = np.array(losses[key])
-        top_ = losses_[:,1].astype('float').argsort()[:15]
+        top_ = losses_[:,1].astype('float').argsort()[:150]
         top_  = losses_[top_]
 
-        fig, axes = plt.subplots(nrows=len(top_), ncols=1)
+        y = []
+        y_labels = []
+        y_ticks = []
+        temp = 0
         for i, _ in enumerate(top_):
-            x = attributions[_[0]][0][-7:-3,:]
-            plot = axes.flat[i].matshow(x, cmap='seismic', vmin=-1, vmax=1)
-            axes.flat[i].set_ylabel(_[0]+'\n'+"{:1.4f}".format(float(_[1])), fontsize=10, rotation=0,labelpad=25, fontweight='bold', verticalalignment='center')
-            axes.flat[i].xaxis.set_ticks_position('bottom')
-            axes.flat[i].xaxis.set_ticks([int(10*j) for j in range(x.shape[-1]//10)])
-            if i+1 < len(top_): axes.flat[i].xaxis.set_ticklabels([])
-            axes.flat[i].xaxis.set_minor_locator(ticker.FixedLocator([z for z in range(len(x[0]))]))
-            axes.flat[i].xaxis.set_minor_formatter(ticker.FixedFormatter(attributions[_[0]][1]))
-            axes.flat[i].tick_params(axis="x", which="minor", direction="out",
-                       top=1, bottom=0, labelbottom=0, labeltop=1, labelsize=6)
-            axes.flat[i].yaxis.set_ticks([0,2])
-            axes.flat[i].set_yticklabels(['gaps','K:10 clusters'])
+            x = attributions[_[0]][0]
+            x = x[:,:160]
+            y.append(x)
+            y_ticks.append((i-temp)*2)
+            y_labels.append(_[0]+":{:1.4f}".format(float(_[1])))
 
-        fig.subplots_adjust(right=0.8)
-        cbar_ax = fig.add_axes([0.85, 0.10, 0.05, 0.8])
-        fig.colorbar(plot, cax=cbar_ax)
-        fig.suptitle('TOP ' +str(len(top_))+ ' Attributions (V,C,VC) For Class : ' + str(key))
+        fig, ax = plt.subplots()
+        ax.matshow(np.concatenate(y,axis=0), cmap='seismic', vmin=-1, vmax=1)
+        ax.xaxis.set_ticks_position('bottom')
+        ax.xaxis.set_ticks([int(10*j) for j in range(x.shape[-1]//10)])
+        ax.set_xticklabels([str(int(10*j)+2) for j in range(x.shape[-1]//10)])
+        ax.xaxis.set_minor_locator(ticker.FixedLocator([z for z in range(len(x[0]))]))
+        ax.xaxis.set_minor_formatter(ticker.FixedFormatter(attributions[_[0]][1]))
+        ax.tick_params(axis="x", which="minor", direction="out",
+                   top=1, bottom=0, labelbottom=0, labeltop=1, labelsize=6)
+        ax.yaxis.set_ticks(y_ticks)
+        ax.set_yticklabels(y_labels)
+        ax.set_ylabel('PDB:[Loss]')
+        ax.set_xlabel('Residue')
         plt.show()
 
-    for key in losses.keys():
-        ids = np.array(losses[key])[:,0]
-        hits_pos = []
-        hits_neg = []
-        for _ in ids:
-            i = np.where(attributions[_][-1,:] > 0.5)[0].tolist()
-            hits_pos += i
-            i = np.where(attributions[_][-1,:] < -0.5)[0].tolist()
-            hits_neg += i
-        plt.hist(hits_pos, bins=len(attributions[_][-1,:]), color='red', label='Positve Hits')
-        plt.hist(hits_neg, bins=len(attributions[_][-1,:]), color='blue', label='Negative Hits')
-        plt.xlabel('Residue')
-        plt.ylabel('Counts')
-        plt.legend(loc='upper right')
-        plt.suptitle('Attribution VC Threshold (0.5) Histogram For Class: ' + str(key), y=1.15)
-        plt.show()
-
+    # Save Interpretation data
     data = []
     label = []
+    offsets = []
     for key in attributions.keys():
-        x = attributions[key].T
+        x = attributions[key][0].T
         data.append(x)
         label.append(key)
+        offsets.append(attributions[key][2])
     data = np.array(data)
     label = np.array(label)
-    np.savez(output_dir+'/interpret/attributions.npz', data=data, labels=label)
+    offsets = np.array(offsets)
+    np.savez(output_dir+'/interpret/attributions.npz', data=data, labels=label, offsets=offsets)
 
     # Print some conclusions
     tf.keras.backend.clear_session()

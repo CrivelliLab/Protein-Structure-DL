@@ -1,11 +1,6 @@
 '''
 protienligand_graph.py
 
-BUG:
-
-- Code runs slow when using multi cores to load data.
-    This is most likely due to the class object sharing site data when running pool.
-
 '''
 
 import os
@@ -15,7 +10,7 @@ from sklearn.model_selection import train_test_split
 
 class ProtienLigandGraphDataset():
 
-    def __init__(self, data, nb_nodes, task_type, nb_classes, site_path):
+    def __init__(self, data, nb_nodes, task_type, nb_classes, site_path, curve_order, diameter):
         '''
         '''
         self.data = data
@@ -48,7 +43,12 @@ class ProtienLigandGraphDataset():
         v = np.array(v, dtype=float)
         c = np.array(c, dtype=float)
         self.site = [v,c]
+        self.ident = np.eye(nb_nodes)
 
+        # Generate SPC
+        self.curve_order = curve_order
+        self.diameter = diameter
+        self.curve = self.__hilbert_3d(curve_order)
 
     def __getitem__(self, index):
         '''
@@ -72,12 +72,18 @@ class ProtienLigandGraphDataset():
                 b_ = [0 for _ in range(len(body))]
                 b_[body.index(b)] = 1
 
-                v.append(a_+b_)
+                v.append(a_ + b_)
                 c.append(row[2:5])
         v = np.array(v, dtype=float)
         c = np.array(c, dtype=float)
-        v = np.concatenate([site[0], v], axis=0)
-        c = np.concatenate([site[1], c], axis=0)
+        v = np.concatenate([self.site[0], v], axis=0)
+        c = np.concatenate([self.site[1], c], axis=0)
+
+        # Spatial Ordering Using SPC
+        data = np.concatenate([v,c],axis=-1)
+        sorted_data = self.__hilbert_sort(data, self.curve, self.diameter, 2**self.curve_order)
+        v = sorted_data[:,:-3]
+        c = sorted_data[:,-3:]
 
         # Zero Padding
         if v.shape[0] < self.nb_nodes:
@@ -88,13 +94,19 @@ class ProtienLigandGraphDataset():
             v = v_
             c = c_
 
+        # Set MasK
+        m = np.sum(v[:,-2:],axis=-1)
+        m = np.repeat(np.expand_dims(m, axis=-1), len(m), axis=-1)
+        m = (m + m.T) + self.ident
+        m[m>1] = 1
+
         if self.task_type == 'classification':
             y = [0 for _ in range(self.nb_classes)]
             y[int(self.data[index][1])] = 1
         elif self.task_type == 'regression': y = [float(self.data[index][1]),]
         else: raise Exception('Task Type %s unknown' % self.task_type)
 
-        data_ = [v,c,y]
+        data_ = [v,c,m,y]
 
         return data_
 
@@ -103,7 +115,74 @@ class ProtienLigandGraphDataset():
         '''
         return len(self.data)
 
-def get_datasets(data_path, nb_nodes, task_type, nb_classes, split=[0.7,0.1,0.2], k_fold=None, seed=1234):
+    def __hilbert_3d(self, order):
+        '''
+        Method generates 3D hilbert curve of desired order.
+        Param:
+            order - int ; order of curve
+        Returns:
+            np.array ; list of (x, y, z) coordinates of curve
+        '''
+
+        def gen_3d(order, x, y, z, xi, xj, xk, yi, yj, yk, zi, zj, zk, array):
+            if order == 0:
+                xx = x + (xi + yi + zi)/3
+                yy = y + (xj + yj + zj)/3
+                zz = z + (xk + yk + zk)/3
+                array.append((xx, yy, zz))
+            else:
+                gen_3d(order-1, x, y, z, yi/2, yj/2, yk/2, zi/2, zj/2, zk/2, xi/2, xj/2, xk/2, array)
+
+                gen_3d(order-1, x + xi/2, y + xj/2, z + xk/2,  zi/2, zj/2, zk/2, xi/2, xj/2, xk/2,
+                           yi/2, yj/2, yk/2, array)
+                gen_3d(order-1, x + xi/2 + yi/2, y + xj/2 + yj/2, z + xk/2 + yk/2, zi/2, zj/2, zk/2,
+                           xi/2, xj/2, xk/2, yi/2, yj/2, yk/2, array)
+                gen_3d(order-1, x + xi/2 + yi, y + xj/2+ yj, z + xk/2 + yk, -xi/2, -xj/2, -xk/2, -yi/2,
+                           -yj/2, -yk/2, zi/2, zj/2, zk/2, array)
+                gen_3d(order-1, x + xi/2 + yi + zi/2, y + xj/2 + yj + zj/2, z + xk/2 + yk +zk/2, -xi/2,
+                           -xj/2, -xk/2, -yi/2, -yj/2, -yk/2, zi/2, zj/2, zk/2, array)
+                gen_3d(order-1, x + xi/2 + yi + zi, y + xj/2 + yj + zj, z + xk/2 + yk + zk, -zi/2, -zj/2,
+                           -zk/2, xi/2, xj/2, xk/2, -yi/2, -yj/2, -yk/2, array)
+                gen_3d(order-1, x + xi/2 + yi/2 + zi, y + xj/2 + yj/2 + zj , z + xk/2 + yk/2 + zk, -zi/2,
+                           -zj/2, -zk/2, xi/2, xj/2, xk/2, -yi/2, -yj/2, -yk/2, array)
+                gen_3d(order-1, x + xi/2 + zi, y + xj/2 + zj, z + xk/2 + zk, yi/2, yj/2, yk/2, -zi/2, -zj/2,
+                           -zk/2, -xi/2, -xj/2, -xk/2, array)
+
+        n = pow(2, order)
+        hilbert_curve = []
+        gen_3d(order, 0, 0, 0, n, 0, 0, 0, n, 0, 0, 0, n, hilbert_curve)
+
+        return np.array(hilbert_curve).astype('int')
+
+    def __hilbert_sort(self, data, curve, diameter, bins):
+        '''
+        '''
+        # Bin points
+        binned = [[[[] for k in range(bins)] for j in range(bins)] for i in range(bins)]
+        bin_interval = (diameter / bins)
+        offset = int((diameter/2.0)/bin_interval)
+        for i, _ in enumerate(data):
+            x = int(_[-3]/bin_interval) + offset
+            y = int(_[-2]/bin_interval) + offset
+            z = int(_[-1]/bin_interval) + offset
+            #print(x,y,z, _)
+            if (x > bins-1) or (x < 0): continue
+            if (y > bins-1) or (y < 0): continue
+            if (z > bins-1) or (z < 0): continue
+            binned[x][y][z].append(_)
+
+        # Traverse and Assemble
+        sorted_data = []
+        for _ in curve_3d:
+            x = binned[_[0]][_[1]][_[2]]
+            if len(x) > 0:
+                sorted_data.append(np.array(x))
+
+        sorted_data = np.concatenate(sorted_data, axis=0)
+
+        return sorted_data
+
+def get_datasets(data_path, nb_nodes, task_type, nb_classes, curve_order=5, diameter=50.0, split=[0.7,0.1,0.2], k_fold=None, seed=1234):
     '''
     '''
     # Load examples
@@ -147,8 +226,8 @@ def get_datasets(data_path, nb_nodes, task_type, nb_classes, split=[0.7,0.1,0.2]
 
     # Initialize Dataset Iterators
     site_path = data_path + '/site.txt'
-    train_dataset = ProtienLigandGraphDataset(data_train, nb_nodes, task_type, nb_classes, site_path)
-    valid_dataset = ProtienLigandGraphDataset(data_valid, nb_nodes, task_type, nb_classes, site_path)
-    test_dataset = ProtienLigandGraphDataset(data_test, nb_nodes, task_type, nb_classes, site_path)
+    train_dataset = ProtienLigandGraphDataset(data_train, nb_nodes, task_type, nb_classes, site_path, curve_order, diameter)
+    valid_dataset = ProtienLigandGraphDataset(data_valid, nb_nodes, task_type, nb_classes, site_path, curve_order, diameter)
+    test_dataset = ProtienLigandGraphDataset(data_test, nb_nodes, task_type, nb_classes, site_path, curve_order, diameter)
 
     return train_dataset, valid_dataset, test_dataset

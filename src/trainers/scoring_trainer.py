@@ -1,4 +1,5 @@
 '''
+UNDERCONSTRUCTION!!!!
 scoring_trainer.py
 
 Script defines trainer for scoring tasks. Trainer uses mean squared error as
@@ -7,12 +8,15 @@ loss function. The following metrics are defined for trainier:
     - average loss
     - median loss
     - loss range
+    
+TODO:
+- Sampling decoys has not yet been implemented..
 
 '''
 import time
 import numpy as np
 import tensorflow as tf
-from .base_trainer import BaseTrainer
+from .base_trainer import BaseTrainer, bg
 from models import get_model
 
 class ScoringTrainer(BaseTrainer):
@@ -52,10 +56,8 @@ class ScoringTrainer(BaseTrainer):
         L_ = 1 - (Y__*score_diff)
         L_ = tf.where(tf.greater(L_, 0), L_, tf.zeros_like(gdt_ts_diff))
         L_ = tf.where(tf.greater(tf.abs(gdt_ts_diff), 0.1), L_, tf.zeros_like(L_))
-        print(L_.shape)
         loss_train = tf.reduce_sum(tf.reduce_sum(L_,axis=-1,),axis=0) / tf.cast(batch_size*batch_size, tf.float32)
         loss_eval = tf.abs(tf.reduce_max(Y)-tf.reduce_max(tf.gather(Y, tf.argmin(Y,axis=0))))
-        print(loss_train.shape, loss_eval.shape)
 
         if optimizer == 'Adam':
             update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
@@ -97,7 +99,7 @@ class ScoringTrainer(BaseTrainer):
 
         # Loop over training batches
         self.logger.info('Training...')
-        for i, data in enumerate(data_loader):
+        for i, data in enumerate(bg(data_loader)):
             data = [True,] + data
             out = sess.run(self.operators[:2], feed_dict={i: d for i, d in zip(self.inputs, data)})
             loss.append(out[1])
@@ -136,7 +138,7 @@ class ScoringTrainer(BaseTrainer):
 
         # Loop over training batches
         self.logger.info('Evaluating...')
-        for i, data in enumerate(data_loader):
+        for i, data in enumerate(bg(data_loader)):
             data = [False,] + data
             out = sess.run(self.operators[1:], feed_dict={i: d for i, d in zip(self.inputs, data)})
             loss.append(out[1])
