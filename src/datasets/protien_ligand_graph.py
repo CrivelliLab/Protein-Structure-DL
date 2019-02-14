@@ -108,7 +108,7 @@ class ProtienLigandGraphDataset():
         c = c_
 
         # Set MasK
-        m = np.repeat(np.expand_dims(v[:,-3], axis=-1), len(m), axis=-1)
+        m = np.repeat(np.expand_dims(v[:,-3], axis=-1), len(v), axis=-1)
         m = (m + m.T) + self.ident
         m[m>1] = 1
 
