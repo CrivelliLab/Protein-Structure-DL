@@ -18,7 +18,7 @@ class RegressorTrainer(BaseTrainer):
     def __init__(self, **kwargs):
         super(RegressorTrainer, self).__init__(**kwargs)
 
-    def build_model(self, model_type='gcnn', optimizer='Adam', learning_rate=0.001, **model_args):
+    def build_model(self, model_type='gcnn', optimizer='Adam', learning_rate=0.001, nb_classes=0, **model_args):
         '''
         Method intanstiates tensorflow model and metrics for regression tasks.
 
