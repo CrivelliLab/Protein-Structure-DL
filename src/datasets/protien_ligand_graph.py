@@ -174,7 +174,7 @@ class ProtienLigandGraphDataset():
 
         # Traverse and Assemble
         sorted_data = []
-        for _ in curve_3d:
+        for _ in curve:
             x = binned[_[0]][_[1]][_[2]]
             if len(x) > 0:
                 sorted_data.append(np.array(x))
