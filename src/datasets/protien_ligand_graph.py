@@ -19,6 +19,11 @@ class ProtienLigandGraphDataset():
         self.task_type = task_type
         self.site_path = site_path
 
+        # Generate SPC
+        self.curve_order = curve_order
+        self.diameter = diameter
+        self.curve = self.__hilbert_3d(curve_order)
+
         # Parse Site
         atoms = ['C','H','O','N','S','UNK']
         body = ['L','R','UNK']
@@ -42,13 +47,17 @@ class ProtienLigandGraphDataset():
                 c.append(row[2:5])
         v = np.array(v, dtype=float)
         c = np.array(c, dtype=float)
+        self.site_com = c.mean(axis=0)
+        c = c - self.site_com
+
+        # Spatial Ordering Using SPC
+        data = np.concatenate([v,c],axis=-1)
+        sorted_data = self.__hilbert_sort(data, self.curve, self.diameter, 2**self.curve_order, self.site_com)
+        v = sorted_data[:,:-3]
+        c = sorted_data[:,-3:]
+
         self.site = [v,c]
         self.ident = np.eye(nb_nodes)
-
-        # Generate SPC
-        self.curve_order = curve_order
-        self.diameter = diameter
-        self.curve = self.__hilbert_3d(curve_order)
 
     def __getitem__(self, index):
         '''
@@ -76,9 +85,9 @@ class ProtienLigandGraphDataset():
                 c.append(row[2:5])
         v = np.array(v, dtype=float)
         c = np.array(c, dtype=float)
-        v = np.concatenate([self.site[0], v], axis=0)
-        c = np.concatenate([self.site[1], c], axis=0)
-        c = c - c.mean(axis=0) # Center on origin
+        c = c - self.site_com
+        #v = np.concatenate([self.site[0], v], axis=0)
+        #c = np.concatenate([self.site[1], c], axis=0)
 
         # Spatial Ordering Using SPC
         data = np.concatenate([v,c],axis=-1)
@@ -87,17 +96,19 @@ class ProtienLigandGraphDataset():
         c = sorted_data[:,-3:]
 
         # Zero Padding
-        if v.shape[0] < self.nb_nodes:
-            v_ = np.zeros((self.nb_nodes, v.shape[1]))
-            v_[:v.shape[0],:v.shape[1]] = v
-            c_ = np.zeros((self.nb_nodes, c.shape[1]))
-            c_[:c.shape[0],:c.shape[1]] = c
-            v = v_
-            c = c_
+        v_ = np.zeros((self.nb_nodes, v.shape[1]))
+        vs = self.site[0]
+        v_[:vs.shape[0],:vs.shape[1]] = vs
+        v_[-v.shape[0]:,-v.shape[1]:] = v
+        v = v_
+        c_ = np.zeros((self.nb_nodes, c.shape[1]))
+        cs = self.site[1]
+        c_[:cs.shape[0],:cs.shape[1]] = cs
+        c_[-c.shape[0]:,-c.shape[1]:] = c
+        c = c_
 
         # Set MasK
-        m = np.sum(v[:,-2:],axis=-1)
-        m = np.repeat(np.expand_dims(m, axis=-1), len(m), axis=-1)
+        m = np.repeat(np.expand_dims(v[:,-3], axis=-1), len(m), axis=-1)
         m = (m + m.T) + self.ident
         m[m>1] = 1
 
