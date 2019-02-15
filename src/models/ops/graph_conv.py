@@ -116,8 +116,9 @@ def GraphKernels(v, a, nb_kernels, kernel_limit=100.0, mask=None, training=None,
     for i, _ in enumerate(w):
         y = tf.matmul(v, _)
         c_1 , c_2, = tf.split(y,[1,1],axis=-1)
-        c_2 = tf.transpose(c_2, [0,2,1])
-        c = c_1 + c_2
+        #c_2 = tf.transpose(c_2, [0,2,1])
+        #c = c_1 + c_2
+        c = tf.tile(c_1,[1,1,nb_nodes])
         if training is not None: c = tf.layers.batch_normalization(c, training=training)
         c = tf.nn.sigmoid(c)
         c = tf.multiply(c, kernel_limit, name=namespace+'c_'+str(i)) + 0.00001
@@ -129,52 +130,6 @@ def GraphKernels(v, a, nb_kernels, kernel_limit=100.0, mask=None, training=None,
         a_prime.append(a_)
 
     return a_prime
-
-""" DISCONTINUED: NO PERFORMANCE INCREASE
-def AngularContribution(v, c_a, a, training=None, namespace='angularcontr_'):
-    '''
-    Method defines tensorflow layer which learns a linear combination of cosine distance
-    tensor c_a and graph kernel normalized euclidean distance tensors a, according to node features in
-    tensor v.
-
-    Params:
-        v - Rank 3 tensor defining the node features; BATCHxNxF
-        a - Rank 3 tensor defining cosine distances between nodes according to tensor c; BATCHxNxN
-        a - list(tf.arrays); list of normalized adjacency tensors; BATCHxNxN
-
-    Returns:
-        a_prime - list(tf.arrays); list of normalized adjacency tensors; BATCHxNxN
-
-    '''
-    # Dimensions
-    batch_size = tf.shape(v)[0]
-    nb_features = int(v.shape[2])
-    nb_nodes = int(v.shape[1])
-    nb_kernels = len(a)
-
-    # Define trainable parameters
-    w1 = tf.Variable(tf.truncated_normal([nb_features, nb_kernels], stddev=np.sqrt(2/((nb_nodes*nb_features)+(nb_nodes*nb_kernels)))))
-    w2 = tf.Variable(tf.truncated_normal([nb_features, nb_kernels], stddev=np.sqrt(2/((nb_nodes*nb_features)+(nb_nodes*nb_kernels)))))
-    w1 = tf.tile(tf.expand_dims(w1, axis=0), [batch_size, 1, 1])
-    w2 = tf.tile(tf.expand_dims(w2, axis=0), [batch_size, 1, 1])
-
-    # Normalize adjacency using learned graph kernels
-    w1 = tf.split(w1,[1 for i in range(nb_kernels)],axis=-1)
-    w2 = tf.split(w2,[1 for i in range(nb_kernels)],axis=-1)
-    a_prime = []
-    for i, _ in enumerate(list(zip(w1,w2))):
-        w1_ = tf.tile(_[0], [1,1,nb_nodes])
-        w2_ = tf.tile(_[1], [1,1,nb_nodes])
-        e1 = tf.matmul(v, w1_)
-        e2 = tf.matmul(v, w2_)
-        e2 = tf.transpose(e2, [0,2,1])
-        z = tf.nn.sigmoid(e1+e2, name=namespace+'z_'+str(i))
-        if training is not None: tf.layers.batch_normalization(z, training=training)
-        a_ = tf.add((z*c_a), ((1-z)*a[i]))
-        a_prime.append(a_)
-
-    return a_prime
-"""
 
 def GraphConv(v, a, nb_filters, activation, training=None, namespace='graphconv_'):
     '''

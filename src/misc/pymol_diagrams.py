@@ -97,6 +97,7 @@ def display_graphkernel(pdb_id, pdb_path):
     cmd.hide('everything',pdb_id2)
     cmd.show('spheres', pdb_id2 + ' and name ca')
     cmd.set('sphere_transparency', 0.8, pdb_id2 + ' and name ca')
+    cmd.set('sphere_scale', code2[elem], elem+'&'+selection)
     #cmd.set('sphere_scale', 2, pdb_id2 + ' and name ca')
 
     data  = cmd.get_coords(selection=pdb_id + ' and name ca', state=1)

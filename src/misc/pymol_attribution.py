@@ -46,7 +46,7 @@ def stucture_attribution(pdb_id, attributions_path, pdb_path, flag=False):
     attribution = attributions[ind][0][:,-1]
 
     # Load PDB
-    cmd.bg_color('white')
+    cmd.bg_color('black')
     cmd.load(pdb_path+pdb_id[:-2]+'.pdb')
     cmd.split_chains(pdb_id[:-2])
     for name in cmd.get_names('objects', 0, '(all)'):
@@ -66,18 +66,65 @@ def stucture_attribution(pdb_id, attributions_path, pdb_path, flag=False):
     cmd.show('mesh', 'selected')
     cmd.deselect()
 
+def kernel_attribution(pdb_id, attributions_path, pdb_path, flag=False):
+    '''
+    '''
+    data = np.load(attributions_path)
+    attributions = data['kernels']
+    labels = data['labels']
+    offsets = data['offsets']
+    ind = np.where(labels == pdb_id)
+    attribution = attributions[ind][0][:,-1]
+
+    # Load PDB
+    cmd.bg_color('black')
+    cmd.load(pdb_path+pdb_id[:-2]+'.pdb')
+    cmd.split_chains(pdb_id[:-2])
+    for name in cmd.get_names('objects', 0, '(all)'):
+        if not name.endswith(pdb_id[-1].upper()) and name.startswith(pdb_id[:4]):
+            cmd.delete(name)
+        else: zero_residues(name)
+    cmd.reset()
+
+    pdb_id2 = pdb_id+'copy'
+    cmd.create(pdb_id2, pdb_id)
+
+    cmd.hide('everything',pdb_id)
+    cmd.show_as('lines', pdb_id + ' and (name ca or name c or name n)')
+    cmd.set('line_width', 5)
+    cmd.set_bond('line_width', 5,  pdb_id + ' and (name ca or name c or name n)')
+    cmd.show('spheres', pdb_id + ' and name ca')
+    cmd.set('sphere_transparency', 0.0, pdb_id + ' and name ca')
+    cmd.set('sphere_scale', 0.5, pdb_id + ' and name ca')
+
+    cmd.hide('everything',pdb_id2)
+    cmd.show('spheres', pdb_id2 + ' and name ca')
+    cmd.set('sphere_transparency', 0.8, pdb_id2 + ' and name ca')
+    cmd.set('sphere_scale', code2[elem], elem+'&'+selection)
+
+    cmd.color('white', pdb_id)
+    for i, _ in enumerate(attribution):
+        if flag: _ = _ *-1
+        cmd.select('toBecolored', pdb_id+ ' and res ' + str(i+offsets[ind][0]))
+        cmd.set_color('saliency'+str(i)+pdb_id, list(cmap(norm(_)))[:3])
+        cmd.color('saliency'+str(i)+pdb_id, 'toBecolored')
+
+    cmd.select('selected', pdb_id)
+    cmd.show('mesh', 'selected')
+    cmd.deselect()
+
 ################################################################################
 
 # Paths
-attributions_path = '../../out/krashras_graph_new_2/interpret/attributions.npz'
+attributions_path = '../../out/krashras_graph_new/interpret/attributions.npz'
 pdb_path = '../../data/KrasHras/pdb/'
 
 
 # Load Attribution
-kras = ['5uqw_a']
-hras= ['3lo5_c']
-#kras = ['4m21_b', '5uqw_a', '5usj_a', '4dst_a']
-#hras = ['3lo5_c', '1plk_a', '3rs7_a', '1iaq_c']
+#kras = ['5uqw_a']
+#hras= ['3lo5_c']
+kras = ['3gft_d', '4dsn_a', '5uqw_b', '4lyh_b']
+hras = ['4us2_r', '3kkn_a', '2quz_a', '3kud_a']
 
 cmd.reinitialize()
 for _ in kras:
@@ -96,6 +143,6 @@ for i, _ in enumerate(kras):
     cmd.translate([0,50*i,0],selection=_[:-1]+_[-1].upper())
 
 for i, _ in enumerate(hras):
-    cmd.translate([00,50*i,60],selection=_[:-1]+_[-1].upper())
+    cmd.translate([60,50*i,00],selection=_[:-1]+_[-1].upper())
 
 cmd.reset()

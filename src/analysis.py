@@ -134,8 +134,14 @@ if __name__ == '__main__':
         sess.run(trainer.running_vars_initializer)
         trainer.saver.restore(sess, output_dir+"/model/model.ckpt")
 
+        # Outputs
+        loss = tf.losses.softmax_cross_entropy(trainer.inputs[-1], trainer.outputs[-1])
+        v_attr = attribution(trainer.inputs, loss, trainer.inputs[1])
+        c_attr = attribution(trainer.inputs, loss, trainer.inputs[2])
+
         # Look for operators
         graph_kernels = {}
+        graph_edges = {}
         angular_contr = {}
         graphconv_filters = {}
         presoftmax_out = trainer.outputs[-1]
@@ -146,14 +152,10 @@ if __name__ == '__main__':
             if 'graphkernels' in op.name and len(op.name.split('/'))==1:
                 if 'c_' in op.name:
                     graph_kernels[op.name] = op.values()
+                else: graph_edges[op.name] = layer_attribution(trainer.inputs, loss, op.values()[0])
 
             if 'angularcontr' in op.name and len(op.name.split('/'))==1:
                 angular_contr[op.name] = op.values()
-
-        # Outputs
-        loss = tf.losses.softmax_cross_entropy(trainer.inputs[-1], trainer.outputs[-1])
-        v_attr = attribution(trainer.inputs, loss, trainer.inputs[1])
-        c_attr = attribution(trainer.inputs, loss, trainer.inputs[2])
 
         # Fetch Example
         k = 10
@@ -210,22 +212,45 @@ if __name__ == '__main__':
             attrib_c = sess.run(c_attr, feed_dict={i: d for i, d in zip(trainer.inputs, sample)})[0]
             attrib_c = attrib_c * sample[2][0] * mask
             vc_all = np.sum(np.concatenate([attrib_v*1000, attrib_c*1000],axis=-1), axis=-1)
+            vc_all = vc_all / np.max(np.abs(vc_all))
+            thresh = 0.5
+            vc_all[np.abs(vc_all)<thresh] = 0
+            for i in range(len(vc_all)):
+                if vc_all[i] > 0:
+                    vc_all[i] = ((vc_all[i]-thresh)/ thresh)
+                elif vc_all[i] < 0:
+                    vc_all[i] = ((vc_all[i]+thresh)/ thresh)
             attrib = np.array([ -(mask[:,0]-1), vc_all])
 
-            '''
+
             # Graph Kernels For Input
+            # GET MOST ACTIVATED KERNEL
+            '''
+            kernels = []
+            highest_atr = 0.0
+            high_op_name = None
+            for gk in graph_edges.keys():
+                atr = sess.run(graph_edges[gk], feed_dict={i: d for i, d in zip(trainer.inputs, sample)})[0]
+                if atr > highest_atr:
+                    highest_atr = atr
+                    high_op_name = gk
+            high_op_name = list(high_op_name)
+            high_op_name[-3] = 'c'
+            high_op_name = ''.join(high_op_name)
+            '''
+
             kernels = []
             for gk in graph_kernels.keys():
                 kernel = activation(trainer.inputs, graph_kernels[gk], sample, sess)[0]
-                kernel
-            '''
+                kernels.append(np.average(kernel[0],axis=-1))
+            kernels = np.array(kernels)
 
             # Stored Example data
             if sample_class not in losses:
                 losses[sample_class] = []
                 losses[sample_class].append([sample_id, loss_val])
             else: losses[sample_class].append([sample_id, loss_val])
-            attributions[sample_id] = [attrib,seq,ind]
+            attributions[sample_id] = [attrib,seq,ind,kernels]
 
     # Plot Attributions for top n examples
     for key in losses.keys():
@@ -263,15 +288,18 @@ if __name__ == '__main__':
     data = []
     label = []
     offsets = []
+    kernels = []
     for key in attributions.keys():
         x = attributions[key][0].T
         data.append(x)
         label.append(key)
         offsets.append(attributions[key][2])
+        kernels.append(attributions[key][3])
     data = np.array(data)
     label = np.array(label)
     offsets = np.array(offsets)
-    np.savez(output_dir+'/interpret/attributions.npz', data=data, labels=label, offsets=offsets)
+    kernels = np.array(kernels)
+    np.savez(output_dir+'/interpret/attributions.npz', data=data, labels=label, offsets=offsets, kernels=kernels)
 
     # Print some conclusions
     tf.keras.backend.clear_session()
