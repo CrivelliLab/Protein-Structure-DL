@@ -11,16 +11,16 @@ data_config:
 
 experiment_config:
     name: classifier
-    output_dir: out/krashras_graph_new
+    output_dir: out/krashras_graph_new_
 
 model_config:
     model_type: gcnn
     input_shape: [185,29,3]
-    kernel_limit: 118.0
-    kernels_per_layer: [4,4,4,4]
-    conv_layers: [16,16,16,16]
-    conv_dropouts: [0.1,0.1,0.1,0.1]
-    pooling_layers: [2,2,2,2]
+    kernel_limit: 5.0
+    kernels_per_layer: [4,4]
+    conv_layers: [16,16]
+    conv_dropouts: [0.1,0.1]
+    pooling_layers: [4,4]
     fc_layers: [128,]
     fc_dropouts: [0.5]
     nb_classes: 2
