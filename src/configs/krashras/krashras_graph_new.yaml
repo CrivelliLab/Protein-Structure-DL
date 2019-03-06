@@ -5,8 +5,8 @@ data_config:
     nb_classes: 2
     nb_nodes: 185
     split: [0.7,0.1,0.2]
-    augment: 10
-    fuzzy_radius: 0.1
+    augment: 50
+    fuzzy_radius: 0.05
     seed: 1234
 
 experiment_config:
@@ -28,7 +28,7 @@ model_config:
     learning_rate: 0.0001
 
 train_config:
-    batch_size: 50
+    batch_size: 150
     nb_epochs: 100
     early_stop_metric: valid_loss
     early_stop_epochs: 10

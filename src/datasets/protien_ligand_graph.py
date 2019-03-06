@@ -86,14 +86,12 @@ class ProtienLigandGraphDataset():
         v = np.array(v, dtype=float)
         c = np.array(c, dtype=float)
         c = c - self.site_com
-        #v = np.concatenate([self.site[0], v], axis=0)
-        #c = np.concatenate([self.site[1], c], axis=0)
 
         # Spatial Ordering Using SPC
-        data = np.concatenate([v,c],axis=-1)
-        sorted_data = self.__hilbert_sort(data, self.curve, self.diameter, 2**self.curve_order)
-        v = sorted_data[:,:-3]
-        c = sorted_data[:,-3:]
+        #data = np.concatenate([v,c],axis=-1)
+        #sorted_data = self.__hilbert_sort(data, self.curve, self.diameter, 2**self.curve_order)
+        #v = sorted_data[:,:-3]
+        #c = sorted_data[:,-3:]
 
         # Zero Padding
         v_ = np.zeros((self.nb_nodes, v.shape[1]))
@@ -111,6 +109,7 @@ class ProtienLigandGraphDataset():
         m = np.repeat(np.expand_dims(v[:,-3], axis=-1), len(v), axis=-1)
         m = (m + m.T) + self.ident
         m[m>1] = 1
+        m = self.ident
 
         if self.task_type == 'classification':
             y = [0 for _ in range(self.nb_classes)]
@@ -238,7 +237,7 @@ def get_datasets(data_path, nb_nodes, task_type, nb_classes, curve_order=5, diam
 
     # Initialize Dataset Iterators
     site_path = data_path + '/site.txt'
-    train_dataset = ProtienLigandGraphDataset(data_train, nb_nodes, task_type, nb_classes, site_path, curve_order, diameter)
+    train_dataset = ProtienLigandGraphDataset(data_train[:300], nb_nodes, task_type, nb_classes, site_path, curve_order, diameter)
     valid_dataset = ProtienLigandGraphDataset(data_valid, nb_nodes, task_type, nb_classes, site_path, curve_order, diameter)
     test_dataset = ProtienLigandGraphDataset(data_test, nb_nodes, task_type, nb_classes, site_path, curve_order, diameter)
 

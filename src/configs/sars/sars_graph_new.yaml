@@ -17,10 +17,10 @@ model_config:
     model_type: gcnn
     input_shape: [1100,9,3]
     kernel_limit: 38.0
-    kernels_per_layer: [2,2,4,4]
-    conv_layers: [64,64,128,128]
-    conv_dropouts: [0.1,0.1,0.1]
-    pooling_layers: [2,2,2,2]
+    kernels_per_layer: [2,2,2,2,2]
+    conv_layers: [64,64,64,64,64]
+    conv_dropouts: [0.1,0.1,0.1,0.1]
+    pooling_layers: [2,2,2,2,2]
     fc_layers: [128,]
     fc_dropouts: [0.5,]
     nb_classes: 2
@@ -28,8 +28,8 @@ model_config:
     learning_rate: 0.0001
 
 train_config:
-    batch_size: 50
+    batch_size: 1
     nb_epochs: 100
     early_stop_metric: valid_loss
-    early_stop_epochs: 10
+    early_stop_epochs: 1
     save_best: True
