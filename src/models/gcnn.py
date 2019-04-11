@@ -25,8 +25,10 @@ class GCNN(Model):
         '''
         Params:
             input_shape - list(int); [nb_nodes, nb_coords, nb_features]
-            diameter - float; diameter limit of pairwise distances, set according to dataset
-            conv_layers - list(tuples); list of tuples defining number of filters and dropouts
+            kernels_per_layer - list(int); list of number of graph kernels per convolution layer
+            kernel_limit - list of
+            conv_layers - list(int); list of number of filters per convolution layer
+            and dropouts
             fc_layers - list(tuples); list of tuples defining number of neurons and dropouts
 
         '''
@@ -52,7 +54,7 @@ class GCNN(Model):
                 M = tf.layers.max_pooling2d(tf.expand_dims(M,axis=-1), int(_[3]), int(_[3]))
                 M = tf.squeeze(M, axis=-1)
 
-        # MultiHeadAttention for order learning
+        # MultiHeadAttention for shift invarience
         V = MultiHeadAttention(V, int(V.shape[1]))
 
         # Fully Connected Layers

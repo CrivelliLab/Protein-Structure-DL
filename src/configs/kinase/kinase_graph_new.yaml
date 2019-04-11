@@ -5,7 +5,7 @@ data_config:
     nb_classes: 2
     nb_nodes: 344
     split: [0.7,0.1,0.2]
-    augment: 50
+    augment: 15
     fuzzy_radius: 0.2
     seed: 1234
 
@@ -17,18 +17,18 @@ model_config:
     model_type: gcnn
     input_shape: [344,29,3]
     kernel_limit: 73.0
-    kernels_per_layer: [2,2,2,2]
-    conv_layers: [64,64,64,64]
-    conv_dropouts: [0.1,0.1,0.1,0.1]
-    pooling_layers: [2,2,2,2]
+    kernels_per_layer: [4,6]
+    conv_layers: [64,64]
+    conv_dropouts: [0.1,0.1]
+    pooling_layers: [4,4]
     fc_layers: [128,]
-    fc_dropouts: [0.5,]
+    fc_dropouts: [0.5]
     nb_classes: 2
     optimizer: 'Adam'
     learning_rate: 0.0001
 
 train_config:
-    batch_size: 50
+    batch_size: 25
     nb_epochs: 100
     early_stop_metric: valid_loss
     early_stop_epochs: 10

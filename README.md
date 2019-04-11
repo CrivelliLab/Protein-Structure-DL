@@ -1,5 +1,5 @@
 # Deep Learning Exploration For Protein Structural Classification and Regression Tasks
-Updated: 11/21/18
+Updated: 3/5/19
 
 ## Generating Data
 This project explores three different data representations for proteomic data
@@ -58,29 +58,40 @@ please read model documentation. Each file has the following general fields:
 
 ```
 data_config:
-    name:
-    data_path: str;
-    task_type: str;
-    nb_classes: int; *for classification*
-    nb_nodes: int; *for protein graphs*
-    split: list(float); *[training,validation,test] sums to 1*
-    seed: int;
+    name: protien_graphs
+    data_path: data/PsiBlast
+    task_type: classification
+    nb_classes: 2
+    nb_nodes: 381
+    split: [0.7,0.1,0.2]
+    augment: 3
+    fuzzy_radius: 0.25
+    seed: 1234
 
 experiment_config:
-    name: *trainer to use*
-    output_dir: str;
+    name: classifier
+    output_dir: out/psiblast_graph_new
 
 model_config:
-    model_type: str;
-    optimizer: str;
-    learning_rate: float;
-    input_shape: list(int); *shape of input data*
-    nb_classes: int; *for classification*
+    model_type: gcnn
+    input_shape: [381,29,3]
+    kernel_limit: 126.0
+    kernels_per_layer: [2,2]
+    conv_layers: [64,64]
+    conv_dropouts: [0.1,0.1]
+    pooling_layers: [4,4]
+    fc_layers: [128,]
+    fc_dropouts: [0.5,]
+    nb_classes: 2
+    optimizer: 'Adam'
+    learning_rate: 0.0001
 
 train_config:
-    batch_size: int;
-    nb_epochs: int;
-    save_best: bool;
+    batch_size: 20
+    nb_epochs: 100
+    early_stop_metric: valid_loss
+    early_stop_epochs: 10
+    save_best: True
 ```
 
 ## Running Training
@@ -89,3 +100,7 @@ to run training. File loader has been paralleized using multithreading library a
 number of cores to use can be set using the --cores flag.
 
 `python3 src/main.py --cores $CORES config/config.yaml`
+
+## GCNN Model and Layers
+A tensorflow definition of a graph convolutional neural network (GCNN) can be found within
+the /src/models/ folder. Layers used in the model are defined in /src/models/ops/graph_conv.py

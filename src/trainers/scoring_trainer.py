@@ -1,5 +1,5 @@
 '''
-UNDERCONSTRUCTION!!!!
+**UNDERCONSTRUCTION**
 scoring_trainer.py
 
 Script defines trainer for scoring tasks. Trainer uses mean squared error as
@@ -8,9 +8,9 @@ loss function. The following metrics are defined for trainier:
     - average loss
     - median loss
     - loss range
-    
+
 TODO:
-- Sampling decoys has not yet been implemented..
+- Sampling decoys has not yet been implemented.
 
 '''
 import time

@@ -116,8 +116,8 @@ def GraphKernels(v, a, nb_kernels, kernel_limit=100.0, mask=None, training=None,
     for i, _ in enumerate(w):
         y = tf.matmul(v, _)
         c_1 , c_2, = tf.split(y,[1,1],axis=-1)
-        #c_2 = tf.transpose(c_2, [0,2,1])
-        #c = c_1 + c_2
+        c_2 = tf.transpose(c_2, [0,2,1])
+        c = c_1 + c_2
         c = tf.tile(c_1,[1,1,nb_nodes])
         if training is not None: c = tf.layers.batch_normalization(c, training=training)
         c = tf.nn.sigmoid(c)
@@ -195,9 +195,9 @@ def AverageSeqGraphPool(v, c, pool_size, namespace='averseqgraphpool_'):
         pool_size - int32; pool window size along sequence.
 
     Returns:
-        v - Rank 3 tensor defining the node features for pooled V; BATCHx(N/pool_size)xF
-        c - Rank 3 tensor defining coordinates of nodes in n-euclidean space for pooled C; BATCHx(N/pool_size)xC
-        a - Rank 3 tensor defining L2 distances between nodes according to tensor c; BATCHx(N/pool_size)xN
+        v_prime - Rank 3 tensor defining the node features for pooled V; BATCHx(N/pool_size)xF
+        c_prime - Rank 3 tensor defining coordinates of nodes in n-euclidean space for pooled C; BATCHx(N/pool_size)xC
+        a_prime - Rank 3 tensor defining L2 distances between nodes according to tensor c; BATCHx(N/pool_size)xN
 
     '''
     # Average Pool V and C
@@ -211,12 +211,20 @@ def AverageSeqGraphPool(v, c, pool_size, namespace='averseqgraphpool_'):
 
 def MultiHeadAttention(v, nb_nodes):
     '''
+    Method learns weighted contribution along sequence for new nb_nodes. This has
+    shown to provide regularization to graph with shifted features along sequence.
+
+    Params:
+        v - Rank 3 tensor defining the node features; BATCHxNxF
+        nb_nodes - int32; number of head nodes for attention
+
+    Returns:
+        v_prime - Rank 3 tensor defining the node features for attended V; BATCHxnb_nodesxF
+
     '''
     # Dimensions
     batch_size = tf.shape(v)[0]
     nb_features = int(v.shape[2])
-
-    temp = np.sqrt(nb_features)
 
     # Define trainable parameters for attention weights
     x_i = tf.contrib.layers.xavier_initializer()
@@ -224,6 +232,7 @@ def MultiHeadAttention(v, nb_nodes):
     u = tf.tile(tf.expand_dims(u, axis=0), [batch_size, 1, 1])
 
     # Calculate node_pool contribution using attention
+    temp = np.sqrt(nb_features)
     node_atten = tf.nn.softmax(tf.transpose(tf.matmul(v, u), [0,2,1])/temp, axis=-1)
 
     # Pool features using node_pool_atten

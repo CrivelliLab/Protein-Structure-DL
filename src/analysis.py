@@ -1,4 +1,8 @@
 '''
+analysis.py
+
+Script used to analyse attributions of trained networks.
+
 '''
 import os
 import argparse
@@ -157,6 +161,7 @@ if __name__ == '__main__':
             if 'angularcontr' in op.name and len(op.name.split('/'))==1:
                 angular_contr[op.name] = op.values()
 
+
         # Fetch Example
         k = 10
         losses = {}
@@ -169,6 +174,8 @@ if __name__ == '__main__':
             mask = np.sum(sample[3][0],axis=-1)
             mask[mask<2] = 0
             mask[mask>0] = 1
+
+            #if sample_id not in kras_list and sample_id not in hras_list: continue
 
             i_ = 0
             for t in range(len(mask)):
@@ -205,21 +212,44 @@ if __name__ == '__main__':
 
 
             # Input Attribution To Classification
+            mask2 = np.repeat(np.expand_dims(mask,axis=-1), 29, axis=-1)
             mask = np.repeat(np.expand_dims(mask,axis=-1), 3, axis=-1)
             loss_val = activation(trainer.inputs, loss, sample, sess)
-            attrib_v = _ = sess.run(v_attr, feed_dict={i: d for i, d in zip(trainer.inputs, sample)})[0]
-            attrib_v = attrib_v * sample[1][0]
+
+            # V Attribution
+            '''
+            attrib_v_ = []
+            N = 50
+            for k in range(1, N):
+                sample_ = sample.copy()
+                sample_[1][0] = sample_[1][0] * (k/N)
+                attrib_v = sess.run(v_attr, feed_dict={i: d for i, d in zip(trainer.inputs, sample_)})[0]
+                attrib_v_.append(attrib_v)
+            attrib_v_ = np.array(attrib_v_)
+            attrib_v = np.average(attrib_v_, axis=0) * sample[1][0] * mask2
+            '''
+            attrib_v = sess.run(v_attr, feed_dict={i: d for i, d in zip(trainer.inputs, sample)})[0]
+            attrib_v = attrib_v * sample[1][0] * mask2
+
+            # C Attribution
+            '''
+            attrib_c_ = []
+            for k in range(1, N):
+                sample_ = sample.copy()
+                sample_[2][0] = sample_[2][0] * (k/N)
+                attrib_c = sess.run(c_attr, feed_dict={i: d for i, d in zip(trainer.inputs, sample_)})[0]
+                attrib_c_.append(attrib_c)
+            attrib_c_ = np.array(attrib_c_)
+            attrib_c = np.average(attrib_c_, axis=0) * sample[2][0] * mask
+            '''
             attrib_c = sess.run(c_attr, feed_dict={i: d for i, d in zip(trainer.inputs, sample)})[0]
             attrib_c = attrib_c * sample[2][0] * mask
+
+            #
+            #vc_all = np.sum(attrib_v*1000, axis=-1)
+            #vc_all = attrib_v*1000
             vc_all = np.sum(np.concatenate([attrib_v*1000, attrib_c*1000],axis=-1), axis=-1)
             vc_all = vc_all / np.max(np.abs(vc_all))
-            thresh = 0.5
-            vc_all[np.abs(vc_all)<thresh] = 0
-            for i in range(len(vc_all)):
-                if vc_all[i] > 0:
-                    vc_all[i] = ((vc_all[i]-thresh)/ thresh)
-                elif vc_all[i] < 0:
-                    vc_all[i] = ((vc_all[i]+thresh)/ thresh)
             attrib = np.array([ -(mask[:,0]-1), vc_all])
 
 
@@ -242,7 +272,14 @@ if __name__ == '__main__':
             kernels = []
             for gk in graph_kernels.keys():
                 kernel = activation(trainer.inputs, graph_kernels[gk], sample, sess)[0]
-                kernels.append(np.average(kernel[0],axis=-1))
+                kernel = np.average(kernel[0],axis=-1)
+                if len(kernel) < len(sample[1][0]):
+                    s = len(sample[1][0])//len(kernel)
+                    kernel = np.concatenate([np.expand_dims(kernel,axis=-1) for i in range(s)],axis=-1).flatten()
+                else:
+                    s = len(sample[1][0])%2
+                    kernel = kernel[:-s]
+                kernels.append(kernel)
             kernels = np.array(kernels)
 
             # Stored Example data
@@ -252,7 +289,18 @@ if __name__ == '__main__':
             else: losses[sample_class].append([sample_id, loss_val])
             attributions[sample_id] = [attrib,seq,ind,kernels]
 
+    #
+    kras_list = ['5tb5_c', '4dsn_a', '3gft_f', '5v6v_b', '4luc_b',
+                 '4m22_a', '4lv6_b', '4epy_a', '4lrw_b', '4epx_a',
+                 '4m1w_a', '5uqw_a', '4pzy_b', '4m21_a', '5us4_a',
+                 '5f2e_a', '4q03_a', '4lyh_c', '4m1o_b', '4pzz_a']
+    hras_list = ['1p2v_a', '4urz_r', '2x1v_a', '3lo5_c', '2quz_a',
+                '3kud_a', '1aa9_a', '1plk_a', '4k81_d', '5wdq_a',
+                '1iaq_a', '1xd2_a', '3i3s_r', '4efl_a', '4l9w_a',
+                '3lo5_a', '5b2z_a', '1nvv_q', '4efm_a', '3l8z_a']
+
     # Plot Attributions for top n examples
+    all_= []
     for key in losses.keys():
         losses_ = np.array(losses[key])
         top_ = losses_[:,1].astype('float').argsort()[:150]
@@ -263,11 +311,21 @@ if __name__ == '__main__':
         y_ticks = []
         temp = 0
         for i, _ in enumerate(top_):
+            if _[0] not in kras_list and _[0] not in hras_list: continue
             x = attributions[_[0]][0]
             x = x[:,:160]
             y.append(x)
-            y_ticks.append((i-temp)*2)
+            y_ticks.append((temp)*2)
             y_labels.append(_[0]+":{:1.4f}".format(float(_[1])))
+            temp +=1
+
+        temp_ = np.sum(np.concatenate(y,axis=0),axis=0)
+        temp_ = regress_ksegments(temp_,np.ones(temp_.size),25)
+        temp_ = temp_ / np.max(np.abs(temp_))
+        y = [np.expand_dims(temp_,axis=0)] + y
+        y_ticks.append((len(y)-1)*2)
+        y_labels = ["K-25"] + y_labels
+        all_.append(temp_)
 
         fig, ax = plt.subplots()
         ax.matshow(np.concatenate(y,axis=0), cmap='seismic', vmin=-1, vmax=1)
@@ -299,7 +357,8 @@ if __name__ == '__main__':
     label = np.array(label)
     offsets = np.array(offsets)
     kernels = np.array(kernels)
-    np.savez(output_dir+'/interpret/attributions.npz', data=data, labels=label, offsets=offsets, kernels=kernels)
+    all_ = np.array(all_)
+    np.savez(output_dir+'/interpret/attributions.npz', data=data, labels=label, offsets=offsets, kernels=kernels, all_=all_)
 
     # Print some conclusions
     tf.keras.backend.clear_session()

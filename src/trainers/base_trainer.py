@@ -60,6 +60,7 @@ class BaseTrainer(object):
         self.nb_parameters = None
         self.saver = None
         self.final_score = None
+        tf.random.set_random_seed(123456)
 
     def print_model_summary(self):
         '''

@@ -17,6 +17,12 @@ def attribution(inputs, output_loss, layer):
     var_grad = tf.gradients(output_loss, [layer])[0]
     return var_grad
 
+def attribution(inputs, output_loss, layer):
+    '''
+    '''
+    var_grad = tf.gradients(output_loss, [layer])[0]
+    return var_grad
+    
 def spatial_attribution(inputs, output_loss, layer):
     '''
     '''
