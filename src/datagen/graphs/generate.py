@@ -16,7 +16,6 @@ import pandas as pd
 from  scipy.spatial.distance import euclidean, cosine
 from scipy.stats import percentileofscore as perc
 import argparse
-from mpi4py import MPI
 
 ################################################################################
 
@@ -244,30 +243,17 @@ if __name__ == '__main__':
     verbose = args.verbose
     if first: all_chains=True
 
-    # MPI init
-    comm = MPI.COMM_WORLD
-    rank = comm.Get_rank()
-    cores = comm.Get_size()
+    tasks = []
+    with open(data_folder+'data.csv', 'r')as f:
+        for i, _ in enumerate(f):
+            row = _[:-1].split(',')
+            tasks.append([row[0], row[1]])
 
-    # MPI task distribution
-    if rank == 0:
-        tasks = []
-        with open(data_folder+'data.csv', 'r')as f:
-            for i, _ in enumerate(f):
-                row = _[:-1].split(',')
-                tasks.append([row[0],row[1]])
+    if not os.path.exists(data_folder+'graph'): os.mkdir(data_folder+'graph')
 
-        if not os.path.exists(data_folder+'graph'): os.mkdir(data_folder+'graph')
-
-        # Shuffle for Random Distribution
-        np.random.seed(seed)
-        np.random.shuffle(tasks)
-
-    else: tasks = None
-
-    # Broadcast tasks to all nodes and select tasks according to rank
-    tasks = comm.bcast(tasks, root=0)
-    tasks = np.array_split(tasks, cores)[rank]
+    # Shuffle for Random Distribution
+    np.random.seed(seed)
+    np.random.shuffle(tasks)
 
     # Fetch PDBs
     prime_lens = []
@@ -310,14 +296,9 @@ if __name__ == '__main__':
     diameters = np.expand_dims(diameters, axis=-1)
     stats = np.concatenate([prime_lens, diameters], axis=-1)
 
-    # Gather stats
-    stats_ = comm.gather(stats,root=0)
-    fails_ = comm.gather(fails,root=0)
-
-    if rank == 0:
-        if verbose: print("NUMBER OF FAILED GENERATIONS: ", sum(fails_))
-        stats = np.concatenate(stats_, axis=0)
-        df = pd.DataFrame(stats)
-        df.columns = ['nb_residues','diameters']
-        summary = df.describe(percentiles=[0.1*i for i in range(10)])
-        summary.to_csv(data_folder+'/graph.summary', float_format='%1.6f', sep=',')
+    # if verbose: print("NUMBER OF FAILED GENERATIONS: ", sum(fails))
+    # stats = np.concatenate(stats, axis=0)
+    # df = pd.DataFrame(stats)
+    # df.columns = ['nb_residues','diameters']
+    # summary = df.describe(percentiles=[0.1*i for i in range(10)])
+    # summary.to_csv(data_folder+'/graph.summary', float_format='%1.6f', sep=',')
