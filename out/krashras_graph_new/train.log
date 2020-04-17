@@ -31460,3 +31460,653 @@ Use standard file APIs to check for files with this prefix.
 2019-04-08 11:36:05,554 INFO Saving History to out/krashras_graph_new/history.csv
 2019-04-08 11:36:05,554 INFO Saving Summary to out/krashras_graph_new/summary.csv
 2019-04-08 11:36:05,562 INFO All done!
+2020-04-17 14:05:20,867 INFO Initializing
+2020-04-17 14:05:21,127 INFO Loaded 810 training samples
+2020-04-17 14:05:21,128 INFO Loaded 24 validation samples
+2020-04-17 14:05:21,128 INFO Loaded 47 test samples
+2020-04-17 14:05:22,155 WARNING From C:\Users\MaxBluestone\AppData\Roaming\Python\Python36\site-packages\tensorflow\python\ops\losses\losses_impl.py:691: softmax_cross_entropy_with_logits (from tensorflow.python.ops.nn_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+
+Future major versions of TensorFlow will allow gradients to flow
+into the labels input on backprop by default.
+
+See tf.nn.softmax_cross_entropy_with_logits_v2.
+
+2020-04-17 14:05:23,525 INFO Model: Graph-CNN
+2020-04-17 14:05:23,525 INFO Parameters: 124194
+2020-04-17 14:05:23,935 INFO Epoch 0:
+2020-04-17 14:05:23,966 INFO Training...
+2020-04-17 14:05:33,463 INFO train time: 9.461
+2020-04-17 14:05:33,463 INFO train loss: 0.484
+2020-04-17 14:05:33,463 INFO train accuracy: 0.807
+2020-04-17 14:05:33,464 INFO train precision: 0.904
+2020-04-17 14:05:33,464 INFO train recall: 0.787
+2020-04-17 14:05:33,464 INFO train F1: 0.841
+2020-04-17 14:05:33,464 INFO train AUC: 0.816
+2020-04-17 14:05:33,464 INFO Evaluating...
+2020-04-17 14:05:33,763 INFO valid time: 0.298
+2020-04-17 14:05:33,763 INFO valid loss: 0.681
+2020-04-17 14:05:33,763 INFO valid accuracy: 0.750
+2020-04-17 14:05:33,763 INFO valid precision: 0.750
+2020-04-17 14:05:33,763 INFO valid recall: 1.000
+2020-04-17 14:05:33,764 INFO valid F1: 0.857
+2020-04-17 14:05:33,764 INFO valid AUC: 0.500
+2020-04-17 14:05:33,765 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:05:34,089 INFO Epoch 1:
+2020-04-17 14:05:34,089 INFO Training...
+2020-04-17 14:05:43,694 INFO train time: 9.604
+2020-04-17 14:05:43,694 INFO train loss: 0.185
+2020-04-17 14:05:43,695 INFO train accuracy: 0.940
+2020-04-17 14:05:43,695 INFO train precision: 0.974
+2020-04-17 14:05:43,695 INFO train recall: 0.931
+2020-04-17 14:05:43,695 INFO train F1: 0.952
+2020-04-17 14:05:43,695 INFO train AUC: 0.943
+2020-04-17 14:05:43,696 INFO Evaluating...
+2020-04-17 14:05:43,910 INFO valid time: 0.214
+2020-04-17 14:05:43,910 INFO valid loss: 0.655
+2020-04-17 14:05:43,910 INFO valid accuracy: 0.750
+2020-04-17 14:05:43,911 INFO valid precision: 0.750
+2020-04-17 14:05:43,911 INFO valid recall: 1.000
+2020-04-17 14:05:43,911 INFO valid F1: 0.857
+2020-04-17 14:05:43,911 INFO valid AUC: 0.500
+2020-04-17 14:05:43,912 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:05:44,296 INFO Epoch 2:
+2020-04-17 14:05:44,296 INFO Training...
+2020-04-17 14:05:53,367 INFO train time: 9.071
+2020-04-17 14:05:53,368 INFO train loss: 0.094
+2020-04-17 14:05:53,368 INFO train accuracy: 0.975
+2020-04-17 14:05:53,368 INFO train precision: 0.994
+2020-04-17 14:05:53,368 INFO train recall: 0.968
+2020-04-17 14:05:53,368 INFO train F1: 0.981
+2020-04-17 14:05:53,368 INFO train AUC: 0.979
+2020-04-17 14:05:53,369 INFO Evaluating...
+2020-04-17 14:05:53,544 INFO valid time: 0.175
+2020-04-17 14:05:53,545 INFO valid loss: 0.633
+2020-04-17 14:05:53,545 INFO valid accuracy: 0.750
+2020-04-17 14:05:53,545 INFO valid precision: 0.750
+2020-04-17 14:05:53,545 INFO valid recall: 1.000
+2020-04-17 14:05:53,545 INFO valid F1: 0.857
+2020-04-17 14:05:53,546 INFO valid AUC: 0.500
+2020-04-17 14:05:53,547 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:05:53,840 INFO Epoch 3:
+2020-04-17 14:05:53,840 INFO Training...
+2020-04-17 14:06:03,106 INFO train time: 9.265
+2020-04-17 14:06:03,106 INFO train loss: 0.058
+2020-04-17 14:06:03,106 INFO train accuracy: 0.984
+2020-04-17 14:06:03,107 INFO train precision: 1.000
+2020-04-17 14:06:03,107 INFO train recall: 0.975
+2020-04-17 14:06:03,107 INFO train F1: 0.987
+2020-04-17 14:06:03,107 INFO train AUC: 0.988
+2020-04-17 14:06:03,108 INFO Evaluating...
+2020-04-17 14:06:03,299 INFO valid time: 0.191
+2020-04-17 14:06:03,300 INFO valid loss: 0.609
+2020-04-17 14:06:03,300 INFO valid accuracy: 0.750
+2020-04-17 14:06:03,300 INFO valid precision: 0.750
+2020-04-17 14:06:03,300 INFO valid recall: 1.000
+2020-04-17 14:06:03,300 INFO valid F1: 0.857
+2020-04-17 14:06:03,300 INFO valid AUC: 0.500
+2020-04-17 14:06:03,301 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:06:03,660 INFO Epoch 4:
+2020-04-17 14:06:03,661 INFO Training...
+2020-04-17 14:06:13,146 INFO train time: 9.484
+2020-04-17 14:06:13,146 INFO train loss: 0.041
+2020-04-17 14:06:13,146 INFO train accuracy: 0.989
+2020-04-17 14:06:13,147 INFO train precision: 0.996
+2020-04-17 14:06:13,147 INFO train recall: 0.987
+2020-04-17 14:06:13,147 INFO train F1: 0.991
+2020-04-17 14:06:13,147 INFO train AUC: 0.990
+2020-04-17 14:06:13,148 INFO Evaluating...
+2020-04-17 14:06:13,342 INFO valid time: 0.194
+2020-04-17 14:06:13,342 INFO valid loss: 0.582
+2020-04-17 14:06:13,342 INFO valid accuracy: 0.750
+2020-04-17 14:06:13,343 INFO valid precision: 0.750
+2020-04-17 14:06:13,343 INFO valid recall: 1.000
+2020-04-17 14:06:13,343 INFO valid F1: 0.857
+2020-04-17 14:06:13,343 INFO valid AUC: 0.500
+2020-04-17 14:06:13,344 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:06:13,695 INFO Epoch 5:
+2020-04-17 14:06:13,696 INFO Training...
+2020-04-17 14:06:24,454 INFO train time: 10.757
+2020-04-17 14:06:24,454 INFO train loss: 0.035
+2020-04-17 14:06:24,455 INFO train accuracy: 0.991
+2020-04-17 14:06:24,455 INFO train precision: 0.994
+2020-04-17 14:06:24,455 INFO train recall: 0.992
+2020-04-17 14:06:24,455 INFO train F1: 0.993
+2020-04-17 14:06:24,455 INFO train AUC: 0.991
+2020-04-17 14:06:24,456 INFO Evaluating...
+2020-04-17 14:06:24,662 INFO valid time: 0.206
+2020-04-17 14:06:24,663 INFO valid loss: 0.556
+2020-04-17 14:06:24,663 INFO valid accuracy: 0.750
+2020-04-17 14:06:24,663 INFO valid precision: 0.750
+2020-04-17 14:06:24,663 INFO valid recall: 1.000
+2020-04-17 14:06:24,663 INFO valid F1: 0.857
+2020-04-17 14:06:24,663 INFO valid AUC: 0.500
+2020-04-17 14:06:24,665 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:06:25,036 INFO Epoch 6:
+2020-04-17 14:06:25,036 INFO Training...
+2020-04-17 14:06:34,749 INFO train time: 9.712
+2020-04-17 14:06:34,749 INFO train loss: 0.028
+2020-04-17 14:06:34,749 INFO train accuracy: 0.991
+2020-04-17 14:06:34,750 INFO train precision: 0.998
+2020-04-17 14:06:34,750 INFO train recall: 0.989
+2020-04-17 14:06:34,750 INFO train F1: 0.993
+2020-04-17 14:06:34,750 INFO train AUC: 0.993
+2020-04-17 14:06:34,751 INFO Evaluating...
+2020-04-17 14:06:34,944 INFO valid time: 0.192
+2020-04-17 14:06:34,945 INFO valid loss: 0.530
+2020-04-17 14:06:34,945 INFO valid accuracy: 0.750
+2020-04-17 14:06:34,945 INFO valid precision: 0.750
+2020-04-17 14:06:34,945 INFO valid recall: 1.000
+2020-04-17 14:06:34,945 INFO valid F1: 0.857
+2020-04-17 14:06:34,945 INFO valid AUC: 0.500
+2020-04-17 14:06:34,946 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:06:35,321 INFO Epoch 7:
+2020-04-17 14:06:35,321 INFO Training...
+2020-04-17 14:06:44,879 INFO train time: 9.557
+2020-04-17 14:06:44,879 INFO train loss: 0.022
+2020-04-17 14:06:44,879 INFO train accuracy: 0.996
+2020-04-17 14:06:44,879 INFO train precision: 0.998
+2020-04-17 14:06:44,879 INFO train recall: 0.996
+2020-04-17 14:06:44,880 INFO train F1: 0.997
+2020-04-17 14:06:44,880 INFO train AUC: 0.996
+2020-04-17 14:06:44,880 INFO Evaluating...
+2020-04-17 14:06:45,096 INFO valid time: 0.216
+2020-04-17 14:06:45,096 INFO valid loss: 0.504
+2020-04-17 14:06:45,096 INFO valid accuracy: 0.750
+2020-04-17 14:06:45,097 INFO valid precision: 0.750
+2020-04-17 14:06:45,097 INFO valid recall: 1.000
+2020-04-17 14:06:45,097 INFO valid F1: 0.857
+2020-04-17 14:06:45,098 INFO valid AUC: 0.500
+2020-04-17 14:06:45,099 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:06:45,468 INFO Epoch 8:
+2020-04-17 14:06:45,468 INFO Training...
+2020-04-17 14:06:55,362 INFO train time: 9.893
+2020-04-17 14:06:55,362 INFO train loss: 0.016
+2020-04-17 14:06:55,362 INFO train accuracy: 0.999
+2020-04-17 14:06:55,363 INFO train precision: 1.000
+2020-04-17 14:06:55,363 INFO train recall: 0.998
+2020-04-17 14:06:55,363 INFO train F1: 0.999
+2020-04-17 14:06:55,363 INFO train AUC: 0.999
+2020-04-17 14:06:55,364 INFO Evaluating...
+2020-04-17 14:06:55,557 INFO valid time: 0.193
+2020-04-17 14:06:55,557 INFO valid loss: 0.474
+2020-04-17 14:06:55,558 INFO valid accuracy: 0.750
+2020-04-17 14:06:55,558 INFO valid precision: 0.750
+2020-04-17 14:06:55,558 INFO valid recall: 1.000
+2020-04-17 14:06:55,558 INFO valid F1: 0.857
+2020-04-17 14:06:55,558 INFO valid AUC: 0.500
+2020-04-17 14:06:55,559 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:06:55,919 INFO Epoch 9:
+2020-04-17 14:06:55,919 INFO Training...
+2020-04-17 14:07:06,039 INFO train time: 10.120
+2020-04-17 14:07:06,039 INFO train loss: 0.012
+2020-04-17 14:07:06,039 INFO train accuracy: 1.000
+2020-04-17 14:07:06,039 INFO train precision: 1.000
+2020-04-17 14:07:06,039 INFO train recall: 1.000
+2020-04-17 14:07:06,039 INFO train F1: 1.000
+2020-04-17 14:07:06,039 INFO train AUC: 1.000
+2020-04-17 14:07:06,040 INFO Evaluating...
+2020-04-17 14:07:06,236 INFO valid time: 0.196
+2020-04-17 14:07:06,236 INFO valid loss: 0.440
+2020-04-17 14:07:06,236 INFO valid accuracy: 0.750
+2020-04-17 14:07:06,236 INFO valid precision: 0.750
+2020-04-17 14:07:06,237 INFO valid recall: 1.000
+2020-04-17 14:07:06,237 INFO valid F1: 0.857
+2020-04-17 14:07:06,237 INFO valid AUC: 0.500
+2020-04-17 14:07:06,238 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:07:06,593 INFO Epoch 10:
+2020-04-17 14:07:06,594 INFO Training...
+2020-04-17 14:07:17,325 INFO train time: 10.731
+2020-04-17 14:07:17,326 INFO train loss: 0.011
+2020-04-17 14:07:17,326 INFO train accuracy: 1.000
+2020-04-17 14:07:17,326 INFO train precision: 1.000
+2020-04-17 14:07:17,326 INFO train recall: 1.000
+2020-04-17 14:07:17,326 INFO train F1: 1.000
+2020-04-17 14:07:17,326 INFO train AUC: 1.000
+2020-04-17 14:07:17,327 INFO Evaluating...
+2020-04-17 14:07:17,530 INFO valid time: 0.202
+2020-04-17 14:07:17,530 INFO valid loss: 0.396
+2020-04-17 14:07:17,530 INFO valid accuracy: 0.750
+2020-04-17 14:07:17,531 INFO valid precision: 0.750
+2020-04-17 14:07:17,531 INFO valid recall: 1.000
+2020-04-17 14:07:17,531 INFO valid F1: 0.857
+2020-04-17 14:07:17,531 INFO valid AUC: 0.500
+2020-04-17 14:07:17,532 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:07:17,928 INFO Epoch 11:
+2020-04-17 14:07:17,929 INFO Training...
+2020-04-17 14:07:27,327 INFO train time: 9.397
+2020-04-17 14:07:27,327 INFO train loss: 0.010
+2020-04-17 14:07:27,327 INFO train accuracy: 1.000
+2020-04-17 14:07:27,327 INFO train precision: 1.000
+2020-04-17 14:07:27,327 INFO train recall: 1.000
+2020-04-17 14:07:27,328 INFO train F1: 1.000
+2020-04-17 14:07:27,328 INFO train AUC: 1.000
+2020-04-17 14:07:27,328 INFO Evaluating...
+2020-04-17 14:07:27,521 INFO valid time: 0.192
+2020-04-17 14:07:27,521 INFO valid loss: 0.339
+2020-04-17 14:07:27,521 INFO valid accuracy: 0.792
+2020-04-17 14:07:27,521 INFO valid precision: 0.783
+2020-04-17 14:07:27,521 INFO valid recall: 1.000
+2020-04-17 14:07:27,521 INFO valid F1: 0.878
+2020-04-17 14:07:27,522 INFO valid AUC: 0.583
+2020-04-17 14:07:27,523 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:07:27,884 INFO Epoch 12:
+2020-04-17 14:07:27,885 INFO Training...
+2020-04-17 14:07:37,199 INFO train time: 9.313
+2020-04-17 14:07:37,199 INFO train loss: 0.012
+2020-04-17 14:07:37,199 INFO train accuracy: 1.000
+2020-04-17 14:07:37,199 INFO train precision: 1.000
+2020-04-17 14:07:37,200 INFO train recall: 1.000
+2020-04-17 14:07:37,200 INFO train F1: 1.000
+2020-04-17 14:07:37,200 INFO train AUC: 1.000
+2020-04-17 14:07:37,204 INFO Evaluating...
+2020-04-17 14:07:37,402 INFO valid time: 0.197
+2020-04-17 14:07:37,403 INFO valid loss: 0.277
+2020-04-17 14:07:37,403 INFO valid accuracy: 0.792
+2020-04-17 14:07:37,403 INFO valid precision: 0.783
+2020-04-17 14:07:37,403 INFO valid recall: 1.000
+2020-04-17 14:07:37,403 INFO valid F1: 0.878
+2020-04-17 14:07:37,403 INFO valid AUC: 0.583
+2020-04-17 14:07:37,404 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:07:37,761 INFO Epoch 13:
+2020-04-17 14:07:37,761 INFO Training...
+2020-04-17 14:07:47,107 INFO train time: 9.344
+2020-04-17 14:07:47,107 INFO train loss: 0.008
+2020-04-17 14:07:47,107 INFO train accuracy: 1.000
+2020-04-17 14:07:47,107 INFO train precision: 1.000
+2020-04-17 14:07:47,107 INFO train recall: 1.000
+2020-04-17 14:07:47,108 INFO train F1: 1.000
+2020-04-17 14:07:47,108 INFO train AUC: 1.000
+2020-04-17 14:07:47,112 INFO Evaluating...
+2020-04-17 14:07:47,306 INFO valid time: 0.193
+2020-04-17 14:07:47,308 INFO valid loss: 0.200
+2020-04-17 14:07:47,308 INFO valid accuracy: 0.917
+2020-04-17 14:07:47,308 INFO valid precision: 0.900
+2020-04-17 14:07:47,308 INFO valid recall: 1.000
+2020-04-17 14:07:47,308 INFO valid F1: 0.947
+2020-04-17 14:07:47,308 INFO valid AUC: 0.833
+2020-04-17 14:07:47,310 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:07:47,664 INFO Epoch 14:
+2020-04-17 14:07:47,664 INFO Training...
+2020-04-17 14:07:57,413 INFO train time: 9.749
+2020-04-17 14:07:57,413 INFO train loss: 0.009
+2020-04-17 14:07:57,414 INFO train accuracy: 0.999
+2020-04-17 14:07:57,414 INFO train precision: 1.000
+2020-04-17 14:07:57,414 INFO train recall: 0.998
+2020-04-17 14:07:57,414 INFO train F1: 0.999
+2020-04-17 14:07:57,414 INFO train AUC: 0.999
+2020-04-17 14:07:57,415 INFO Evaluating...
+2020-04-17 14:07:57,615 INFO valid time: 0.199
+2020-04-17 14:07:57,616 INFO valid loss: 0.142
+2020-04-17 14:07:57,616 INFO valid accuracy: 1.000
+2020-04-17 14:07:57,616 INFO valid precision: 1.000
+2020-04-17 14:07:57,616 INFO valid recall: 1.000
+2020-04-17 14:07:57,616 INFO valid F1: 1.000
+2020-04-17 14:07:57,617 INFO valid AUC: 1.000
+2020-04-17 14:07:57,618 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:07:57,995 INFO Epoch 15:
+2020-04-17 14:07:57,996 INFO Training...
+2020-04-17 14:08:08,242 INFO train time: 10.246
+2020-04-17 14:08:08,243 INFO train loss: 0.008
+2020-04-17 14:08:08,243 INFO train accuracy: 1.000
+2020-04-17 14:08:08,243 INFO train precision: 1.000
+2020-04-17 14:08:08,243 INFO train recall: 1.000
+2020-04-17 14:08:08,244 INFO train F1: 1.000
+2020-04-17 14:08:08,244 INFO train AUC: 1.000
+2020-04-17 14:08:08,245 INFO Evaluating...
+2020-04-17 14:08:08,460 INFO valid time: 0.215
+2020-04-17 14:08:08,460 INFO valid loss: 0.079
+2020-04-17 14:08:08,461 INFO valid accuracy: 1.000
+2020-04-17 14:08:08,461 INFO valid precision: 1.000
+2020-04-17 14:08:08,461 INFO valid recall: 1.000
+2020-04-17 14:08:08,461 INFO valid F1: 1.000
+2020-04-17 14:08:08,462 INFO valid AUC: 1.000
+2020-04-17 14:08:08,463 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:08:08,840 INFO Epoch 16:
+2020-04-17 14:08:08,840 INFO Training...
+2020-04-17 14:08:18,986 INFO train time: 10.145
+2020-04-17 14:08:18,986 INFO train loss: 0.007
+2020-04-17 14:08:18,986 INFO train accuracy: 0.999
+2020-04-17 14:08:18,986 INFO train precision: 1.000
+2020-04-17 14:08:18,987 INFO train recall: 0.998
+2020-04-17 14:08:18,987 INFO train F1: 0.999
+2020-04-17 14:08:18,987 INFO train AUC: 0.999
+2020-04-17 14:08:18,987 INFO Evaluating...
+2020-04-17 14:08:19,200 INFO valid time: 0.212
+2020-04-17 14:08:19,200 INFO valid loss: 0.040
+2020-04-17 14:08:19,200 INFO valid accuracy: 1.000
+2020-04-17 14:08:19,200 INFO valid precision: 1.000
+2020-04-17 14:08:19,200 INFO valid recall: 1.000
+2020-04-17 14:08:19,201 INFO valid F1: 1.000
+2020-04-17 14:08:19,201 INFO valid AUC: 1.000
+2020-04-17 14:08:19,202 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:08:19,576 INFO Epoch 17:
+2020-04-17 14:08:19,577 INFO Training...
+2020-04-17 14:08:29,824 INFO train time: 10.246
+2020-04-17 14:08:29,824 INFO train loss: 0.005
+2020-04-17 14:08:29,824 INFO train accuracy: 1.000
+2020-04-17 14:08:29,824 INFO train precision: 1.000
+2020-04-17 14:08:29,824 INFO train recall: 1.000
+2020-04-17 14:08:29,825 INFO train F1: 1.000
+2020-04-17 14:08:29,825 INFO train AUC: 1.000
+2020-04-17 14:08:29,825 INFO Evaluating...
+2020-04-17 14:08:30,038 INFO valid time: 0.211
+2020-04-17 14:08:30,038 INFO valid loss: 0.020
+2020-04-17 14:08:30,038 INFO valid accuracy: 1.000
+2020-04-17 14:08:30,038 INFO valid precision: 1.000
+2020-04-17 14:08:30,038 INFO valid recall: 1.000
+2020-04-17 14:08:30,038 INFO valid F1: 1.000
+2020-04-17 14:08:30,039 INFO valid AUC: 1.000
+2020-04-17 14:08:30,040 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:08:30,424 INFO Epoch 18:
+2020-04-17 14:08:30,425 INFO Training...
+2020-04-17 14:08:40,736 INFO train time: 10.311
+2020-04-17 14:08:40,736 INFO train loss: 0.005
+2020-04-17 14:08:40,737 INFO train accuracy: 1.000
+2020-04-17 14:08:40,737 INFO train precision: 1.000
+2020-04-17 14:08:40,737 INFO train recall: 1.000
+2020-04-17 14:08:40,737 INFO train F1: 1.000
+2020-04-17 14:08:40,737 INFO train AUC: 1.000
+2020-04-17 14:08:40,741 INFO Evaluating...
+2020-04-17 14:08:40,959 INFO valid time: 0.217
+2020-04-17 14:08:40,959 INFO valid loss: 0.009
+2020-04-17 14:08:40,959 INFO valid accuracy: 1.000
+2020-04-17 14:08:40,959 INFO valid precision: 1.000
+2020-04-17 14:08:40,959 INFO valid recall: 1.000
+2020-04-17 14:08:40,960 INFO valid F1: 1.000
+2020-04-17 14:08:40,960 INFO valid AUC: 1.000
+2020-04-17 14:08:40,961 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:08:41,346 INFO Epoch 19:
+2020-04-17 14:08:41,346 INFO Training...
+2020-04-17 14:08:52,494 INFO train time: 11.147
+2020-04-17 14:08:52,494 INFO train loss: 0.004
+2020-04-17 14:08:52,494 INFO train accuracy: 1.000
+2020-04-17 14:08:52,495 INFO train precision: 1.000
+2020-04-17 14:08:52,495 INFO train recall: 1.000
+2020-04-17 14:08:52,495 INFO train F1: 1.000
+2020-04-17 14:08:52,495 INFO train AUC: 1.000
+2020-04-17 14:08:52,496 INFO Evaluating...
+2020-04-17 14:08:52,714 INFO valid time: 0.218
+2020-04-17 14:08:52,714 INFO valid loss: 0.005
+2020-04-17 14:08:52,714 INFO valid accuracy: 1.000
+2020-04-17 14:08:52,714 INFO valid precision: 1.000
+2020-04-17 14:08:52,714 INFO valid recall: 1.000
+2020-04-17 14:08:52,715 INFO valid F1: 1.000
+2020-04-17 14:08:52,715 INFO valid AUC: 1.000
+2020-04-17 14:08:52,716 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:08:53,123 INFO Epoch 20:
+2020-04-17 14:08:53,123 INFO Training...
+2020-04-17 14:09:06,725 INFO train time: 13.601
+2020-04-17 14:09:06,725 INFO train loss: 0.005
+2020-04-17 14:09:06,725 INFO train accuracy: 1.000
+2020-04-17 14:09:06,726 INFO train precision: 1.000
+2020-04-17 14:09:06,726 INFO train recall: 1.000
+2020-04-17 14:09:06,726 INFO train F1: 1.000
+2020-04-17 14:09:06,726 INFO train AUC: 1.000
+2020-04-17 14:09:06,727 INFO Evaluating...
+2020-04-17 14:09:06,984 INFO valid time: 0.256
+2020-04-17 14:09:06,985 INFO valid loss: 0.005
+2020-04-17 14:09:06,985 INFO valid accuracy: 1.000
+2020-04-17 14:09:06,985 INFO valid precision: 1.000
+2020-04-17 14:09:06,985 INFO valid recall: 1.000
+2020-04-17 14:09:06,985 INFO valid F1: 1.000
+2020-04-17 14:09:06,986 INFO valid AUC: 1.000
+2020-04-17 14:09:06,987 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:09:07,455 INFO Epoch 21:
+2020-04-17 14:09:07,456 INFO Training...
+2020-04-17 14:09:20,067 INFO train time: 12.610
+2020-04-17 14:09:20,067 INFO train loss: 0.006
+2020-04-17 14:09:20,068 INFO train accuracy: 0.999
+2020-04-17 14:09:20,068 INFO train precision: 1.000
+2020-04-17 14:09:20,068 INFO train recall: 0.998
+2020-04-17 14:09:20,068 INFO train F1: 0.999
+2020-04-17 14:09:20,068 INFO train AUC: 0.999
+2020-04-17 14:09:20,069 INFO Evaluating...
+2020-04-17 14:09:20,322 INFO valid time: 0.253
+2020-04-17 14:09:20,322 INFO valid loss: 0.006
+2020-04-17 14:09:20,322 INFO valid accuracy: 1.000
+2020-04-17 14:09:20,323 INFO valid precision: 1.000
+2020-04-17 14:09:20,323 INFO valid recall: 1.000
+2020-04-17 14:09:20,324 INFO valid F1: 1.000
+2020-04-17 14:09:20,324 INFO valid AUC: 1.000
+2020-04-17 14:09:20,325 INFO Epoch 22:
+2020-04-17 14:09:20,326 INFO Training...
+2020-04-17 14:09:33,446 INFO train time: 13.119
+2020-04-17 14:09:33,446 INFO train loss: 0.004
+2020-04-17 14:09:33,447 INFO train accuracy: 1.000
+2020-04-17 14:09:33,447 INFO train precision: 1.000
+2020-04-17 14:09:33,447 INFO train recall: 1.000
+2020-04-17 14:09:33,447 INFO train F1: 1.000
+2020-04-17 14:09:33,447 INFO train AUC: 1.000
+2020-04-17 14:09:33,448 INFO Evaluating...
+2020-04-17 14:09:33,704 INFO valid time: 0.256
+2020-04-17 14:09:33,704 INFO valid loss: 0.002
+2020-04-17 14:09:33,705 INFO valid accuracy: 1.000
+2020-04-17 14:09:33,705 INFO valid precision: 1.000
+2020-04-17 14:09:33,705 INFO valid recall: 1.000
+2020-04-17 14:09:33,705 INFO valid F1: 1.000
+2020-04-17 14:09:33,706 INFO valid AUC: 1.000
+2020-04-17 14:09:33,707 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:09:34,166 INFO Epoch 23:
+2020-04-17 14:09:34,166 INFO Training...
+2020-04-17 14:09:45,964 INFO train time: 11.798
+2020-04-17 14:09:45,964 INFO train loss: 0.004
+2020-04-17 14:09:45,964 INFO train accuracy: 1.000
+2020-04-17 14:09:45,964 INFO train precision: 1.000
+2020-04-17 14:09:45,965 INFO train recall: 1.000
+2020-04-17 14:09:45,965 INFO train F1: 1.000
+2020-04-17 14:09:45,965 INFO train AUC: 1.000
+2020-04-17 14:09:45,966 INFO Evaluating...
+2020-04-17 14:09:46,202 INFO valid time: 0.236
+2020-04-17 14:09:46,202 INFO valid loss: 0.002
+2020-04-17 14:09:46,203 INFO valid accuracy: 1.000
+2020-04-17 14:09:46,203 INFO valid precision: 1.000
+2020-04-17 14:09:46,203 INFO valid recall: 1.000
+2020-04-17 14:09:46,203 INFO valid F1: 1.000
+2020-04-17 14:09:46,203 INFO valid AUC: 1.000
+2020-04-17 14:09:46,205 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:09:46,631 INFO Epoch 24:
+2020-04-17 14:09:46,632 INFO Training...
+2020-04-17 14:09:57,269 INFO train time: 10.636
+2020-04-17 14:09:57,269 INFO train loss: 0.004
+2020-04-17 14:09:57,269 INFO train accuracy: 1.000
+2020-04-17 14:09:57,269 INFO train precision: 1.000
+2020-04-17 14:09:57,270 INFO train recall: 1.000
+2020-04-17 14:09:57,270 INFO train F1: 1.000
+2020-04-17 14:09:57,270 INFO train AUC: 1.000
+2020-04-17 14:09:57,271 INFO Evaluating...
+2020-04-17 14:09:57,484 INFO valid time: 0.212
+2020-04-17 14:09:57,484 INFO valid loss: 0.001
+2020-04-17 14:09:57,485 INFO valid accuracy: 1.000
+2020-04-17 14:09:57,485 INFO valid precision: 1.000
+2020-04-17 14:09:57,485 INFO valid recall: 1.000
+2020-04-17 14:09:57,485 INFO valid F1: 1.000
+2020-04-17 14:09:57,486 INFO valid AUC: 1.000
+2020-04-17 14:09:57,487 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:09:57,894 INFO Epoch 25:
+2020-04-17 14:09:57,895 INFO Training...
+2020-04-17 14:10:07,871 INFO train time: 9.976
+2020-04-17 14:10:07,872 INFO train loss: 0.003
+2020-04-17 14:10:07,872 INFO train accuracy: 1.000
+2020-04-17 14:10:07,872 INFO train precision: 1.000
+2020-04-17 14:10:07,872 INFO train recall: 1.000
+2020-04-17 14:10:07,872 INFO train F1: 1.000
+2020-04-17 14:10:07,872 INFO train AUC: 1.000
+2020-04-17 14:10:07,873 INFO Evaluating...
+2020-04-17 14:10:08,076 INFO valid time: 0.202
+2020-04-17 14:10:08,076 INFO valid loss: 0.001
+2020-04-17 14:10:08,076 INFO valid accuracy: 1.000
+2020-04-17 14:10:08,077 INFO valid precision: 1.000
+2020-04-17 14:10:08,077 INFO valid recall: 1.000
+2020-04-17 14:10:08,077 INFO valid F1: 1.000
+2020-04-17 14:10:08,077 INFO valid AUC: 1.000
+2020-04-17 14:10:08,079 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:10:08,451 INFO Epoch 26:
+2020-04-17 14:10:08,452 INFO Training...
+2020-04-17 14:10:17,920 INFO train time: 9.467
+2020-04-17 14:10:17,920 INFO train loss: 0.003
+2020-04-17 14:10:17,920 INFO train accuracy: 1.000
+2020-04-17 14:10:17,921 INFO train precision: 1.000
+2020-04-17 14:10:17,921 INFO train recall: 1.000
+2020-04-17 14:10:17,921 INFO train F1: 1.000
+2020-04-17 14:10:17,921 INFO train AUC: 1.000
+2020-04-17 14:10:17,922 INFO Evaluating...
+2020-04-17 14:10:18,112 INFO valid time: 0.189
+2020-04-17 14:10:18,113 INFO valid loss: 0.001
+2020-04-17 14:10:18,113 INFO valid accuracy: 1.000
+2020-04-17 14:10:18,113 INFO valid precision: 1.000
+2020-04-17 14:10:18,113 INFO valid recall: 1.000
+2020-04-17 14:10:18,113 INFO valid F1: 1.000
+2020-04-17 14:10:18,113 INFO valid AUC: 1.000
+2020-04-17 14:10:18,114 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:10:18,468 INFO Epoch 27:
+2020-04-17 14:10:18,468 INFO Training...
+2020-04-17 14:10:27,780 INFO train time: 9.311
+2020-04-17 14:10:27,781 INFO train loss: 0.003
+2020-04-17 14:10:27,781 INFO train accuracy: 1.000
+2020-04-17 14:10:27,781 INFO train precision: 1.000
+2020-04-17 14:10:27,781 INFO train recall: 1.000
+2020-04-17 14:10:27,781 INFO train F1: 1.000
+2020-04-17 14:10:27,782 INFO train AUC: 1.000
+2020-04-17 14:10:27,782 INFO Evaluating...
+2020-04-17 14:10:27,988 INFO valid time: 0.206
+2020-04-17 14:10:27,988 INFO valid loss: 0.001
+2020-04-17 14:10:27,988 INFO valid accuracy: 1.000
+2020-04-17 14:10:27,988 INFO valid precision: 1.000
+2020-04-17 14:10:27,988 INFO valid recall: 1.000
+2020-04-17 14:10:27,989 INFO valid F1: 1.000
+2020-04-17 14:10:27,989 INFO valid AUC: 1.000
+2020-04-17 14:10:27,990 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:10:28,362 INFO Epoch 28:
+2020-04-17 14:10:28,362 INFO Training...
+2020-04-17 14:10:37,623 INFO train time: 9.261
+2020-04-17 14:10:37,625 INFO train loss: 0.003
+2020-04-17 14:10:37,625 INFO train accuracy: 1.000
+2020-04-17 14:10:37,625 INFO train precision: 1.000
+2020-04-17 14:10:37,625 INFO train recall: 1.000
+2020-04-17 14:10:37,625 INFO train F1: 1.000
+2020-04-17 14:10:37,625 INFO train AUC: 1.000
+2020-04-17 14:10:37,626 INFO Evaluating...
+2020-04-17 14:10:37,821 INFO valid time: 0.195
+2020-04-17 14:10:37,821 INFO valid loss: 0.001
+2020-04-17 14:10:37,821 INFO valid accuracy: 1.000
+2020-04-17 14:10:37,821 INFO valid precision: 1.000
+2020-04-17 14:10:37,821 INFO valid recall: 1.000
+2020-04-17 14:10:37,821 INFO valid F1: 1.000
+2020-04-17 14:10:37,821 INFO valid AUC: 1.000
+2020-04-17 14:10:37,822 INFO Epoch 29:
+2020-04-17 14:10:37,823 INFO Training...
+2020-04-17 14:10:47,237 INFO train time: 9.413
+2020-04-17 14:10:47,238 INFO train loss: 0.003
+2020-04-17 14:10:47,238 INFO train accuracy: 1.000
+2020-04-17 14:10:47,238 INFO train precision: 1.000
+2020-04-17 14:10:47,238 INFO train recall: 1.000
+2020-04-17 14:10:47,238 INFO train F1: 1.000
+2020-04-17 14:10:47,238 INFO train AUC: 1.000
+2020-04-17 14:10:47,243 INFO Evaluating...
+2020-04-17 14:10:47,437 INFO valid time: 0.194
+2020-04-17 14:10:47,437 INFO valid loss: 0.000
+2020-04-17 14:10:47,437 INFO valid accuracy: 1.000
+2020-04-17 14:10:47,437 INFO valid precision: 1.000
+2020-04-17 14:10:47,438 INFO valid recall: 1.000
+2020-04-17 14:10:47,438 INFO valid F1: 1.000
+2020-04-17 14:10:47,438 INFO valid AUC: 1.000
+2020-04-17 14:10:47,439 INFO Current best according to valid_loss. Model Saved.
+2020-04-17 14:10:47,792 INFO Epoch 30:
+2020-04-17 14:10:47,792 INFO Training...
+2020-04-17 14:10:57,187 INFO train time: 9.394
+2020-04-17 14:10:57,188 INFO train loss: 0.003
+2020-04-17 14:10:57,188 INFO train accuracy: 1.000
+2020-04-17 14:10:57,188 INFO train precision: 1.000
+2020-04-17 14:10:57,188 INFO train recall: 1.000
+2020-04-17 14:10:57,188 INFO train F1: 1.000
+2020-04-17 14:10:57,188 INFO train AUC: 1.000
+2020-04-17 14:10:57,189 INFO Evaluating...
+2020-04-17 14:10:57,383 INFO valid time: 0.194
+2020-04-17 14:10:57,384 INFO valid loss: 0.000
+2020-04-17 14:10:57,384 INFO valid accuracy: 1.000
+2020-04-17 14:10:57,384 INFO valid precision: 1.000
+2020-04-17 14:10:57,384 INFO valid recall: 1.000
+2020-04-17 14:10:57,384 INFO valid F1: 1.000
+2020-04-17 14:10:57,384 INFO valid AUC: 1.000
+2020-04-17 14:10:57,385 INFO Epoch 31:
+2020-04-17 14:10:57,386 INFO Training...
+2020-04-17 14:11:06,760 INFO train time: 9.373
+2020-04-17 14:11:06,760 INFO train loss: 0.002
+2020-04-17 14:11:06,760 INFO train accuracy: 1.000
+2020-04-17 14:11:06,760 INFO train precision: 1.000
+2020-04-17 14:11:06,760 INFO train recall: 1.000
+2020-04-17 14:11:06,761 INFO train F1: 1.000
+2020-04-17 14:11:06,761 INFO train AUC: 1.000
+2020-04-17 14:11:06,761 INFO Evaluating...
+2020-04-17 14:11:06,955 INFO valid time: 0.192
+2020-04-17 14:11:06,955 INFO valid loss: 0.000
+2020-04-17 14:11:06,955 INFO valid accuracy: 1.000
+2020-04-17 14:11:06,955 INFO valid precision: 1.000
+2020-04-17 14:11:06,955 INFO valid recall: 1.000
+2020-04-17 14:11:06,956 INFO valid F1: 1.000
+2020-04-17 14:11:06,956 INFO valid AUC: 1.000
+2020-04-17 14:11:06,957 INFO Epoch 32:
+2020-04-17 14:11:06,957 INFO Training...
+2020-04-17 14:11:16,361 INFO train time: 9.404
+2020-04-17 14:11:16,362 INFO train loss: 0.003
+2020-04-17 14:11:16,362 INFO train accuracy: 1.000
+2020-04-17 14:11:16,362 INFO train precision: 1.000
+2020-04-17 14:11:16,362 INFO train recall: 1.000
+2020-04-17 14:11:16,362 INFO train F1: 1.000
+2020-04-17 14:11:16,363 INFO train AUC: 1.000
+2020-04-17 14:11:16,363 INFO Evaluating...
+2020-04-17 14:11:16,559 INFO valid time: 0.195
+2020-04-17 14:11:16,559 INFO valid loss: 0.004
+2020-04-17 14:11:16,559 INFO valid accuracy: 1.000
+2020-04-17 14:11:16,560 INFO valid precision: 1.000
+2020-04-17 14:11:16,560 INFO valid recall: 1.000
+2020-04-17 14:11:16,560 INFO valid F1: 1.000
+2020-04-17 14:11:16,560 INFO valid AUC: 1.000
+2020-04-17 14:11:16,561 INFO Epoch 33:
+2020-04-17 14:11:16,561 INFO Training...
+2020-04-17 14:11:26,207 INFO train time: 9.646
+2020-04-17 14:11:26,207 INFO train loss: 0.003
+2020-04-17 14:11:26,208 INFO train accuracy: 1.000
+2020-04-17 14:11:26,208 INFO train precision: 1.000
+2020-04-17 14:11:26,208 INFO train recall: 1.000
+2020-04-17 14:11:26,208 INFO train F1: 1.000
+2020-04-17 14:11:26,208 INFO train AUC: 1.000
+2020-04-17 14:11:26,209 INFO Evaluating...
+2020-04-17 14:11:26,412 INFO valid time: 0.202
+2020-04-17 14:11:26,412 INFO valid loss: 0.001
+2020-04-17 14:11:26,412 INFO valid accuracy: 1.000
+2020-04-17 14:11:26,412 INFO valid precision: 1.000
+2020-04-17 14:11:26,412 INFO valid recall: 1.000
+2020-04-17 14:11:26,413 INFO valid F1: 1.000
+2020-04-17 14:11:26,413 INFO valid AUC: 1.000
+2020-04-17 14:11:26,414 INFO Epoch 34:
+2020-04-17 14:11:26,414 INFO Training...
+2020-04-17 14:11:38,366 INFO train time: 11.951
+2020-04-17 14:11:38,366 INFO train loss: 0.002
+2020-04-17 14:11:38,367 INFO train accuracy: 1.000
+2020-04-17 14:11:38,367 INFO train precision: 1.000
+2020-04-17 14:11:38,367 INFO train recall: 1.000
+2020-04-17 14:11:38,367 INFO train F1: 1.000
+2020-04-17 14:11:38,367 INFO train AUC: 1.000
+2020-04-17 14:11:38,368 INFO Evaluating...
+2020-04-17 14:11:38,637 INFO valid time: 0.268
+2020-04-17 14:11:38,638 INFO valid loss: 0.001
+2020-04-17 14:11:38,638 INFO valid accuracy: 1.000
+2020-04-17 14:11:38,638 INFO valid precision: 1.000
+2020-04-17 14:11:38,638 INFO valid recall: 1.000
+2020-04-17 14:11:38,639 INFO valid F1: 1.000
+2020-04-17 14:11:38,639 INFO valid AUC: 1.000
+2020-04-17 14:11:38,640 INFO Stopping training early due to no progress within the last 5 epochs.
+2020-04-17 14:11:38,641 INFO Restoring parameters from out/krashras_graph_new/model/model.ckpt
+2020-04-17 14:11:38,856 INFO Evaluating...
+2020-04-17 14:11:39,315 INFO test time: 0.459
+2020-04-17 14:11:39,316 INFO test loss: 0.103
+2020-04-17 14:11:39,316 INFO test accuracy: 0.979
+2020-04-17 14:11:39,316 INFO test precision: 1.000
+2020-04-17 14:11:39,316 INFO test recall: 0.969
+2020-04-17 14:11:39,317 INFO test F1: 0.984
+2020-04-17 14:11:39,317 INFO test AUC: 0.984
+2020-04-17 14:11:39,448 INFO Saving History to out/krashras_graph_new\history.csv
+2020-04-17 14:11:39,449 INFO Saving Summary to out/krashras_graph_new\summary.csv
+2020-04-17 14:11:39,456 INFO All done!
