@@ -103,7 +103,7 @@ class ClassifierTrainer(BaseTrainer):
 
         # Loop over training batches
         self.logger.info('Training...')
-        for i, data in enumerate(bg(data_loader)):
+        for i, data in enumerate(data_loader):
             data = [True,] + data
             out = sess.run(self.operators, feed_dict={i: d for i, d in zip(self.inputs, data)})
             loss.append(out[1])
@@ -167,7 +167,7 @@ class ClassifierTrainer(BaseTrainer):
 
         # Loop over training batches
         self.logger.info('Evaluating...')
-        for i, data in enumerate(bg(data_loader)):
+        for i, data in enumerate(data_loader):
             data = [False,] + data
             out = sess.run(self.operators[1:], feed_dict={i: d for i, d in zip(self.inputs, data)})
             loss.append(out[0])
