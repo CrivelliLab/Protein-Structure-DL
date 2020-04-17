@@ -36,7 +36,7 @@ if __name__ == '__main__':
     args = parse_args()
 
     # Load configuration
-    with open(args.config) as f: config = yaml.load(f)
+    with open(args.config) as f: config = yaml.load(f, Loader=yaml.FullLoader)
     data_config = config['data_config']
     model_config = config.get('model_config', {})
     train_config = config['train_config']
