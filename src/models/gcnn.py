@@ -6,10 +6,9 @@ README:
 This script defines a graph convolutional network for tensorflow.
 
 '''
-import numpy as np
-import tensorflow as tf
 from models import Model
 from models.ops.graph_conv import *
+
 
 class GCNN(Model):
 
@@ -21,7 +20,7 @@ class GCNN(Model):
         self.define_model(**kwargs)
 
     def define_model(self, input_shape, kernels_per_layer, kernel_limit,
-                        conv_layers, conv_dropouts, pooling_layers, fc_layers, fc_dropouts):
+                     conv_layers, conv_dropouts, pooling_layers, fc_layers, fc_dropouts, output_embed):
         '''
         Params:
             input_shape - list(int); [nb_nodes, nb_coords, nb_features]
@@ -38,32 +37,38 @@ class GCNN(Model):
         self.inputs = [is_training, V, C, M]
 
         # Graph Convolutions
-        for i,_ in enumerate(list(zip(kernels_per_layer,conv_layers,conv_dropouts,pooling_layers))):
+        for i, _ in enumerate(list(zip(kernels_per_layer, conv_layers, conv_dropouts, pooling_layers))):
 
             # Graph Kernels for Euchlidean Distances
-            A_ = GraphKernels(V, A[0], int(_[0]), kernel_limit, mask=M, training=is_training, namespace='graphkernels_'+str(i)+'_')
-            A_ = A_+ A[1:] # ADD Cosine Similarity Back
+            A_ = GraphKernels(V, A[0], int(_[0]), kernel_limit, mask=M, training=is_training,
+                              namespace='graphkernels_' + str(i) + '_')
+            A_ = A_ + A[1:]  # ADD Cosine Similarity Back
 
             # Preform Graph Covolution
-            V = GraphConv(V, A_, int(_[1]), activation=tf.nn.leaky_relu, training=is_training,  namespace='graphconv_'+str(i)+'_')
+            V = GraphConv(V, A_, int(_[1]), activation=tf.nn.leaky_relu, training=is_training,
+                          namespace='graphconv_' + str(i) + '_')
             V = tf.layers.dropout(V, float(_[2]), training=is_training)
 
             # Sequence Graph Pooling
             if int(_[3]) > 1:
-                V,C,A = AverageSeqGraphPool(V,C,int(_[3]), namespace='averseqgraphpool_'+str(i)+'_')
-                M = tf.layers.max_pooling2d(tf.expand_dims(M,axis=-1), int(_[3]), int(_[3]))
+                V, C, A = AverageSeqGraphPool(V, C, int(_[3]), namespace='averseqgraphpool_' + str(i) + '_')
+                M = tf.layers.max_pooling2d(tf.expand_dims(M, axis=-1), int(_[3]), int(_[3]))
                 M = tf.squeeze(M, axis=-1)
 
         # MultiHeadAttention for shift invarience
-        V = MultiHeadAttention(V, int(V.shape[1]))
+        V_MH = MultiHeadAttention(V, int(V.shape[1]))
 
         # Fully Connected Layers
-        F = tf.contrib.layers.flatten(V)
-        for _ in list(zip(fc_layers,fc_dropouts)):
+        F = tf.contrib.layers.flatten(V_MH)
+        #E = F
+        for _ in list(zip(fc_layers, fc_dropouts)):
             F = tf.layers.dense(F, int(_[0]))
             F = tf.layers.batch_normalization(F, training=is_training)
             F = tf.nn.leaky_relu(F)
             F = tf.layers.dropout(F, float(_[1]), training=is_training)
 
         # Outputs
-        self.outputs = [F,]
+        if output_embed:
+            self.outputs = [F, V]
+        else:
+            self.outputs = [F, ]

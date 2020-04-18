@@ -61,7 +61,11 @@ class ClassifierTrainer(BaseTrainer):
         f1 = (2 * (prec * recall)) / (prec + recall)
         auc,  auc_update = tf.metrics.auc(tf.argmax(self.inputs[-1], 1), tf.argmax(out, 1), name="auc")
         self.metrics = [acc, prec, recall, f1, auc]
-        self.operators = [opt, loss, out, acc_update, prec_update, recall_update, auc_update]
+        if len(self.outputs) == 3:
+            embed = self.outputs[1]
+            self.operators = [opt, loss, out, embed, acc_update, prec_update, recall_update, auc_update]
+        else:
+            self.operators = [opt, loss, out, acc_update, prec_update, recall_update, auc_update]
         if nb_classes > 2:
             self.metrics = self.metrics[:-1]
             self.operators = self.operators[:-1]
