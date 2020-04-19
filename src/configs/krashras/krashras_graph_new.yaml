@@ -11,7 +11,7 @@ data_config:
 
 experiment_config:
     name: classifier
-    output_dir: out/krashras_graph_test
+    output_dir: out/krashras_graph_new
 
 model_config:
     model_type: gcnn
@@ -26,11 +26,11 @@ model_config:
     nb_classes: 2
     optimizer: 'Adam'
     learning_rate: 0.0001
-    output_embed: True
+    output_embed: False
 
 train_config:
     batch_size: 25
-    nb_epochs: 10
+    nb_epochs: 100
     early_stop_metric: valid_loss
     early_stop_epochs: 5
     save_best: True
