@@ -83,13 +83,15 @@ class ProtienGraphDataset():
         m = (m*m.T) + self.ident
         m[m>1] = 1
 
-        if self.task_type == 'classification':
-            y = [0 for _ in range(self.nb_classes)]
-            y[int(self.data[index][1])] = 1
-        elif self.task_type == 'regression': y = [float(self.data[index][1]),]
-        else: raise Exception('Task Type %s unknown' % self.task_type)
-
-        data_ = [v,c,m,y]
+        if self.data[index].shape[0] > 1:
+            if self.task_type == 'classification':
+                y = [0 for _ in range(self.nb_classes)]
+                y[int(self.data[index][1])] = 1
+            elif self.task_type == 'regression': y = [float(self.data[index][1]),]
+            else: raise Exception('Task Type %s unknown' % self.task_type)
+            data_ = [v, c, m, y]
+        else:
+            data_ = [v, c, m]
 
         return data_
 
@@ -178,7 +180,9 @@ def get_datasets(data_path, nb_nodes, task_type, nb_classes, split=[0.7,0.1,0.2]
 
     else:
         # Load examples
-        X = np.array(os.listdir(data_path))
+        X = []
+        for file in os.listdir(data_path):
+            X.append(os.path.join(data_path, file))
         X = np.expand_dims(X, axis=-1)
 
         dataset = ProtienGraphDataset(X, nb_nodes, task_type, nb_classes)
