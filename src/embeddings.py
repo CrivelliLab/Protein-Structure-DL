@@ -37,7 +37,7 @@ class EmbeddingExtractor(ClassifierTrainer):
 
 if __name__ == "__main__":
 
-    with open('./src/configs/krashras/krashras_graph_new.yaml') as f:
+    with open('./src/configs/oncogenes/oncogenes_graph_embed.yaml') as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     data_config = config['data_config']
     model_config = config.get('model_config', {})
