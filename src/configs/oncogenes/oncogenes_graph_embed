@@ -1,0 +1,36 @@
+data_config:
+    name: protien_graphs
+    data_path: data/OncoGenes
+    task_type: classification
+    nb_classes: 2
+    nb_nodes: 447
+    split: [0.7,0.1,0.2]
+    augment: 15
+    fuzzy_radius: 0.1
+    seed: 4321
+
+experiment_config:
+    name: classifier
+    output_dir: out/oncogenes_graph_embed
+
+model_config:
+    model_type: gcnn
+    input_shape: [447,29,3]
+    kernel_limit: 86.0
+    kernels_per_layer: [4,6]
+    conv_layers: [64,64]
+    conv_dropouts: [0.1,0.1]
+    pooling_layers: [4,4]
+    fc_layers: [128,]
+    fc_dropouts: [0.5]
+    nb_classes: 2
+    optimizer: 'Adam'
+    learning_rate: 0.0001
+    output_embed: True
+
+train_config:
+    batch_size: 25
+    nb_epochs: 100
+    early_stop_metric: valid_loss
+    early_stop_epochs: 10
+    save_best: True
