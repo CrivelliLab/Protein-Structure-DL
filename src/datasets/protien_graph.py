@@ -4,7 +4,6 @@ protein_graph.py
 '''
 import os
 import numpy as np
-import pandas as pd
 from sklearn.model_selection import train_test_split
 
 class ProtienGraphDataset():
@@ -120,57 +119,68 @@ class ProtienGraphDataset():
 
         return sequence_enc
 
-def get_datasets(data_path, nb_nodes, task_type, nb_classes, split=[0.7,0.1,0.2], k_fold=None, augment=1, fuzzy_radius=0.2, seed=1234):
+def get_datasets(data_path, nb_nodes, task_type, nb_classes, split=[0.7,0.1,0.2], k_fold=None,
+                 augment=1, fuzzy_radius=0.2, seed=1234, evaluate=False):
     '''
     '''
-    # Load examples
-    X = []
-    Y = []
-    with open(data_path+'/data.csv', 'r')as f:
-        for i, _ in enumerate(f):
-            row = _[:-1].split(',')
-            pdb_id = row[0].lower()
-            chain_id = row[1].lower()
-            filename = pdb_id + '_' + chain_id + '.txt'
-            if not os.path.exists(data_path+'/graph/'+filename): continue
-            X.append(data_path+'/graph/'+filename)
-            Y.append(row[2])
-    X = np.expand_dims(X, axis=-1)
-    Y = np.expand_dims(Y, axis=-1)
+    if not evaluate:
+        # Load examples
+        X = []
+        Y = []
+        with open(data_path+'/data.csv', 'r')as f:
+            for i, _ in enumerate(f):
+                row = _[:-1].split(',')
+                pdb_id = row[0].lower()
+                chain_id = row[1].lower()
+                filename = pdb_id + '_' + chain_id + '.txt'
+                if not os.path.exists(data_path+'/graph/'+filename): continue
+                X.append(data_path+'/graph/'+filename)
+                Y.append(row[2])
+        X = np.expand_dims(X, axis=-1)
+        Y = np.expand_dims(Y, axis=-1)
 
-    # Get Class Compossition
-    unique, counts = np.unique(Y, return_counts=True)
-    for i in range(len(unique)):
-        print('CLASS[COUNTS]: ', unique[i], counts[i])
+        # Get Class Compossition
+        unique, counts = np.unique(Y, return_counts=True)
+        for i in range(len(unique)):
+            print('CLASS[COUNTS]: ', unique[i], counts[i])
 
-    if k_fold is not None:
-        # Split into K Folds and return training, validation and test
-        np.random.seed(seed)
-        data = np.concatenate([X,Y],axis=-1)
-        np.random.shuffle(data)
-        fs = len(data)//int(k_fold[0])
-        ind = [fs*(i+1) for i in range(len(data)//fs)]
-        remainder = len(data)%fs
-        for i in range(remainder):
-            for j in range(i%len(ind)+1):
-                ind[-(j+1)] += 1
-        folds = np.split(data.copy(), ind, axis=0)
-        data_test = folds.pop(int(k_fold[1]))
-        data_train = np.concatenate(folds,axis=0)
-        x_train, x_valid, y_train, y_valid = train_test_split(data_train[:,0:1], data_train[:,1:], test_size=float(k_fold[-1]), random_state=seed)
-        data_train = np.concatenate([x_train,y_train],axis=-1)
-        data_valid = np.concatenate([x_valid,y_valid],axis=-1)
+        if k_fold is not None:
+            # Split into K Folds and return training, validation and test
+            np.random.seed(seed)
+            data = np.concatenate([X,Y],axis=-1)
+            np.random.shuffle(data)
+            fs = len(data)//int(k_fold[0])
+            ind = [fs*(i+1) for i in range(len(data)//fs)]
+            remainder = len(data)%fs
+            for i in range(remainder):
+                for j in range(i%len(ind)+1):
+                    ind[-(j+1)] += 1
+            folds = np.split(data.copy(), ind, axis=0)
+            data_test = folds.pop(int(k_fold[1]))
+            data_train = np.concatenate(folds,axis=0)
+            x_train, x_valid, y_train, y_valid = train_test_split(data_train[:,0:1], data_train[:,1:], test_size=float(k_fold[-1]), random_state=seed)
+            data_train = np.concatenate([x_train,y_train],axis=-1)
+            data_valid = np.concatenate([x_valid,y_valid],axis=-1)
+        else:
+            # Split Examples
+            x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=split[2], random_state=seed)
+            x_train, x_valid, y_train, y_valid = train_test_split(x_train, y_train, test_size=split[1]/(split[0]+split[1]), random_state=seed)
+            data_train = np.concatenate([x_train,y_train],axis=-1)
+            data_test = np.concatenate([x_test,y_test],axis=-1)
+            data_valid = np.concatenate([x_valid,y_valid],axis=-1)
+
+        # Initialize Dataset Iterators
+        train_dataset = ProtienGraphDataset(data_train, nb_nodes, task_type, nb_classes, augment, fuzzy_radius)
+        valid_dataset = ProtienGraphDataset(data_valid, nb_nodes, task_type, nb_classes)
+        test_dataset = ProtienGraphDataset(data_test, nb_nodes, task_type, nb_classes)
+
+        return train_dataset, valid_dataset, test_dataset
+
     else:
-        # Split Examples
-        x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=split[2], random_state=seed)
-        x_train, x_valid, y_train, y_valid = train_test_split(x_train, y_train, test_size=split[1]/(split[0]+split[1]), random_state=seed)
-        data_train = np.concatenate([x_train,y_train],axis=-1)
-        data_test = np.concatenate([x_test,y_test],axis=-1)
-        data_valid = np.concatenate([x_valid,y_valid],axis=-1)
+        # Load examples
+        X = np.array(os.listdir(data_path))
+        X = np.expand_dims(X, axis=-1)
 
-    # Initialize Dataset Iterators
-    train_dataset = ProtienGraphDataset(data_train, nb_nodes, task_type, nb_classes, augment, fuzzy_radius)
-    valid_dataset = ProtienGraphDataset(data_valid, nb_nodes, task_type, nb_classes)
-    test_dataset = ProtienGraphDataset(data_test, nb_nodes, task_type, nb_classes)
+        dataset = ProtienGraphDataset(X, nb_nodes, task_type, nb_classes)
 
-    return train_dataset, valid_dataset, test_dataset
+        return dataset
