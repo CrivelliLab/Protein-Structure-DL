@@ -104,3 +104,16 @@ number of cores to use can be set using the --cores flag.
 ## GCNN Model and Layers
 A tensorflow definition of a graph convolutional neural network (GCNN) can be found within
 the /src/models/ folder. Layers used in the model are defined in /src/models/ops/graph_conv.py
+
+## Embedding Extraction
+First, you will need to train a model that outputs embeddings. Train a model and make sure that `embed_out=True` in the config file.
+
+Once you have a trained model, you can get protein embeddings like so:
+
+```
+python src/embeddings.py -config config/config.yaml --rgn-input False
+```
+
+The `rgn-input` argument indicates if the input data is the output of the [Recurrent Graph Network](https://github.com/emergentbio/rgn). IF this is the case, the input coordinates data for each protein sequence should be saved in separate `protein_name.txt` files in a folder called `rgn_output/`, and the one-hot encoded protein sequences should be saved in separate `protein_name.txt` files in a folder called `proteins/`. Both of these folders should be in a folder that is indicated in the `data_path` parameter in the configuration file.
+
+Otherwise, the data needs to already be in the same format as the training data.
