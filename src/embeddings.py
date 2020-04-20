@@ -1,6 +1,7 @@
 import tensorflow as tf
 from datasets import get_datasets, DataLoader
 from trainers.classifier_trainer import ClassifierTrainer
+import argparse
 import yaml
 from os.path import join as path_join
 import numpy as np
@@ -89,35 +90,50 @@ def rgn_output_to_gcn_input(data_path: str):
 
 if __name__ == "__main__":
 
-    rgn_output_to_gcn_input('./data/test/')
-    assert 1 == 2
+    # get CLI arguments
+    parser = argparse.ArgumentParser(description="Protein Embedding Extraction from Graph Convolution Model")
+    parser.add_argument('--config', type=str, dest='config', help='Name of the config file')
+    parser.add_argument('--rgn-input', type=bool, dest='rgn', help="If the input data is coming from the RGN model")
 
-    path_to_data = './data/Oncogenes/graph/'
+    args = parser.parse_args()
 
-    with open('./src/configs/oncogenes/oncogenes_graph_embed.yaml') as f:
+    # get configuration parameters
+    with open(args.config) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     data_config = config['data_config']
-    data_config['data_path'] = path_to_data
     model_config = config.get('model_config', {})
     train_config = config['train_config']
     experiment_config = config['experiment_config']
     output_dir = experiment_config.pop('output_dir', None)
 
+    # if rgn input, convert to gcn compatible input
+    if args.rgn:
+        rgn_output_to_gcn_input(data_config['data_path'])
+
+    # load the dataset
     dataset = get_datasets(**data_config, evaluate=True)
 
+    # get the batch size
     batch_size = train_config.pop('batch_size')
 
+    # create a data loader
     data_loader = DataLoader(dataset, batch_size=batch_size, cores=1)
 
+    # initializer embedding extractor class
     name = experiment_config.pop('name')
     emb_ex = EmbeddingExtractor(checkpoint_path=path_join(output_dir, 'model/model.ckpt'),
                                 output_dir=output_dir, **experiment_config)
+    # build the model
     emb_ex.build_model(**model_config)
     emb_ex.print_model_summary()
+
+    # get the embeddings
     embeddings = emb_ex.get_embedding(data_loader)
     embeddings = embeddings.reshape(embeddings.shape[0], -1)
-    print(embeddings.shape)
-    print(embeddings[0, 0:10])
-    print(embeddings[1, 0:10])
+
+    # save the embeddings
+    with open(path_join(output_dir, 'embeddings.txt'), 'w') as f:
+        for i, _ in enumerate(embeddings):
+            f.write(' '.join(_) + '\n')
 
 
