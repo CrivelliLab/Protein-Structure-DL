@@ -6,14 +6,45 @@ import yaml
 from os.path import join as path_join
 import numpy as np
 import os
-from  scipy.spatial.distance import euclidean, cosine
+from scipy.spatial.distance import euclidean, cosine
 from scipy.stats import percentileofscore as perc
 
 
-residues = ['ALA', 'ARG', 'ASN', 'ASP', 'ASX', 'CYS', 'GLN',
-            'GLU', 'GLX', 'GLY', 'HIS', 'ILE', 'LEU', 'LYS',
-            'MET', 'PHE', 'PRO', 'SER', 'THR', 'TRP', 'TYR',
-            'UNK', 'VAL']
+their_vocab = ['ALA', 'ARG', 'ASN', 'ASP', 'ASX',
+               'CYS', 'GLN', 'GLU', 'GLX', 'GLY',
+               'HIS', 'ILE', 'LEU', 'LYS', 'MET',
+               'PHE', 'PRO', 'SER', 'THR', 'TRP',
+               'TYR', 'UNK', 'VAL']
+
+our_vocab = ["G", "A", "L", "M", "F",
+             "W", "K", "Q", "E", "S",
+             "P", "V", "I", "C", "Y",
+             "H", "R", "N", "D", "T",
+             "X", "-"]
+
+crosswalk = {'A': 'ALA',
+             'R': 'ARG',
+             'N': 'ASN',
+             'D': 'ASP',
+             'B': 'ASX',
+             'C': 'CYS',
+             'Q': 'GLN',
+             'E': 'GLU',
+             'Z': 'GLX',
+             'G': 'GLY',
+             'H': 'HIS',
+             'I': 'ILE',
+             'L': 'LEU',
+             'K': 'LYS',
+             'M': 'MET',
+             'F': 'PHE',
+             'P': 'PRO',
+             'S': 'SER',
+             'T': 'THR',
+             'W': 'TRP',
+             'Y': 'TYR',
+             'V': 'VAL',
+             '-': 'UNK'}
 
 
 class EmbeddingExtractor(ClassifierTrainer):
@@ -46,8 +77,13 @@ class EmbeddingExtractor(ClassifierTrainer):
 
 
 def rgn_output_to_gcn_input(data_path: str):
+    seq_path = path_join(data_path, 'proteins')
     rgn_data_path = path_join(data_path, 'rgn_output')
     for filename in os.listdir(rgn_data_path):
+        # convert AA sequence
+        protein_seq = np.loadtxt(path_join(seq_path, filename))
+        protein_seq = [their_vocab.index(crosswalk[our_vocab[int(np.where(aa == 1)[0])]]) for aa in protein_seq]
+        # deal with coordinates to create graph data
         coords = np.loadtxt(path_join(rgn_data_path, filename))
         coords = coords.reshape(-1, 3, 3)
         coords = coords[:, 1, :].squeeze()
@@ -63,7 +99,7 @@ def rgn_output_to_gcn_input(data_path: str):
             # amino acid number in protein sequence
             out_data[i][1] = i+1
             # amino acid encoding number
-            out_data[i][2] = 6
+            out_data[i][2] = protein_seq[i]
             # residue depth percentile
             out_data[i][3] = 1 - perc(residue_depths, residue_depths[i]) / 100.0
             # residue orientation (we currently don't have side chain info so this ends up being 0)
