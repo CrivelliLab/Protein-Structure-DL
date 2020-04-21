@@ -165,6 +165,12 @@ def get_datasets(data_path, nb_nodes, task_type, nb_classes, split=[0.7,0.1,0.2]
             data_valid = np.concatenate([x_valid,y_valid],axis=-1)
         else:
             # Split Examples
+            if split[2] == 0:
+                dataset = np.concatenate([X,Y],axis=-1)
+                t_dataset = ProtienGraphDataset(dataset, nb_nodes, task_type, nb_classes)
+                return t_dataset, _ , _
+
+                
             x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=split[2], random_state=seed)
             x_train, x_valid, y_train, y_valid = train_test_split(x_train, y_train, test_size=split[1]/(split[0]+split[1]), random_state=seed)
             data_train = np.concatenate([x_train,y_train],axis=-1)

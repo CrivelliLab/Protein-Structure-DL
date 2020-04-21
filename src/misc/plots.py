@@ -6,6 +6,10 @@ import os
 import numpy as np
 import pandas as pd
 import argparse
+import matplotlib as mpl
+if os.environ.get('DISPLAY','') == '':
+    print('no display found. Using non-interactive Agg backend')
+    mpl.use('Agg')
 import matplotlib.pyplot as plt
 
 def parse_args():

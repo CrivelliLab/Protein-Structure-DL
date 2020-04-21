@@ -1,6 +1,6 @@
 ## Parameters
-GPUS=0
-DATA_LOADER_CORES=1
+GPUS=1
+DATA_LOADER_CORES=4
 
 ### Training commands ###
 
@@ -28,9 +28,10 @@ DATA_LOADER_CORES=1
 ## New GCNN with updated graph kernels
 #CUDA_VISIBLE_DEVICES=$GPUS python3 src/main.py --cores $DATA_LOADER_CORES src/configs/krashras/krashras_graph_new.yaml
 #CUDA_VISIBLE_DEVICES=$GPUS python3 src/main.py --cores $DATA_LOADER_CORES src/configs/psiblast/psiblast_graph_new.yaml
-CUDA_VISIBLE_DEVICES=$GPUS python3 src/main.py --cores $DATA_LOADER_CORES src/configs/kinase/kinase_graph_new.yaml
+#CUDA_VISIBLE_DEVICES=$GPUS python3 src/main.py --cores $DATA_LOADER_CORES src/configs/kinase/kinase_graph_new.yaml
 #CUDA_VISIBLE_DEVICES=$GPUS python3 src/main.py --cores $DATA_LOADER_CORES src/configs/oncogenes/oncogenes_graph_new.yaml
 #CUDA_VISIBLE_DEVICES=$GPUS python3 src/main.py --cores $DATA_LOADER_CORES src/configs/enzyme/enzyme_graph_new.yaml
+CUDA_VISIBLE_DEVICES=$GPUS python3 src/main.py --cores $DATA_LOADER_CORES src/configs/oncogenes/oncogenes_graph_embed-2.yaml
 
 ## CASP Structure Scoring Experiments
 #CUDA_VISIBLE_DEVICES=$GPUS python3 src/main.py --cores $DATA_LOADER_CORES src/configs/casp/casp_graph.yaml

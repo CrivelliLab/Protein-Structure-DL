@@ -14,8 +14,12 @@ from datasets import get_datasets, DataLoader
 from trainers import get_trainer
 from models.ops.interpret import *
 from trainers.base_trainer import bg
-import matplotlib.pyplot as plt
 from models.ops.graph_conv import *
+import matplotlib as mpl
+if os.environ.get('DISPLAY','') == '':
+    print('no display found. Using non-interactive Agg backend')
+    mpl.use('Agg')
+import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
 ################################################################################
@@ -290,20 +294,21 @@ if __name__ == '__main__':
             attributions[sample_id] = [attrib,seq,ind,kernels]
 
     #
-    kras_list = ['5tb5_c', '4dsn_a', '3gft_f', '5v6v_b', '4luc_b',
-                 '4m22_a', '4lv6_b', '4epy_a', '4lrw_b', '4epx_a',
-                 '4m1w_a', '5uqw_a', '4pzy_b', '4m21_a', '5us4_a',
-                 '5f2e_a', '4q03_a', '4lyh_c', '4m1o_b', '4pzz_a']
-    hras_list = ['1p2v_a', '4urz_r', '2x1v_a', '3lo5_c', '2quz_a',
-                '3kud_a', '1aa9_a', '1plk_a', '4k81_d', '5wdq_a',
-                '1iaq_a', '1xd2_a', '3i3s_r', '4efl_a', '4l9w_a',
-                '3lo5_a', '5b2z_a', '1nvv_q', '4efm_a', '3l8z_a']
+#     kras_list = ['5tb5_c', '4dsn_a', '3gft_f', '5v6v_b', '4luc_b',
+#                  '4m22_a', '4lv6_b', '4epy_a', '4lrw_b', '4epx_a',
+#                  '4m1w_a', '5uqw_a', '4pzy_b', '4m21_a', '5us4_a',
+#                  '5f2e_a', '4q03_a', '4lyh_c', '4m1o_b', '4pzz_a']
+#     hras_list = ['1p2v_a', '4urz_r', '2x1v_a', '3lo5_c', '2quz_a',
+#                 '3kud_a', '1aa9_a', '1plk_a', '4k81_d', '5wdq_a',
+#                 '1iaq_a', '1xd2_a', '3i3s_r', '4efl_a', '4l9w_a',
+#                 '3lo5_a', '5b2z_a', '1nvv_q', '4efm_a', '3l8z_a']
 
     # Plot Attributions for top n examples
     all_= []
+    top_n = 20
     for key in losses.keys():
         losses_ = np.array(losses[key])
-        top_ = losses_[:,1].astype('float').argsort()[:150]
+        top_ = losses_[:,1].astype('float').argsort()[:top_n]
         top_  = losses_[top_]
 
         y = []
@@ -311,7 +316,7 @@ if __name__ == '__main__':
         y_ticks = []
         temp = 0
         for i, _ in enumerate(top_):
-            if _[0] not in kras_list and _[0] not in hras_list: continue
+#             if _[0] not in kras_list and _[0] not in hras_list: continue
             x = attributions[_[0]][0]
             x = x[:,:160]
             y.append(x)
@@ -341,6 +346,7 @@ if __name__ == '__main__':
         ax.set_ylabel('PDB:[Loss]')
         ax.set_xlabel('Residue')
         plt.show()
+        plt.savefig(output_dir+'/interpret/figure_{}.png'.format(key))
 
     # Save Interpretation data
     data = []
